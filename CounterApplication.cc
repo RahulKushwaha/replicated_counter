@@ -15,7 +15,6 @@ CounterApplication::CounterApplication(std::shared_ptr<DurableLog> log,
 /* static */ std::string CounterApplication::serialize(std::int64_t val) {
   CounterLogEntry entry;
   entry.set_commandtype(CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR);
-  entry.set_description("Hello World");
   entry.set_val(val);
 
   return entry.SerializeAsString();

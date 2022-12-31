@@ -35,15 +35,3 @@ VectorBasedDurableLog::getLogEntry(LogId logId) {
 LogId VectorBasedDurableLog::sync() {
   return endIndex_ - 1;
 }
-
-void VectorBasedDurableLog::trim(LogId logId) {
-
-}
-
-void VectorBasedDurableLog::pauseTrim() {
-  trimPaused_.store(true);
-}
-
-void VectorBasedDurableLog::unPauseTrim() {
-  trimPaused_.store(false);
-}

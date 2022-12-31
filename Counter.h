@@ -6,7 +6,7 @@
 #define LOGSTORAGE_COUNTER_H
 
 #include "StateMachine.h"
-#include "DurableLog.h"
+#include "include/DurableLog.h"
 #include "CounterEntry.pb.h"
 
 namespace rk::project::counter {

@@ -17,7 +17,31 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="" />
+    <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/SequencerImpl.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/SequencerImpl.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/VectorBasedNanoLog.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/VectorBasedNanoLog.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/Common.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/MetadataStore.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/NanoLog.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/Replica.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/Sequencer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/VirtualLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Counter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Counter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CounterApplication.cc" beforeDir="false" afterPath="$PROJECT_DIR$/CounterApplication.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CounterApplication.h" beforeDir="false" afterPath="$PROJECT_DIR$/CounterApplication.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DurableLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/DurableLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VectorBasedDurableLog.cc" beforeDir="false" afterPath="$PROJECT_DIR$/VectorBasedDurableLog.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VectorBasedDurableLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/VectorBasedDurableLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -75,6 +99,11 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/include" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
@@ -133,7 +162,9 @@
       <option name="presentableId" value="Default" />
       <updated>1669335672070</updated>
       <workItem from="1669335673293" duration="9567000" />
-      <workItem from="1671319701519" duration="10722000" />
+      <workItem from="1671319701519" duration="13336000" />
+      <workItem from="1671737425486" duration="15063000" />
+      <workItem from="1672522370484" duration="3386000" />
     </task>
     <servers />
   </component>
@@ -150,8 +181,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
   </component>
 </project>
