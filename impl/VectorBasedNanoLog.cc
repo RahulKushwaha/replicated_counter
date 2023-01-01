@@ -9,10 +9,13 @@ namespace rk::project::counter {
 VectorBasedNanoLog::VectorBasedNanoLog(
     std::string id,
     std::string name,
+    std::string metadataVersionId,
     LogId startIndex,
     LogId endIndex,
     bool sealed)
-    : id_(std::move(id)), name_(std::move(name)), startIndex_(startIndex),
+    : id_(std::move(id)), name_(std::move(name)),
+      metadataVersionId_{std::move(metadataVersionId)},
+      startIndex_(startIndex),
       endIndex_(endIndex),
       sealed_(sealed), logs_{} {}
 
@@ -22,6 +25,10 @@ std::string VectorBasedNanoLog::getId() {
 
 std::string VectorBasedNanoLog::getName() {
   return name_;
+}
+
+std::string VectorBasedNanoLog::getMetadataVersionId() {
+  return metadataVersionId_;
 }
 
 LogId VectorBasedNanoLog::append(LogId logId,

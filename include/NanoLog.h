@@ -14,6 +14,8 @@ class NanoLog {
  public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
+  virtual std::string getMetadataVersionId() = 0;
+
   virtual LogId
   append(LogId logId, std::string logEntryPayload, bool skipSeal = false) = 0;
   virtual std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) = 0;

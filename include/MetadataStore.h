@@ -7,15 +7,25 @@
 
 #include "Common.h"
 #include "NanoLog.h"
+#include "../MetadataConfig.pb.h"
 
 namespace rk::project::counter {
+using VersionId = std::int64_t;
+
+struct OptimisticConcurrencyException: public std::exception {
+  const char *what() const noexcept override {
+    return "C++ Exception";
+  }
+};
+
 
 class MetadataStore {
  public:
-  virtual std::shared_ptr<NanoLog> getNanoLog(LogId logId) = 0;
+  virtual MetadataConfig getConfig(VersionId versionId) = 0;
 
   virtual void
-  appendRange(LogId startIndex, std::shared_ptr<NanoLog> nanoLog) = 0;
+  appendRange(VersionId versionId,
+              MetadataConfig newMetadataConfig) = 0;
 };
 
 }

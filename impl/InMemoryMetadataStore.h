@@ -7,6 +7,7 @@
 
 #include "../include/MetadataStore.h"
 
+#include <mutex>
 #include <map>
 
 namespace rk::project::counter {
@@ -15,30 +16,24 @@ class InMemoryMetadataStore: public MetadataStore {
  public:
   explicit InMemoryMetadataStore();
 
-  std::shared_ptr<NanoLog> getNanoLog(LogId logId) override;
+  MetadataConfig getConfig(VersionId versionId) override;
 
-  void appendRange(LogId startIndex, std::shared_ptr<NanoLog> nanoLog) override;
+  void
+  appendRange(VersionId versionId, MetadataConfig newMetadataConfig) override;
 
  private:
-  struct LogRange {
-    LogId startIndex_;
-    LogId endIndex_;
-
-    bool operator<(const LogRange &other) const {
-      return startIndex_ < other.startIndex_;
-    }
-
-    bool operator==(const LogRange &other) const {
-      return startIndex_ == other.startIndex_ && endIndex_ == other.endIndex_;
+  struct MetadataConfigComparator {
+    bool operator()(const MetadataConfig &left, const MetadataConfig &right) {
+      return left.versionid() < right.versionid();
     }
   };
 
-  static constexpr LogRange
-      beginSentinel{LowestNonExistingLogId, LowestNonExistingLogId};
-  static constexpr LogRange
-      endSentinel{HighestNonExistingLogId, HighestNonExistingLogId};
+  struct State {
+    std::mutex mtx;
+    std::map<VersionId, MetadataConfig, MetadataConfigComparator> configs_;
+  };
 
-  std::map<LogRange, std::shared_ptr<NanoLog>> rangeLookup_;
+  std::unique_ptr<State> state_;
 };
 
 }

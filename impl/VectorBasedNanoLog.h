@@ -15,6 +15,7 @@ class VectorBasedNanoLog: public NanoLog {
   explicit VectorBasedNanoLog(
       std::string id,
       std::string name,
+      std::string metadataVersionId,
       LogId startIndex,
       LogId endIndex,
       bool sealed);
@@ -22,6 +23,8 @@ class VectorBasedNanoLog: public NanoLog {
  public:
   std::string getId() override;
   std::string getName() override;
+  std::string getMetadataVersionId() override;
+
   LogId
   append(LogId logId,
          std::string logEntryPayload,
@@ -37,6 +40,7 @@ class VectorBasedNanoLog: public NanoLog {
  private:
   std::string id_;
   std::string name_;
+  std::string metadataVersionId_;
   LogId startIndex_;
   LogId endIndex_;
   bool sealed_;
