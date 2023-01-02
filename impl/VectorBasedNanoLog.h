@@ -25,7 +25,7 @@ class VectorBasedNanoLog: public NanoLog {
   std::string getName() override;
   std::string getMetadataVersionId() override;
 
-  LogId
+  folly::SemiFuture<LogId>
   append(LogId logId,
          std::string logEntryPayload,
          bool skipSeal = false) override;

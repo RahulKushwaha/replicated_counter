@@ -23,14 +23,15 @@ class InMemoryMetadataStore: public MetadataStore {
 
  private:
   struct MetadataConfigComparator {
-    bool operator()(const MetadataConfig &left, const MetadataConfig &right) {
+    bool
+    operator()(const MetadataConfig &left, const MetadataConfig &right) const {
       return left.versionid() < right.versionid();
     }
   };
 
   struct State {
     std::mutex mtx;
-    std::map<VersionId, MetadataConfig, MetadataConfigComparator> configs_;
+    std::map<VersionId, MetadataConfig> configs_;
   };
 
   std::unique_ptr<State> state_;

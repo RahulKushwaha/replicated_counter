@@ -31,15 +31,17 @@ std::string VectorBasedNanoLog::getMetadataVersionId() {
   return metadataVersionId_;
 }
 
-LogId VectorBasedNanoLog::append(LogId logId,
-                                 std::string logEntryPayload,
-                                 bool skipSeal) {
+folly::SemiFuture<LogId> VectorBasedNanoLog::append(LogId logId,
+                                                    std::string logEntryPayload,
+                                                    bool skipSeal) {
   if (!skipSeal && sealed_) {
-    throw NanoLogSealedException{};
+    return folly::makeSemiFuture<LogId>(
+        folly::make_exception_wrapper<NanoLogSealedException>());
   }
 
   logs_[logId] = logEntryPayload;
-  return logId;
+
+  return folly::makeSemiFuture(logId);
 }
 
 std::variant<LogEntry, LogReadError>

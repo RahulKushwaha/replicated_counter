@@ -33,8 +33,7 @@ LogId VirtualLogImpl::append(std::string logEntryPayload) {
 }
 
 std::variant<LogEntry, LogReadError> VirtualLogImpl::getLogEntry(LogId logId) {
-  auto nanoLog = metadataStore_->getNanoLog(logId);
-  return nanoLog->getLogEntry(logId);
+  return {LogReadError::NotFound};
 }
 
 void VirtualLogImpl::reconfigure() {

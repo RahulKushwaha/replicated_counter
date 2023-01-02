@@ -14,6 +14,7 @@ class VectorBasedDurableLog: public DurableLog {
   std::string getName() override;
   LogId append(std::string logEntryPayload) override;
   std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) override;
+  void append(LogId logId, std::string logEntryPayload) override {}
 
   LogId sync() override;
 

@@ -7,6 +7,7 @@
 
 #include "Common.h"
 #include "DurableLog.h"
+#include <folly/futures/Future.h>
 
 namespace rk::project::counter {
 
@@ -16,7 +17,7 @@ class NanoLog {
   virtual std::string getName() = 0;
   virtual std::string getMetadataVersionId() = 0;
 
-  virtual LogId
+  virtual folly::SemiFuture<LogId>
   append(LogId logId, std::string logEntryPayload, bool skipSeal = false) = 0;
   virtual std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) = 0;
   virtual LogId seal() = 0;
