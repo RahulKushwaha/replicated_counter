@@ -6,6 +6,7 @@
 #define LOGSTORAGE_REPLICA_H
 #include <string>
 #include "Common.h"
+#include <folly/futures/Future.h>
 
 namespace rk::project::counter {
 
@@ -13,7 +14,8 @@ class Replica {
  public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
-  virtual void append(LogId logId, std::string logEntryPayload) = 0;
+  virtual folly::SemiFuture<folly::Unit>
+  append(LogId logId, std::string logEntryPayload) = 0;
   virtual LogId seal() = 0;
 };
 

@@ -28,7 +28,7 @@ std::string VirtualLogImpl::getName() {
   return name_;
 }
 
-LogId VirtualLogImpl::append(std::string logEntryPayload) {
+folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
   return sequencer_->append(logEntryPayload);
 }
 

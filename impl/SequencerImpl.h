@@ -17,12 +17,13 @@ class SequencerImpl: public Sequencer {
                          LogId seedSeqNum);
 
  public:
-  LogId append(std::string logEntryPayload) override;
+  folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
   ~SequencerImpl() override = default;
 
  private:
   std::vector<std::shared_ptr<Replica>> replicaSet_;
   std::atomic<LogId> sequenceNum_;
+  std::int32_t quorumSize_;
 };
 
 }

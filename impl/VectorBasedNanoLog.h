@@ -6,9 +6,12 @@
 #define LOGSTORAGE_VECTORBASEDNANOLOG_H
 
 #include "../include/NanoLog.h"
+#include "../utils/OrderedCompletionQueue.h"
 #include <map>
 
 namespace rk::project::counter {
+
+using namespace rk::project::utils;
 
 class VectorBasedNanoLog: public NanoLog {
  public:
@@ -32,6 +35,7 @@ class VectorBasedNanoLog: public NanoLog {
   std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) override;
 
   LogId seal() override;
+  LogId getLocalCommitIndex() override;
 
   LogId getStartIndex() override;
   LogId getEndIndex() override;
@@ -45,6 +49,7 @@ class VectorBasedNanoLog: public NanoLog {
   LogId endIndex_;
   bool sealed_;
   std::map<LogId, std::string> logs_;
+  OrderedCompletionQueue<LogId> completionQueue_;
 };
 }
 #endif //LOGSTORAGE_VECTORBASEDNANOLOG_H

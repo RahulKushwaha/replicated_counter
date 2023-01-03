@@ -9,6 +9,10 @@ namespace rk::project::counter {
 InMemoryMetadataStore::InMemoryMetadataStore() : state_{
     std::make_unique<State>()} {}
 
+MetadataConfig InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
+  return MetadataConfig{};
+}
+
 MetadataConfig InMemoryMetadataStore::getConfig(VersionId versionId) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
@@ -23,8 +27,8 @@ MetadataConfig InMemoryMetadataStore::getConfig(VersionId versionId) {
   return config;
 }
 
-void InMemoryMetadataStore::appendRange(VersionId versionId,
-                                        MetadataConfig newMetadataConfig) {
+void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
+                                                  MetadataConfig newMetadataConfig) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   auto lastConfig = state_->configs_.rbegin();

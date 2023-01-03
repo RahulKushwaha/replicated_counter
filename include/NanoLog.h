@@ -21,6 +21,7 @@ class NanoLog {
   append(LogId logId, std::string logEntryPayload, bool skipSeal = false) = 0;
   virtual std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) = 0;
   virtual LogId seal() = 0;
+  virtual LogId getLocalCommitIndex() = 0;
 
   virtual LogId getStartIndex() = 0;
   virtual LogId getEndIndex() = 0;

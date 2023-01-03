@@ -17,7 +17,8 @@ VectorBasedNanoLog::VectorBasedNanoLog(
       metadataVersionId_{std::move(metadataVersionId)},
       startIndex_(startIndex),
       endIndex_(endIndex),
-      sealed_(sealed), logs_{} {}
+      sealed_(sealed), logs_{},
+      completionQueue_{startIndex_} {}
 
 std::string VectorBasedNanoLog::getId() {
   return id_;
@@ -41,7 +42,10 @@ folly::SemiFuture<LogId> VectorBasedNanoLog::append(LogId logId,
 
   logs_[logId] = logEntryPayload;
 
-  return folly::makeSemiFuture(logId);
+  auto [promise, future] = folly::makePromiseContract<LogId>();
+  completionQueue_.add(logId, std::move(promise), logId);
+
+  return std::move(future);
 }
 
 std::variant<LogEntry, LogReadError>
@@ -55,7 +59,7 @@ VectorBasedNanoLog::getLogEntry(LogId logId) {
 
 LogId VectorBasedNanoLog::seal() {
   sealed_ = true;
-  return endIndex_;
+  return completionQueue_.getCurrentIndex();
 }
 
 LogId VectorBasedNanoLog::getStartIndex() {
@@ -68,6 +72,10 @@ LogId VectorBasedNanoLog::getEndIndex() {
 
 bool VectorBasedNanoLog::isSealed() {
   return sealed_;
+}
+
+LogId VectorBasedNanoLog::getLocalCommitIndex() {
+  return completionQueue_.getCurrentIndex();
 }
 
 }

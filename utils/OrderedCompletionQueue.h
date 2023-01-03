@@ -14,15 +14,15 @@ namespace rk::project::utils {
 template<typename T>
 class OrderedCompletionQueue {
  public:
-  explicit OrderedCompletionQueue(std::int32_t startIndex = 0)
+  explicit OrderedCompletionQueue(std::int64_t startIndex = 0)
       : currentIndex_{startIndex} {}
 
-  void add(std::int32_t index, folly::Promise<T> promise, T result) {
+  void add(std::int64_t index, folly::Promise<T> promise, T result) {
     PromiseState promiseState{std::move(promise), std::move(result)};
     promises_[index] = std::move(promiseState);
 
     auto startIndex = currentIndex_;
-    std::vector<std::int32_t> toDelete;
+    std::vector<std::int64_t> toDelete;
     for (auto &[key, value]: promises_) {
       if (key == startIndex) {
         value.promise.setValue(value.result);
@@ -40,14 +40,18 @@ class OrderedCompletionQueue {
     currentIndex_ = startIndex;
   }
 
+  std::int64_t getCurrentIndex() {
+    return currentIndex_;
+  }
+
  private:
   struct PromiseState {
     folly::Promise<T> promise;
     T result;
   };
 
-  std::int32_t currentIndex_;
-  std::map<std::int32_t, PromiseState> promises_;
+  std::int64_t currentIndex_;
+  std::map<std::int64_t, PromiseState> promises_;
 };
 
 }

@@ -22,10 +22,11 @@ struct OptimisticConcurrencyException: public std::exception {
 class MetadataStore {
  public:
   virtual MetadataConfig getConfig(VersionId versionId) = 0;
+  virtual MetadataConfig getConfigUsingLogId(LogId logId) = 0;
 
   virtual void
-  appendRange(VersionId versionId,
-              MetadataConfig newMetadataConfig) = 0;
+  compareAndAppendRange(VersionId versionId,
+                        MetadataConfig newMetadataConfig) = 0;
 };
 
 }

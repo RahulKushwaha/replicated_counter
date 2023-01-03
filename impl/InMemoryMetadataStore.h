@@ -17,9 +17,11 @@ class InMemoryMetadataStore: public MetadataStore {
   explicit InMemoryMetadataStore();
 
   MetadataConfig getConfig(VersionId versionId) override;
+  MetadataConfig getConfigUsingLogId(LogId logId) override;
 
   void
-  appendRange(VersionId versionId, MetadataConfig newMetadataConfig) override;
+  compareAndAppendRange(VersionId versionId,
+                        MetadataConfig newMetadataConfig) override;
 
  private:
   struct MetadataConfigComparator {

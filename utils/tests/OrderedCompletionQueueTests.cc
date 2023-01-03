@@ -22,6 +22,32 @@ TEST(OrderedCompletionQueueTests, AddFirstElement) {
   ASSERT_EQ(future.value(), 4);
 }
 
+TEST(OrderedCompletionQueueTests,
+     GetCurrentIndexReturnsFirstIncompletePromise) {
+  {
+    OrderedCompletionQueue<std::int32_t> queue;
+    queue.add(1, folly::Promise<std::int32_t>{}, 1);
+    ASSERT_EQ(queue.getCurrentIndex(), 0);
+  }
+
+  {
+    OrderedCompletionQueue<std::int32_t> queue;
+    queue.add(0, folly::Promise<std::int32_t>{}, 0);
+    queue.add(2, folly::Promise<std::int32_t>{}, 2);
+    queue.add(1, folly::Promise<std::int32_t>{}, 1);
+    ASSERT_EQ(queue.getCurrentIndex(), 3);
+  }
+
+  {
+    OrderedCompletionQueue<std::int32_t> queue;
+    queue.add(0, folly::Promise<std::int32_t>{}, 0);
+    queue.add(2, folly::Promise<std::int32_t>{}, 2);
+    queue.add(1, folly::Promise<std::int32_t>{}, 1);
+    queue.add(4, folly::Promise<std::int32_t>{}, 4);
+    ASSERT_EQ(queue.getCurrentIndex(), 3);
+  }
+}
+
 TEST(OrderedCompletionQueueTests, AddElementsInSequence) {
   OrderedCompletionQueue<std::int32_t> queue;
 
@@ -103,6 +129,7 @@ TEST(OrderedCompletionQueueTests,
 
     ASSERT_EQ(complete, pivot);
     ASSERT_EQ(incomplete, futures.size() - pivot);
+    ASSERT_EQ(queue.getCurrentIndex(), pivot);
     LOG(INFO) << "Total: " << futures.size() << " " << "Complete: " << complete
               << " " << "Incomplete: " << incomplete;
   }
