@@ -2,6 +2,8 @@
 // Created by Rahul  Kushwaha on 12/30/22.
 //
 #include "VirtualLogImpl.h"
+#include "../utils/FutureUtils.h"
+
 #include <random>
 
 namespace rk::project::counter {
@@ -57,7 +59,27 @@ void VirtualLogImpl::reconfigure() {
   }
 
   // Re-replicate all the entries from minLogId to MaxLogId
+  for (LogId logId = minLogId; logId <= maxLogId; logId++) {
+    std::vector<folly::SemiFuture<LogEntry>> futures;
+    for (auto &replica: replicaSet) {
+      auto future = replica->getLogEntry(logId)
+          .defer([](folly::Try<std::variant<LogEntry, LogReadError>> &&result) {
+            if (result.hasValue()
+                && std::holds_alternative<LogEntry>(result.value())) {
+              return std::get<LogEntry>(result.value());
+            }
 
+            throw std::exception{};
+          });
+
+      futures.emplace_back(std::move(future));
+    }
+
+    folly::collectAnyWithoutException(futures.begin(), futures.end())
+        .deferValue([](std::pair<std::size_t, LogEntry> &&result) {
+
+        });
+  }
 }
 
 }

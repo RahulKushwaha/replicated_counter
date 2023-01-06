@@ -19,31 +19,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/impl/NanoLogStoreImpl.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/impl/NanoLogStoreImpl.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/impl/ReplicaImpl.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/impl/ReplicaImpl.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/NanoLogStore.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/FutureUtils.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/tests/FutureUtilsTest.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/impl/tests/MetadataStoreTest.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/SequencerImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/SequencerImpl.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/SequencerImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/SequencerImpl.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/VectorBasedNanoLog.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VectorBasedNanoLog.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/VectorBasedNanoLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VectorBasedNanoLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ReplicaImpl.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ReplicaImpl.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/tests/VectorBasedNanoLogTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/tests/VectorBasedNanoLogTest.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/MetadataStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/MetadataStore.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/NanoLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/NanoLog.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/Replica.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Replica.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/Sequencer.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Sequencer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/VirtualLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/VirtualLog.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/OrderedCompletionQueue.h" beforeDir="false" afterPath="$PROJECT_DIR$/utils/OrderedCompletionQueue.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/tests/OrderedCompletionQueueTests.cc" beforeDir="false" afterPath="$PROJECT_DIR$/utils/tests/OrderedCompletionQueueTests.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,11 +189,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsRandomlyAndCheckCompletedVsIncompleted" />
+        <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsInSequence" />
         <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
         <item itemvalue="Google Test.All in VectorBasedNanoLogTest.cc" />
         <item itemvalue="Google Test.All in OrderedCompletionQueueTests.cc" />
-        <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsRandomlyAndCheckCompletedVsIncompleted" />
-        <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsInSequence" />
       </list>
     </recent_temporary>
   </component>
@@ -224,7 +209,11 @@
       <workItem from="1671319701519" duration="13336000" />
       <workItem from="1671737425486" duration="15063000" />
       <workItem from="1672522370484" duration="22162000" />
-      <workItem from="1672710592642" duration="8807000" />
+      <workItem from="1672710592642" duration="11237000" />
+      <workItem from="1672806988848" duration="1060000" />
+      <workItem from="1672810107191" duration="598000" />
+      <workItem from="1672846803667" duration="46000" />
+      <workItem from="1672877259577" duration="6117000" />
     </task>
     <servers />
   </component>

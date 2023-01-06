@@ -34,6 +34,7 @@ class InMemoryMetadataStore: public MetadataStore {
   struct State {
     std::mutex mtx;
     std::map<VersionId, MetadataConfig> configs_;
+    std::map<LogId, MetadataConfig> logIdToConfig_;
   };
 
   std::unique_ptr<State> state_;

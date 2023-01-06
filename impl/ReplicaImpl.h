@@ -13,17 +13,26 @@ namespace rk::project::counter {
 
 class ReplicaImpl: public Replica {
  public:
-  explicit ReplicaImpl(std::shared_ptr<NanoLogStore> nanoLogStore,
-                       std::shared_ptr<MetadataStore> metadataStore);
+  explicit ReplicaImpl(
+      std::string id,
+      std::string name,
+      std::shared_ptr<NanoLogStore> nanoLogStore,
+      std::shared_ptr<MetadataStore> metadataStore);
 
   std::string getId() override;
   std::string getName() override;
 
   folly::SemiFuture<folly::Unit>
   append(LogId logId, std::string logEntryPayload) override;
+
+  folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+  getLogEntry(LogId logId) override;
+
   LogId seal() override;
 
  private:
+  std::string id_;
+  std::string name_;
   std::shared_ptr<NanoLogStore> nanoLogStore_;
   std::shared_ptr<MetadataStore> metadataStore_;
 };

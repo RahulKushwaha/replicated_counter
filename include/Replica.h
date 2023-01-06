@@ -16,6 +16,8 @@ class Replica {
   virtual std::string getName() = 0;
   virtual folly::SemiFuture<folly::Unit>
   append(LogId logId, std::string logEntryPayload) = 0;
+  virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+  getLogEntry(LogId logId) = 0;
   virtual LogId seal() = 0;
 };
 

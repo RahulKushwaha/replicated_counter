@@ -34,7 +34,7 @@ class NanoLogSealedException: public std::exception {
   static constexpr char *msg{"NanoLog is sealed."};
 
  public:
-  char *what() {
+  const char *what() const noexcept override {
     return msg;
   }
 };
