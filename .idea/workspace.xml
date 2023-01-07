@@ -19,16 +19,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/impl/tests/MetadataStoreTest.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ReplicaImpl.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ReplicaImpl.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/NanoLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/NanoLog.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/Replica.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Replica.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/MetadataStoreTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/tests/MetadataStoreTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/MetadataStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/MetadataStore.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +90,7 @@
       <recent name="$PROJECT_DIR$/include" />
     </key>
   </component>
-  <component name="RunManager" selected="Google Test.tests">
+  <component name="RunManager" selected="Google Test.All in MetadataStoreTest.cc">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
@@ -137,19 +133,19 @@
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="All in OrderedCompletionQueueTests.cc" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/utils/tests/OrderedCompletionQueueTests.cc)" TEST_MODE="PATTERN">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="All in VectorBasedNanoLogTest.cc" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/impl/tests/VectorBasedNanoLogTest.cc)" TEST_MODE="PATTERN">
+    <configuration name="All in MetadataStoreTest.cc" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/impl/tests/MetadataStoreTest.cc)" TEST_MODE="PATTERN">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="FutureUtilsTest.anyNSuccessful" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="FutureUtilsTest" TEST_METHOD="anyNSuccessful" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MetadataStoreTest.getFromEmptyStore" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="MetadataStoreTest" TEST_METHOD="getFromEmptyStore" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
@@ -181,19 +177,19 @@
     <list>
       <item itemvalue="CMake Application.LogStorage" />
       <item itemvalue="Google Test.tests" />
+      <item itemvalue="Google Test.All in MetadataStoreTest.cc" />
+      <item itemvalue="Google Test.MetadataStoreTest.getFromEmptyStore" />
       <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
-      <item itemvalue="Google Test.All in VectorBasedNanoLogTest.cc" />
-      <item itemvalue="Google Test.All in OrderedCompletionQueueTests.cc" />
       <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsInSequence" />
       <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsRandomlyAndCheckCompletedVsIncompleted" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Google Test.All in MetadataStoreTest.cc" />
+        <item itemvalue="Google Test.MetadataStoreTest.getFromEmptyStore" />
         <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsRandomlyAndCheckCompletedVsIncompleted" />
         <item itemvalue="Google Test.OrderedCompletionQueueTests.AddElementsInSequence" />
         <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
-        <item itemvalue="Google Test.All in VectorBasedNanoLogTest.cc" />
-        <item itemvalue="Google Test.All in OrderedCompletionQueueTests.cc" />
       </list>
     </recent_temporary>
   </component>
@@ -213,7 +209,7 @@
       <workItem from="1672806988848" duration="1060000" />
       <workItem from="1672810107191" duration="598000" />
       <workItem from="1672846803667" duration="46000" />
-      <workItem from="1672877259577" duration="6117000" />
+      <workItem from="1672877259577" duration="11097000" />
     </task>
     <servers />
   </component>

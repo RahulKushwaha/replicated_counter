@@ -16,8 +16,10 @@ class InMemoryMetadataStore: public MetadataStore {
  public:
   explicit InMemoryMetadataStore();
 
-  MetadataConfig getConfig(VersionId versionId) override;
-  MetadataConfig getConfigUsingLogId(LogId logId) override;
+  std::optional<MetadataConfig> getConfig(VersionId versionId) override;
+  std::optional<MetadataConfig> getConfigUsingLogId(LogId logId) override;
+
+  VersionId getCurrentVersionId() override;
 
   void
   compareAndAppendRange(VersionId versionId,

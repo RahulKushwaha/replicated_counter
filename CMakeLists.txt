@@ -30,6 +30,10 @@ add_executable(
         impl/VectorBasedNanoLog.cc impl/VectorBasedNanoLog.h
         impl/tests/VectorBasedNanoLogTest.cc
 
+        MetadataConfig.pb.h MetadataConfig.pb.cc
+        impl/InMemoryMetadataStore.h impl/InMemoryMetadataStore.cc
+        impl/tests/MetadataStoreTest.cc
+
         utils/OrderedCompletionQueue.h
         utils/tests/OrderedCompletionQueueTests.cc
 
@@ -39,6 +43,7 @@ add_executable(
 
 target_link_libraries(tests gtest)
 target_link_libraries(tests glog)
+target_link_libraries(tests protobuf)
 target_link_libraries(tests folly)
 
 target_link_libraries(
