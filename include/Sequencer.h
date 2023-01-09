@@ -1,6 +1,8 @@
 //
 // Created by Rahul  Kushwaha on 12/31/22.
 //
+#pragma once
+
 #include "Common.h"
 #include <folly/futures/Future.h>
 

@@ -40,7 +40,12 @@ folly::SemiFuture<LogId> VectorBasedNanoLog::append(LogId logId,
         folly::make_exception_wrapper<NanoLogSealedException>());
   }
 
-  logs_[logId] = logEntryPayload;
+  auto result = logs_.emplace(logId, std::move(logEntryPayload));
+
+  if (!result.second) {
+    return folly::makeSemiFuture<LogId>(folly::make_exception_wrapper<
+        NanoLogLogPositionAlreadyOccupied>());
+  }
 
   auto [promise, future] = folly::makePromiseContract<LogId>();
   completionQueue_.add(logId, std::move(promise), logId);

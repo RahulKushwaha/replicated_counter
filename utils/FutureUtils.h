@@ -6,6 +6,7 @@
 #define LOGSTORAGE_FUTUREUTILS_H
 
 #include <folly/futures/Future.h>
+#include <folly/executors/InlineExecutor.h>
 
 namespace rk::project::utils {
 
@@ -23,16 +24,17 @@ anyNSuccessful(std::vector<folly::SemiFuture<T>> futures,
 
   for (auto &future: futures) {
     std::move(future)
-        .defer([successCounter, failureCounter,
-                   n, promise,
-                   totalPromises =
-                   futures.size()](folly::Try<T> &&result) {
+        .via(&folly::InlineExecutor::instance())
+        .then([successCounter, failureCounter,
+                  n, promise,
+                  totalPromises =
+                  futures.size()](folly::Try<T> &&result) {
           auto successValue = successCounter.get();
           auto failedValue = failureCounter.get();
           if (result.hasValue()) {
-            successValue++;
+            (*successValue)++;
           } else {
-            failedValue++;
+            (*failedValue)++;
           }
 
           if (*successCounter == n) {

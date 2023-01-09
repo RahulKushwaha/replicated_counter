@@ -28,7 +28,8 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
       rk::project::utils::anyNSuccessful(std::move(futures), quorumSize_);
 
   return std::move(result)
-      .deferValue([logId](auto &&r) {
+      .via(&folly::InlineExecutor::instance())
+      .thenValue([logId](auto &&r) {
         return logId;
       });
 }

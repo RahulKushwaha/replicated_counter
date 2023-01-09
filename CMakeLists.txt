@@ -12,13 +12,13 @@ link_directories(/opt/homebrew/lib)
 add_executable(LogStorage main.cpp include/DurableLog.h
         VectorBasedDurableLog.cc VectorBasedDurableLog.h StateMachine.h
         Counter.cc Counter.h CounterApplication.cc CounterApplication.h
-        CounterEntry.pb.h CounterEntry.pb.cc Sequencer.cc Sequencer.h
+        CounterEntry.pb.h CounterEntry.pb.cc
         include/NanoLog.h include/Common.h include/MetadataStore.h
         impl/InMemoryMetadataStore.cc impl/InMemoryMetadataStore.h
         include/VirtualLog.h impl/VirtualLogImpl.h impl/VirtualLogImpl.cc
         include/Replica.h impl/SequencerImpl.cc impl/SequencerImpl.h
         include/Sequencer.h impl/VectorBasedNanoLog.cc impl/VectorBasedNanoLog.h
-        impl/tests/VectorBasedNanoLogTest.cc utils/OrderedCompletionQueue.h utils/tests/OrderedCompletionQueueTests.cc utils/FutureUtils.h utils/tests/FutureUtilsTest.cc impl/ReplicaImpl.cc impl/ReplicaImpl.h include/NanoLogStore.h impl/NanoLogStoreImpl.cc impl/NanoLogStoreImpl.h impl/tests/MetadataStoreTest.cc)
+        impl/tests/VectorBasedNanoLogTest.cc utils/OrderedCompletionQueue.h utils/tests/OrderedCompletionQueueTests.cc utils/FutureUtils.h utils/tests/FutureUtilsTest.cc impl/ReplicaImpl.cc impl/ReplicaImpl.h include/NanoLogStore.h impl/NanoLogStoreImpl.cc impl/NanoLogStoreImpl.h impl/tests/MetadataStoreTest.cc impl/tests/ReplicaTest.cc impl/tests/MockReplica.h impl/tests/SequencerTest.cc)
 
 target_link_libraries(LogStorage protobuf)
 target_link_libraries(LogStorage folly)
@@ -34,6 +34,16 @@ add_executable(
         impl/InMemoryMetadataStore.h impl/InMemoryMetadataStore.cc
         impl/tests/MetadataStoreTest.cc
 
+        impl/ReplicaImpl.h impl/ReplicaImpl.cc
+        impl/NanoLogStoreImpl.h impl/NanoLogStoreImpl.cc
+        impl/tests/ReplicaTest.cc
+
+        impl/SequencerImpl.h impl/SequencerImpl.cc
+        include/Sequencer.h impl/VectorBasedNanoLog.h impl/VectorBasedNanoLog.cc
+        impl/tests/SequencerTest.cc
+
+        impl/tests/MockReplica.h
+
         utils/OrderedCompletionQueue.h
         utils/tests/OrderedCompletionQueueTests.cc
 
@@ -43,6 +53,7 @@ add_executable(
 
 target_link_libraries(tests gtest)
 target_link_libraries(tests glog)
+target_link_libraries(tests gmock)
 target_link_libraries(tests protobuf)
 target_link_libraries(tests folly)
 

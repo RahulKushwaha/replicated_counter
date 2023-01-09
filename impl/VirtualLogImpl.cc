@@ -52,7 +52,7 @@ void VirtualLogImpl::reconfigure() {
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
   for (auto &replica: replicaSet) {
-    auto endLogId = replica->seal();
+    auto endLogId = replica->seal(0);
 
     minLogId = std::min(minLogId, endLogId);
     maxLogId = std::max(maxLogId, endLogId);

@@ -6,7 +6,7 @@
 #define LOGSTORAGE_REPLICAIMPL_H
 
 #include "../include/Replica.h"
-#include "../Sequencer.h"
+#include "../include/Sequencer.h"
 #include "../include/NanoLogStore.h"
 
 namespace rk::project::counter {
@@ -28,7 +28,7 @@ class ReplicaImpl: public Replica {
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) override;
 
-  LogId seal() override;
+  LogId seal(VersionId versionId) override;
 
  private:
   std::string id_;

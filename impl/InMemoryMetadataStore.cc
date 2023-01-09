@@ -6,20 +6,6 @@
 
 namespace rk::project::counter {
 
-namespace {
-
-MetadataConfig createEmptyMetadataConfig() {
-  MetadataConfig config;
-  config.set_versionid(-1);
-  config.set_startindex(-1);
-  config.set_endindex(-1);
-  config.set_previousversionid(-1);
-
-  return config;
-}
-
-}
-
 InMemoryMetadataStore::InMemoryMetadataStore() : state_{
     std::make_unique<State>()} {}
 

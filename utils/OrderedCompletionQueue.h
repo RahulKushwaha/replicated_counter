@@ -6,6 +6,7 @@
 #define LOGSTORAGE_ORDEREDCOMPLETIONQUEUE_H
 
 #include<cstdint>
+#include <iostream>
 #include <map>
 #include <folly/futures/Future.h>
 

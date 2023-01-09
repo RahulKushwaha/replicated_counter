@@ -31,11 +31,23 @@ class NanoLog {
 };
 
 class NanoLogSealedException: public std::exception {
-  static constexpr char *msg{"NanoLog is sealed."};
-
  public:
   const char *what() const noexcept override {
-    return msg;
+    return "NanoLog is sealed.";
+  }
+};
+
+class NanoLogLogPositionAlreadyOccupied: public std::exception {
+ public:
+  const char *what() const _NOEXCEPT override {
+    return "There is already a log entry at that position.";
+  }
+};
+
+class NanoLogLogNotAvailable: public std::exception {
+ public:
+  const char *what() const _NOEXCEPT override {
+    return "NanoLog is not available.";
   }
 };
 
