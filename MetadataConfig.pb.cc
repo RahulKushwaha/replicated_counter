@@ -29,6 +29,7 @@ PROTOBUF_CONSTEXPR MetadataConfig::MetadataConfig(
   , /*decltype(_impl_.previousversionid_)*/int64_t{0}
   , /*decltype(_impl_.startindex_)*/int64_t{0}
   , /*decltype(_impl_.endindex_)*/int64_t{0}
+  , /*decltype(_impl_.previousversionendindex_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct MetadataConfigDefaultTypeInternal {
   PROTOBUF_CONSTEXPR MetadataConfigDefaultTypeInternal()
@@ -57,6 +58,7 @@ const uint32_t TableStruct_MetadataConfig_2eproto::offsets[] PROTOBUF_SECTION_VA
   PROTOBUF_FIELD_OFFSET(::rk::project::counter::MetadataConfig, _impl_.previousversionid_),
   PROTOBUF_FIELD_OFFSET(::rk::project::counter::MetadataConfig, _impl_.startindex_),
   PROTOBUF_FIELD_OFFSET(::rk::project::counter::MetadataConfig, _impl_.endindex_),
+  PROTOBUF_FIELD_OFFSET(::rk::project::counter::MetadataConfig, _impl_.previousversionendindex_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::rk::project::counter::MetadataConfig)},
@@ -68,13 +70,14 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_MetadataConfig_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\024MetadataConfig.proto\022\022rk.project.count"
-  "er\"d\n\016MetadataConfig\022\021\n\tversionId\030\001 \001(\003\022"
-  "\031\n\021previousVersionId\030\002 \001(\003\022\022\n\nstartIndex"
-  "\030\003 \001(\003\022\020\n\010endIndex\030\004 \001(\003b\006proto3"
+  "er\"\205\001\n\016MetadataConfig\022\021\n\tversionId\030\001 \001(\003"
+  "\022\031\n\021previousVersionId\030\002 \001(\003\022\022\n\nstartInde"
+  "x\030\003 \001(\003\022\020\n\010endIndex\030\004 \001(\003\022\037\n\027previousVer"
+  "sionEndIndex\030\005 \001(\003b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_MetadataConfig_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_MetadataConfig_2eproto = {
-    false, false, 152, descriptor_table_protodef_MetadataConfig_2eproto,
+    false, false, 186, descriptor_table_protodef_MetadataConfig_2eproto,
     "MetadataConfig.proto",
     &descriptor_table_MetadataConfig_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_MetadataConfig_2eproto::offsets,
@@ -111,12 +114,13 @@ MetadataConfig::MetadataConfig(const MetadataConfig& from)
     , decltype(_impl_.previousversionid_){}
     , decltype(_impl_.startindex_){}
     , decltype(_impl_.endindex_){}
+    , decltype(_impl_.previousversionendindex_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&_impl_.versionid_, &from._impl_.versionid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.endindex_) -
-    reinterpret_cast<char*>(&_impl_.versionid_)) + sizeof(_impl_.endindex_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.previousversionendindex_) -
+    reinterpret_cast<char*>(&_impl_.versionid_)) + sizeof(_impl_.previousversionendindex_));
   // @@protoc_insertion_point(copy_constructor:rk.project.counter.MetadataConfig)
 }
 
@@ -129,6 +133,7 @@ inline void MetadataConfig::SharedCtor(
     , decltype(_impl_.previousversionid_){int64_t{0}}
     , decltype(_impl_.startindex_){int64_t{0}}
     , decltype(_impl_.endindex_){int64_t{0}}
+    , decltype(_impl_.previousversionendindex_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -157,8 +162,8 @@ void MetadataConfig::Clear() {
   (void) cached_has_bits;
 
   ::memset(&_impl_.versionid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.endindex_) -
-      reinterpret_cast<char*>(&_impl_.versionid_)) + sizeof(_impl_.endindex_));
+      reinterpret_cast<char*>(&_impl_.previousversionendindex_) -
+      reinterpret_cast<char*>(&_impl_.versionid_)) + sizeof(_impl_.previousversionendindex_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -196,6 +201,14 @@ const char* MetadataConfig::_InternalParse(const char* ptr, ::_pbi::ParseContext
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           _impl_.endindex_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int64 previousVersionEndIndex = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          _impl_.previousversionendindex_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -253,6 +266,12 @@ uint8_t* MetadataConfig::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt64ToArray(4, this->_internal_endindex(), target);
   }
 
+  // int64 previousVersionEndIndex = 5;
+  if (this->_internal_previousversionendindex() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt64ToArray(5, this->_internal_previousversionendindex(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -289,6 +308,11 @@ size_t MetadataConfig::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_endindex());
   }
 
+  // int64 previousVersionEndIndex = 5;
+  if (this->_internal_previousversionendindex() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_previousversionendindex());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -319,6 +343,9 @@ void MetadataConfig::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
   if (from._internal_endindex() != 0) {
     _this->_internal_set_endindex(from._internal_endindex());
   }
+  if (from._internal_previousversionendindex() != 0) {
+    _this->_internal_set_previousversionendindex(from._internal_previousversionendindex());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -337,8 +364,8 @@ void MetadataConfig::InternalSwap(MetadataConfig* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(MetadataConfig, _impl_.endindex_)
-      + sizeof(MetadataConfig::_impl_.endindex_)
+      PROTOBUF_FIELD_OFFSET(MetadataConfig, _impl_.previousversionendindex_)
+      + sizeof(MetadataConfig::_impl_.previousversionendindex_)
       - PROTOBUF_FIELD_OFFSET(MetadataConfig, _impl_.versionid_)>(
           reinterpret_cast<char*>(&_impl_.versionid_),
           reinterpret_cast<char*>(&other->_impl_.versionid_));

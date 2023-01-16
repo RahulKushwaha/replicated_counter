@@ -25,5 +25,12 @@ enum class LogReadError {
   NotFound
 };
 
+class NonRecoverableError: public std::exception {
+ public:
+  const char *what() const _NOEXCEPT override {
+    return "NonRecoverableError";
+  }
+};
+
 
 #endif //LOGSTORAGE_COMMON_H

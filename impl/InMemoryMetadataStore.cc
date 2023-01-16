@@ -14,6 +14,7 @@ InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
   auto itr = state_->logIdToConfig_.upper_bound(logId);
   if (itr == state_->logIdToConfig_.begin()) {
+    LOG(ERROR) << "Metadata Block for log_id " << logId << " not present";
     return {};
   }
 
@@ -62,6 +63,9 @@ void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
   auto lastConfig = state_->configs_.rbegin();
   if (lastConfig->first == versionId
       && lastConfig->first + 1 == newMetadataConfig.versionid()) {
+    // Now we have an implicit contract that the new index is 1 greater than
+    // last config index.
+    state_->configs_[versionId].set_endindex(newMetadataConfig.previousversionendindex());
     state_->configs_[newMetadataConfig.versionid()] = newMetadataConfig;
     state_->logIdToConfig_[newMetadataConfig.startindex()] = newMetadataConfig;
     return;

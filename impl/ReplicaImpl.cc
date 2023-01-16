@@ -28,7 +28,7 @@ std::string ReplicaImpl::getName() {
 
 folly::SemiFuture<folly::Unit>
 ReplicaImpl::append(LogId logId,
-                    std::string logEntryPayload) {
+                    std::string logEntryPayload, bool skipSeal) {
   std::optional<MetadataConfig>
       config = metadataStore_->getConfigUsingLogId(logId);
 
@@ -53,11 +53,10 @@ ReplicaImpl::append(LogId logId,
     nanoLogStore_->add(config->versionid(), nanoLog);
   }
 
-  return nanoLog->append(logId, logEntryPayload)
+  return nanoLog->append(logId, logEntryPayload, skipSeal)
       .via(&folly::InlineExecutor::instance())
       .then([](folly::Try<LogId> &&logId) {
         if (logId.hasValue()) {
-          LOG(INFO) << "Replica";
           return folly::makeSemiFuture();
         } else {
           return folly::makeSemiFuture<folly::Unit>(logId.exception());
@@ -71,9 +70,8 @@ ReplicaImpl::getLogEntry(LogId logId) {
       config = metadataStore_->getConfigUsingLogId(logId);
 
   if (!config.has_value()) {
-    return folly::SemiFuture<std::variant<LogEntry,
-                                          LogReadError>>(folly::make_exception_wrapper<
-        MetadataBlockNotPresent>());
+    return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
+        (folly::make_exception_wrapper<MetadataBlockNotPresent>());
   }
 
   std::shared_ptr<NanoLog>

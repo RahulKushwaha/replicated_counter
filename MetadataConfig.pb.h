@@ -187,6 +187,7 @@ class MetadataConfig final :
     kPreviousVersionIdFieldNumber = 2,
     kStartIndexFieldNumber = 3,
     kEndIndexFieldNumber = 4,
+    kPreviousVersionEndIndexFieldNumber = 5,
   };
   // int64 versionId = 1;
   void clear_versionid();
@@ -224,6 +225,15 @@ class MetadataConfig final :
   void _internal_set_endindex(int64_t value);
   public:
 
+  // int64 previousVersionEndIndex = 5;
+  void clear_previousversionendindex();
+  int64_t previousversionendindex() const;
+  void set_previousversionendindex(int64_t value);
+  private:
+  int64_t _internal_previousversionendindex() const;
+  void _internal_set_previousversionendindex(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:rk.project.counter.MetadataConfig)
  private:
   class _Internal;
@@ -236,6 +246,7 @@ class MetadataConfig final :
     int64_t previousversionid_;
     int64_t startindex_;
     int64_t endindex_;
+    int64_t previousversionendindex_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -330,6 +341,26 @@ inline void MetadataConfig::_internal_set_endindex(int64_t value) {
 inline void MetadataConfig::set_endindex(int64_t value) {
   _internal_set_endindex(value);
   // @@protoc_insertion_point(field_set:rk.project.counter.MetadataConfig.endIndex)
+}
+
+// int64 previousVersionEndIndex = 5;
+inline void MetadataConfig::clear_previousversionendindex() {
+  _impl_.previousversionendindex_ = int64_t{0};
+}
+inline int64_t MetadataConfig::_internal_previousversionendindex() const {
+  return _impl_.previousversionendindex_;
+}
+inline int64_t MetadataConfig::previousversionendindex() const {
+  // @@protoc_insertion_point(field_get:rk.project.counter.MetadataConfig.previousVersionEndIndex)
+  return _internal_previousversionendindex();
+}
+inline void MetadataConfig::_internal_set_previousversionendindex(int64_t value) {
+  
+  _impl_.previousversionendindex_ = value;
+}
+inline void MetadataConfig::set_previousversionendindex(int64_t value) {
+  _internal_set_previousversionendindex(value);
+  // @@protoc_insertion_point(field_set:rk.project.counter.MetadataConfig.previousVersionEndIndex)
 }
 
 #ifdef __GNUC__

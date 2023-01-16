@@ -3,6 +3,7 @@
 //
 #include "VirtualLogImpl.h"
 #include "../utils/FutureUtils.h"
+#include <folly/executors/InlineExecutor.h>
 
 #include <random>
 
@@ -31,7 +32,8 @@ std::string VirtualLogImpl::getName() {
 }
 
 folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
-  return sequencer_->append(logEntryPayload);
+  return sequencer_->append(logEntryPayload)
+      .via(&folly::InlineExecutor::instance());
 }
 
 std::variant<LogEntry, LogReadError> VirtualLogImpl::getLogEntry(LogId logId) {
@@ -39,6 +41,8 @@ std::variant<LogEntry, LogReadError> VirtualLogImpl::getLogEntry(LogId logId) {
 }
 
 void VirtualLogImpl::reconfigure() {
+  VersionId versionId = metadataStore_->getCurrentVersionId();
+
   // Make a copy of the replicaSet
   std::vector<std::shared_ptr<Replica>> replicaSet = replicaSet_;
 
@@ -52,7 +56,7 @@ void VirtualLogImpl::reconfigure() {
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
   for (auto &replica: replicaSet) {
-    auto endLogId = replica->seal(0);
+    auto endLogId = replica->seal(versionId);
 
     minLogId = std::min(minLogId, endLogId);
     maxLogId = std::max(maxLogId, endLogId);
@@ -63,7 +67,8 @@ void VirtualLogImpl::reconfigure() {
     std::vector<folly::SemiFuture<LogEntry>> futures;
     for (auto &replica: replicaSet) {
       auto future = replica->getLogEntry(logId)
-          .defer([](folly::Try<std::variant<LogEntry, LogReadError>> &&result) {
+          .via(&folly::InlineExecutor::instance())
+          .then([](folly::Try<std::variant<LogEntry, LogReadError>> &&result) {
             if (result.hasValue()
                 && std::holds_alternative<LogEntry>(result.value())) {
               return std::get<LogEntry>(result.value());
@@ -75,10 +80,57 @@ void VirtualLogImpl::reconfigure() {
       futures.emplace_back(std::move(future));
     }
 
-    folly::collectAnyWithoutException(futures.begin(), futures.end())
-        .deferValue([](std::pair<std::size_t, LogEntry> &&result) {
+    LogEntry logEntry =
+        folly::collectAnyWithoutException(futures.begin(), futures.end())
+            .via(&folly::InlineExecutor::instance())
+            .thenValue([](std::pair<std::size_t, LogEntry> &&result) {
+              return result.second;
+            })
+            .get();
 
-        });
+    for (auto &replica: replicaSet_) {
+      std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
+      folly::SemiFuture<folly::Unit>
+          appendFuture =
+          replica->append(logEntry.logId, logEntry.payload, true);
+
+      appendFutures.emplace_back(std::move(appendFuture));
+    }
+
+    utils::anyNSuccessful(std::move(futures), replicaSet_.size() / 2 + 1)
+        .via(&folly::InlineExecutor::instance())
+        .thenValue([logId](auto &&) {
+          return logId;
+        })
+        .get();
+  }
+
+  // Quorum of the nanologs have been re-replicated.
+  // Update the MetadataConfig block.
+  auto metadataConfig = metadataStore_->getConfig(versionId);
+
+  bool result{false};
+  if (metadataConfig) {
+    MetadataConfig newConfig{};
+    newConfig.set_previousversionid(versionId);
+    newConfig.set_previousversionendindex(maxLogId);
+
+    newConfig.set_startindex(maxLogId + 1);
+    newConfig.set_endindex(std::numeric_limits<std::int64_t>::max());
+    newConfig.set_versionid(versionId + 1);
+
+    try {
+      metadataStore_->compareAndAppendRange(versionId, newConfig);
+      result = true;
+    } catch (const OptimisticConcurrencyException &) {
+      result = false;
+    }
+  }
+
+  if (result) {
+    // Do Something.
+  } else {
+    // Report something.
   }
 }
 

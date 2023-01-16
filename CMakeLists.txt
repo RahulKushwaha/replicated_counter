@@ -18,7 +18,13 @@ add_executable(LogStorage main.cpp include/DurableLog.h
         include/VirtualLog.h impl/VirtualLogImpl.h impl/VirtualLogImpl.cc
         include/Replica.h impl/SequencerImpl.cc impl/SequencerImpl.h
         include/Sequencer.h impl/VectorBasedNanoLog.cc impl/VectorBasedNanoLog.h
-        impl/tests/VectorBasedNanoLogTest.cc utils/OrderedCompletionQueue.h utils/tests/OrderedCompletionQueueTests.cc utils/FutureUtils.h utils/tests/FutureUtilsTest.cc impl/ReplicaImpl.cc impl/ReplicaImpl.h include/NanoLogStore.h impl/NanoLogStoreImpl.cc impl/NanoLogStoreImpl.h impl/tests/MetadataStoreTest.cc impl/tests/ReplicaTest.cc impl/tests/MockReplica.h impl/tests/SequencerTest.cc)
+        impl/tests/VectorBasedNanoLogTest.cc utils/OrderedCompletionQueue.h
+        utils/tests/OrderedCompletionQueueTests.cc utils/FutureUtils.h
+        utils/tests/FutureUtilsTest.cc impl/ReplicaImpl.cc impl/ReplicaImpl.h
+        include/NanoLogStore.h impl/NanoLogStoreImpl.cc impl/NanoLogStoreImpl.h
+        impl/tests/MetadataStoreTest.cc impl/tests/ReplicaTest.cc
+        impl/tests/MockReplica.h impl/tests/SequencerTest.cc
+        impl/tests/VirtualLogTest.cc impl/tests/TestUtils.h)
 
 target_link_libraries(LogStorage protobuf)
 target_link_libraries(LogStorage folly)
@@ -43,6 +49,12 @@ add_executable(
         impl/tests/SequencerTest.cc
 
         impl/tests/MockReplica.h
+
+        impl/VirtualLogImpl.cc impl/VirtualLogImpl.h
+        include/VirtualLog.h
+        impl/tests/VirtualLogTest.cc
+
+        impl/tests/TestUtils.h
 
         utils/OrderedCompletionQueue.h
         utils/tests/OrderedCompletionQueueTests.cc

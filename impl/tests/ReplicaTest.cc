@@ -13,13 +13,13 @@
 namespace rk::project::counter {
 
 namespace {
-struct CreationResult {
+struct SequencerCreationResult {
   ReplicaImpl replica;
   std::shared_ptr<NanoLogStore> nanoLogStore;
   std::shared_ptr<MetadataStore> metadataStore;
 };
 
-CreationResult createReplica() {
+SequencerCreationResult createReplica() {
   std::shared_ptr<NanoLogStore>
       nanoLogStore = std::make_shared<NanoLogStoreImpl>();
   std::shared_ptr<MetadataStore>
@@ -43,13 +43,13 @@ CreationResult createReplica() {
 }
 
 TEST(ReplicaTest, AppendLogEntryIfMetadataNotInstalled) {
-  CreationResult result = createReplica();
+  SequencerCreationResult result = createReplica();
   ASSERT_THROW(result.replica.append(1, std::string{"Hello World!"}).get(),
                MetadataBlockNotPresent);
 }
 
 TEST(ReplicaTest, AppendLogEntryWhenMetadataInstalled) {
-  CreationResult creationResult = createReplica();
+  SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
   auto metadataStore = creationResult.metadataStore;
 
@@ -67,7 +67,7 @@ TEST(ReplicaTest, AppendLogEntryWhenMetadataInstalled) {
 }
 
 TEST(ReplicaTest, AppendLogEntryWhenNanoLogIsSealed) {
-  CreationResult creationResult = createReplica();
+  SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
   auto metadataStore = creationResult.metadataStore;
   auto nanoLogStore = creationResult.nanoLogStore;
@@ -81,8 +81,23 @@ TEST(ReplicaTest, AppendLogEntryWhenNanoLogIsSealed) {
   ASSERT_THROW(replica.append(501, logEntry).get(), NanoLogSealedException);
 }
 
+TEST(ReplicaTest, AppendLogEntryWhenNanoLogIsSealedButOverrideFlagIsPresent) {
+  SequencerCreationResult creationResult = createReplica();
+  auto replica = creationResult.replica;
+  auto metadataStore = creationResult.metadataStore;
+  auto nanoLogStore = creationResult.nanoLogStore;
+
+  ASSERT_NO_THROW(replica.append(500, "Hello World").get());
+
+  auto nanoLog = nanoLogStore->getNanoLog(1);
+  nanoLog->seal();
+
+  std::string logEntry{"Hello World"};
+  ASSERT_NO_THROW(replica.append(501, logEntry, true).get());
+}
+
 TEST(ReplicaTest, AppendDuplicateLogEntry) {
-  CreationResult creationResult = createReplica();
+  SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
 
   ASSERT_NO_THROW(replica.append(500, "Hello World").get());
@@ -92,7 +107,7 @@ TEST(ReplicaTest, AppendDuplicateLogEntry) {
 
 TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   folly::InlineExecutor inlineExecutor{};
-  CreationResult creationResult = createReplica();
+  SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
 
   std::vector<std::int32_t> elements;
