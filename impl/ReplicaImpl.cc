@@ -80,6 +80,17 @@ ReplicaImpl::getLogEntry(LogId logId) {
   return folly::makeSemiFuture(nanoLog->getLogEntry(logId));
 }
 
+LogId ReplicaImpl::getLocalCommitIndex() {
+  VersionId versionId = metadataStore_->getCurrentVersionId();
+  auto config = metadataStore_->getConfigUsingLogId(versionId);
+  if (!config.has_value()) {
+    throw MetadataBlockNotPresent{};
+  }
+
+  auto nanoLog = nanoLogStore_->getNanoLog(versionId);
+  return nanoLog->getLocalCommitIndex();
+}
+
 LogId ReplicaImpl::seal(VersionId versionId) {
   std::optional<MetadataConfig> config = metadataStore_->getConfig(versionId);
   if (!config.has_value()) {

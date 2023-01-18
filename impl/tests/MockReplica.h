@@ -22,6 +22,8 @@ class MockReplica: public Replica {
               getLogEntry,
               (LogId logId), (override));
 
+  MOCK_METHOD(LogId, getLocalCommitIndex, (), (override));
+
   MOCK_METHOD(LogId, seal, (VersionId versionId), (override));
 };
 

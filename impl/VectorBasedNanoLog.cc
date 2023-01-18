@@ -43,8 +43,13 @@ folly::SemiFuture<LogId> VectorBasedNanoLog::append(LogId logId,
   auto result = logs_.emplace(logId, std::move(logEntryPayload));
 
   if (!result.second) {
-    return folly::makeSemiFuture<LogId>(folly::make_exception_wrapper<
-        NanoLogLogPositionAlreadyOccupied>());
+    if (skipSeal) {
+      // TODO: Check if the logEntry is the same as provided in the call.
+      return folly::makeSemiFuture(logId);
+    } else {
+      return folly::makeSemiFuture<LogId>(folly::make_exception_wrapper<
+          NanoLogLogPositionAlreadyOccupied>());
+    }
   }
 
   auto [promise, future] = folly::makePromiseContract<LogId>();

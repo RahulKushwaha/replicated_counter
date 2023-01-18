@@ -30,6 +30,8 @@ class ReplicaImpl: public Replica {
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) override;
 
+  LogId getLocalCommitIndex() override;
+
   LogId seal(VersionId versionId) override;
 
  private:

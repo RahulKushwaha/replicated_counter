@@ -46,8 +46,8 @@ void VirtualLogImpl::reconfigure() {
   // Make a copy of the replicaSet
   std::vector<std::shared_ptr<Replica>> replicaSet = replicaSet_;
 
-  std::random_device rd;
-  std::mt19937 g(rd());
+  std::random_device randomDevice;
+  std::mt19937 g(randomDevice());
   std::shuffle(replicaSet.begin(), replicaSet.end(), g);
 
   auto numberOfReplicas = replicaSet.size();
@@ -62,8 +62,9 @@ void VirtualLogImpl::reconfigure() {
     maxLogId = std::max(maxLogId, endLogId);
   }
 
+  LOG(INFO) << "MinLogID: " << minLogId << " MaxLogId: " << maxLogId;
   // Re-replicate all the entries from minLogId to MaxLogId
-  for (LogId logId = minLogId; logId <= maxLogId; logId++) {
+  for (LogId logId = minLogId; logId < maxLogId; logId++) {
     std::vector<folly::SemiFuture<LogEntry>> futures;
     for (auto &replica: replicaSet) {
       auto future = replica->getLogEntry(logId)
@@ -84,20 +85,25 @@ void VirtualLogImpl::reconfigure() {
         folly::collectAnyWithoutException(futures.begin(), futures.end())
             .via(&folly::InlineExecutor::instance())
             .thenValue([](std::pair<std::size_t, LogEntry> &&result) {
+              LOG(INFO) << "Successfully Fetched the LogEntry: "
+                        << "ReplicaId: " << result.first << " LogId: "
+                        << result.second.logId << " Payload: "
+                        << result.second.payload;
               return result.second;
             })
             .get();
 
+    std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
     for (auto &replica: replicaSet_) {
-      std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
       folly::SemiFuture<folly::Unit>
           appendFuture =
-          replica->append(logEntry.logId, logEntry.payload, true);
+          replica->append(logEntry.logId, logEntry.payload, true)
+              .via(&folly::InlineExecutor::instance());
 
       appendFutures.emplace_back(std::move(appendFuture));
     }
 
-    utils::anyNSuccessful(std::move(futures), replicaSet_.size() / 2 + 1)
+    utils::anyNSuccessful(std::move(appendFutures), replicaSet_.size() / 2 + 1)
         .via(&folly::InlineExecutor::instance())
         .thenValue([logId](auto &&) {
           return logId;
@@ -109,7 +115,6 @@ void VirtualLogImpl::reconfigure() {
   // Update the MetadataConfig block.
   auto metadataConfig = metadataStore_->getConfig(versionId);
 
-  bool result{false};
   if (metadataConfig) {
     MetadataConfig newConfig{};
     newConfig.set_previousversionid(versionId);
@@ -119,18 +124,7 @@ void VirtualLogImpl::reconfigure() {
     newConfig.set_endindex(std::numeric_limits<std::int64_t>::max());
     newConfig.set_versionid(versionId + 1);
 
-    try {
-      metadataStore_->compareAndAppendRange(versionId, newConfig);
-      result = true;
-    } catch (const OptimisticConcurrencyException &) {
-      result = false;
-    }
-  }
-
-  if (result) {
-    // Do Something.
-  } else {
-    // Report something.
+    metadataStore_->compareAndAppendRange(versionId, newConfig);
   }
 }
 

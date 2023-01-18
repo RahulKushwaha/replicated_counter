@@ -24,6 +24,8 @@ class Replica {
          bool skipSeal = false) = 0;
   virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) = 0;
+
+  virtual LogId getLocalCommitIndex() = 0;
   virtual LogId seal(VersionId versionId) = 0;
 };
 
