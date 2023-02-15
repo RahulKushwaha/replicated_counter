@@ -147,4 +147,94 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSkippingConfigs) {
   }
 }
 
+TEST(MetadataStoreTest, getUsingLogId) {
+  InMemoryMetadataStore store;
+
+  {
+    MetadataConfig config;
+    config.set_versionid(1);
+    config.set_previousversionid(2);
+    config.set_startindex(1500);
+    config.set_endindex(2000);
+
+    ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
+  }
+
+  {
+    auto config = store.getConfigUsingLogId(1000);
+    ASSERT_FALSE(config.has_value());
+  }
+
+  {
+    auto config = store.getConfigUsingLogId(1500);
+    ASSERT_TRUE(config.has_value());
+  }
+
+  {
+    auto config = store.getConfigUsingLogId(1600);
+    ASSERT_TRUE(config.has_value());
+  }
+
+  // logId == 2000 should not exist.
+  {
+    auto config = store.getConfigUsingLogId(2000);
+    ASSERT_FALSE(config.has_value());
+  }
+}
+
+TEST(MetadataStoreTest, getUsingLogIdWhenEmptyConfigsArePresent) {
+  InMemoryMetadataStore store;
+
+  {
+    MetadataConfig config;
+    config.set_versionid(1);
+    config.set_previousversionid(2);
+    config.set_startindex(1500);
+    config.set_endindex(2000);
+
+    ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
+  }
+
+  {
+    MetadataConfig config;
+    config.set_versionid(2);
+    config.set_previousversionid(2);
+    config.set_startindex(2000);
+    config.set_endindex(2000);
+
+    ASSERT_NO_THROW(store.compareAndAppendRange(1, config));
+  }
+
+  {
+    MetadataConfig config;
+    config.set_versionid(3);
+    config.set_previousversionid(2);
+    config.set_startindex(2000);
+    config.set_endindex(2000);
+
+    ASSERT_NO_THROW(store.compareAndAppendRange(2, config));
+  }
+
+  {
+    auto config = store.getConfigUsingLogId(2000);
+    ASSERT_FALSE(config.has_value());
+  }
+
+  {
+    MetadataConfig config;
+    config.set_versionid(4);
+    config.set_previousversionid(2);
+    config.set_startindex(2000);
+    config.set_endindex(2001);
+
+    ASSERT_NO_THROW(store.compareAndAppendRange(3, config));
+  }
+
+  // Now we should be able to fine 2000.
+  {
+    auto config = store.getConfigUsingLogId(2000);
+    ASSERT_TRUE(config.has_value());
+  }
+}
+
 }
