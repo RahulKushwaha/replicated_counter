@@ -22,6 +22,60 @@ TEST(VirtualLogTests, AppendOneLogEntry) {
   ASSERT_EQ(log->append("hello_world").get(), 1);
 }
 
+TEST(VirtualLogTests, GetOneLogEntry) {
+  std::string logEntryPayload{"hello_world"};
+  auto sequencerCreationResult = createSequencer(0);
+  std::shared_ptr<VirtualLog>
+      log = std::make_shared<VirtualLogImpl>("virtual_log_id",
+                                             "virtual_log_name",
+                                             sequencerCreationResult.sequencer,
+                                             sequencerCreationResult.replicaSet,
+                                             sequencerCreationResult.metadataStore);
+
+  ASSERT_EQ(log->append(logEntryPayload).get(), 1);
+
+  // Fetch the appended log entry.
+  auto logEntryResult = log->getLogEntry(1).get();
+  ASSERT_TRUE(std::holds_alternative<LogEntry>(logEntryResult));
+
+  ASSERT_EQ(logEntryPayload, std::get<LogEntry>(logEntryResult).payload);
+  ASSERT_EQ(1, std::get<LogEntry>(logEntryResult).logId);
+}
+
+TEST(VirtualLogTests, GetNonExistentLogEntry) {
+  std::string logEntryPayload{"hello_world"};
+  auto sequencerCreationResult = createSequencer(0);
+  std::shared_ptr<VirtualLog>
+      log = std::make_shared<VirtualLogImpl>("virtual_log_id",
+                                             "virtual_log_name",
+                                             sequencerCreationResult.sequencer,
+                                             sequencerCreationResult.replicaSet,
+                                             sequencerCreationResult.metadataStore);
+
+  // Fetch the appended log entry.
+  ASSERT_THROW(log->getLogEntry(1).get(), std::exception);
+}
+
+TEST(VirtualLogTests, GetOneLogEntryWithMinorityFailing) {
+  std::string logEntryPayload{"hello_world"};
+  auto sequencerCreationResult = createSequencer(2);
+  std::shared_ptr<VirtualLog>
+      log = std::make_shared<VirtualLogImpl>("virtual_log_id",
+                                             "virtual_log_name",
+                                             sequencerCreationResult.sequencer,
+                                             sequencerCreationResult.replicaSet,
+                                             sequencerCreationResult.metadataStore);
+
+  ASSERT_EQ(log->append(logEntryPayload).get(), 1);
+
+  // Fetch the appended log entry.
+  auto logEntryResult = log->getLogEntry(1).get();
+  ASSERT_TRUE(std::holds_alternative<LogEntry>(logEntryResult));
+
+  ASSERT_EQ(logEntryPayload, std::get<LogEntry>(logEntryResult).payload);
+  ASSERT_EQ(1, std::get<LogEntry>(logEntryResult).logId);
+}
+
 TEST(VirtualLogTests, Reconfigure) {
   auto sequencerCreationResult = createSequencer(0);
   auto replicaSet = sequencerCreationResult.replicaSet;

@@ -3,6 +3,7 @@
 //
 #include "VirtualLogImpl.h"
 #include "../utils/FutureUtils.h"
+#include <folly/futures/Retrying.h>
 #include <folly/executors/InlineExecutor.h>
 
 #include <random>
@@ -15,12 +16,11 @@ VirtualLogImpl::VirtualLogImpl(
     std::shared_ptr<Sequencer> sequencer,
     std::vector<std::shared_ptr<Replica>> replicaSet,
     std::shared_ptr<MetadataStore> metadataStore)
-    :
-    id_{std::move(id)},
-    name_{std::move(name)},
-    sequencer_{std::move(sequencer)},
-    replicaSet_{std::move(replicaSet)},
-    metadataStore_{std::move(metadataStore)} {
+    : id_{std::move(id)},
+      name_{std::move(name)},
+      sequencer_{std::move(sequencer)},
+      replicaSet_{std::move(replicaSet)},
+      metadataStore_{std::move(metadataStore)} {
 }
 
 std::string VirtualLogImpl::getId() {
@@ -36,8 +36,43 @@ folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
       .via(&folly::InlineExecutor::instance());
 }
 
-std::variant<LogEntry, LogReadError> VirtualLogImpl::getLogEntry(LogId logId) {
-  return {LogReadError::NotFound};
+folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+VirtualLogImpl::getLogEntry(LogId logId) {
+  return folly::futures::retrying(
+      [maxRetries = replicaSet_.size()](
+          std::size_t count,
+          const folly::exception_wrapper &) {
+        if (count < maxRetries) {
+          return folly::makeSemiFuture(true);
+        } else {
+          return folly::makeSemiFuture(false);
+        }
+      }, [this, logId](std::size_t retryAttempt) {
+        auto &replica = replicaSet_[retryAttempt];
+        return replica->getLogEntry(logId)
+            .via(&folly::InlineExecutor::instance())
+            .then([logId, retryAttempt](folly::Try<std::variant<LogEntry,
+                                                                LogReadError>>
+                                        &&logEntryResult) {
+              if (logEntryResult.hasException()) {
+                LOG(ERROR) << logEntryResult.exception().what();
+                LOG(INFO) << "Failed to find the logId: [" << logId
+                          << "] at replica. Attempt: [" << retryAttempt << "]";
+                folly::throw_exception(logEntryResult.exception());
+              }
+
+              auto &&variantResult = logEntryResult.value();
+              if (std::holds_alternative<LogEntry>(variantResult)) {
+                LOG(INFO) << "Successfully found the logId: [" << logId
+                          << "] at replica. Attempt: [" << retryAttempt << "]";
+                return variantResult;
+              }
+
+              LOG(INFO) << "Failed to find the logId: [" << logId
+                        << "] at replica. Attempt: [" << retryAttempt << "]";
+              throw std::exception{};
+            });
+      });
 }
 
 void VirtualLogImpl::reconfigure() {
@@ -47,8 +82,8 @@ void VirtualLogImpl::reconfigure() {
   std::vector<std::shared_ptr<Replica>> replicaSet = replicaSet_;
 
   std::random_device randomDevice;
-  std::mt19937 g(randomDevice());
-  std::shuffle(replicaSet.begin(), replicaSet.end(), g);
+  std::mt19937 twisterEngine(randomDevice());
+  std::shuffle(replicaSet.begin(), replicaSet.end(), twisterEngine);
 
   auto numberOfReplicas = replicaSet.size();
   auto majorityCount = numberOfReplicas / 2 + 1;

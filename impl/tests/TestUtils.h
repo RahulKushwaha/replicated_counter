@@ -45,13 +45,18 @@ createSequencer(std::int32_t numberOfBadReplicas) {
 
   for (std::int32_t i = 0; i < numberOfBadReplicas; i++) {
     std::shared_ptr<MockReplica> mockReplica = std::make_shared<MockReplica>();
-    std::int32_t failCount = 0;
     ON_CALL(*mockReplica, append(_, _, _))
-        .WillByDefault([&failCount]() {
+        .WillByDefault([]() {
           return folly::makeSemiFuture<folly::Unit>
               (folly::make_exception_wrapper<NonRecoverableError>(
                   NonRecoverableError{}));
+        });
 
+    ON_CALL(*mockReplica, getLogEntry(_))
+        .WillByDefault([]() {
+          return folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+              (folly::make_exception_wrapper<NonRecoverableError>(
+                  NonRecoverableError{}));
         });
 
     badReplicaSet.emplace_back(mockReplica);

@@ -17,7 +17,8 @@ class ReplicaImpl: public Replica {
       std::string id,
       std::string name,
       std::shared_ptr<NanoLogStore> nanoLogStore,
-      std::shared_ptr<MetadataStore> metadataStore);
+      std::shared_ptr<MetadataStore> metadataStore,
+      bool local = false);
 
   std::string getId() override;
   std::string getName() override;
@@ -39,6 +40,7 @@ class ReplicaImpl: public Replica {
   std::string name_;
   std::shared_ptr<NanoLogStore> nanoLogStore_;
   std::shared_ptr<MetadataStore> metadataStore_;
+  const bool local_;
 };
 
 }

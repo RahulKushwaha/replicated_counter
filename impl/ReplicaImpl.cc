@@ -12,10 +12,12 @@ ReplicaImpl::ReplicaImpl(
     std::string id,
     std::string name,
     std::shared_ptr<NanoLogStore> nanoLogStore,
-    std::shared_ptr<MetadataStore> metadataStore)
+    std::shared_ptr<MetadataStore> metadataStore,
+    bool local)
     : id_{std::move(id)}, name_{std::move(name)},
       nanoLogStore_{std::move(nanoLogStore)},
-      metadataStore_{std::move(metadataStore)} {
+      metadataStore_{std::move(metadataStore)},
+      local_{local} {
 }
 
 std::string ReplicaImpl::getId() {
@@ -76,6 +78,11 @@ ReplicaImpl::getLogEntry(LogId logId) {
 
   std::shared_ptr<NanoLog>
       nanoLog = nanoLogStore_->getNanoLog(config->versionid());
+
+  if (!nanoLog) {
+    return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
+        (std::variant<LogEntry, LogReadError>{LogReadError::NotFound});
+  }
 
   return folly::makeSemiFuture(nanoLog->getLogEntry(logId));
 }

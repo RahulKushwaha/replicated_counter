@@ -13,15 +13,25 @@ std::optional<MetadataConfig>
 InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
   auto itr = state_->logIdToConfig_.upper_bound(logId);
-  if (itr == state_->logIdToConfig_.begin()) {
-    LOG(ERROR) << "Metadata Block for log_id " << logId << " not present";
-    return {};
+  if (itr == state_->logIdToConfig_.end()) {
+    itr--;
   }
 
-  itr--;
-  // Make sure logId is >= metadataConfig
-  CHECK(logId >= itr->second.startindex());
-  return itr->second;
+  while (true) {
+    if (logId >= itr->second.startindex() && logId < itr->second.endindex()) {
+      return itr->second;
+    }
+
+    if (itr == state_->logIdToConfig_.begin()) {
+      break;
+    }
+
+    itr--;
+  }
+
+  LOG(ERROR) << "Metadata Block for log_id " << logId << " not present";
+
+  return {};
 }
 
 std::optional<MetadataConfig>

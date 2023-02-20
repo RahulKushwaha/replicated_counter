@@ -15,10 +15,11 @@ class VirtualLog {
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
   virtual folly::SemiFuture<LogId> append(std::string logEntryPayload) = 0;
-  virtual std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) = 0;
+  virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+  getLogEntry(LogId logId) = 0;
   virtual void reconfigure() = 0;
 
-  virtual ~VirtualLog() {}
+  virtual ~VirtualLog() = default;
 };
 
 }

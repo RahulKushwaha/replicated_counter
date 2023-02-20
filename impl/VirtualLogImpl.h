@@ -25,10 +25,11 @@ class VirtualLogImpl: public VirtualLog {
   std::string getId() override;
   std::string getName() override;
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
-  std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) override;
+  folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+  getLogEntry(LogId logId) override;
   void reconfigure() override;
 
- private:
+  ~VirtualLogImpl() override = default;
 
  private:
   std::string id_;
