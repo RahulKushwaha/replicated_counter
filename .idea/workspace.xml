@@ -22,10 +22,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/external/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/applications/counter/CounterApp.cc" beforeDir="false" afterPath="$PROJECT_DIR$/applications/counter/CounterApp.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/applications/counter/CounterApp.h" beforeDir="false" afterPath="$PROJECT_DIR$/applications/counter/CounterApp.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/include/VirtualLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/VirtualLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,7 +102,7 @@
       <recent name="$PROJECT_DIR$/include" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.LogStorage">
+  <component name="RunManager" selected="Google Test.All in MetadataStoreTest.cc and 6 more">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
@@ -176,20 +175,7 @@
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="tests" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_MODE="SUITE_TEST">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="LogStorage" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
-      <item itemvalue="CMake Application.LogStorage" />
-      <item itemvalue="Google Test.tests" />
       <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
       <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
       <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMinorityFailing" />
@@ -198,8 +184,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
         <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
+        <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
         <item itemvalue="Google Test.VirtualLogTests.Reconfigure" />
         <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMostFailing" />
         <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMinorityFailing" />

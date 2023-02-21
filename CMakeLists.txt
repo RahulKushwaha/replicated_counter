@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.23)
 project(LogStorage)
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_STANDARD 17)
+include(external/uuid/CMakeLists.txt)
+
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
 
 add_compile_options(-fsanitize=undefined)
 add_link_options(-fsanitize=undefined)

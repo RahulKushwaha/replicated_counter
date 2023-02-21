@@ -5,8 +5,25 @@
 #include "VirtualLogFactory.h"
 #include "VirtualLogImpl.h"
 #include "SequencerImpl.h"
+#include "uuid.h"
 
 namespace rk::projects::durable_log {
+
+namespace {
+
+static uuids::uuid_random_generator uuidGeneratorMethod() {
+  std::random_device rd;
+  auto seed_data = std::array<int, std::mt19937::state_size>{};
+  std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+  std::mt19937 generator(seq);
+  uuids::uuid_random_generator gen{generator};
+
+  return gen;
+}
+
+auto uuidGenerator = uuidGeneratorMethod();
+}
 
 std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
   std::shared_ptr<MetadataStore> metadataStore = makeMetadataStore();
@@ -29,9 +46,8 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
   }
 
   std::shared_ptr<Sequencer> sequencer = makeSequencer(replicaSet);
-
   std::unique_ptr<VirtualLog> virtualLog = std::make_unique<VirtualLogImpl>(
-      "",
+      to_string(uuidGenerator()),
       std::move(name),
       sequencer,
       replicaSet,
