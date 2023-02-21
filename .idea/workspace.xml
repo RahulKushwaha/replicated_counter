@@ -22,15 +22,57 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/applications/counter/CounterApp.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/applications/counter/CounterApp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/log/impl/VirtualLogFactory.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ReplicaImpl.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ReplicaImpl.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/VirtualLogImpl.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/tests/TestUtils.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/tests/TestUtils.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/tests/VirtualLogTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/impl/tests/VirtualLogTest.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/VirtualLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/VirtualLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Counter.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Counter.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CounterApplication.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CounterApplication.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CounterEntry.pb.cc" beforeDir="false" afterPath="$PROJECT_DIR$/applications/counter/CounterEntry.pb.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CounterEntry.pb.h" beforeDir="false" afterPath="$PROJECT_DIR$/applications/counter/CounterEntry.pb.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataConfig.pb.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/MetadataConfig.pb.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataConfig.pb.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/MetadataConfig.pb.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StateMachine.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VectorBasedDurableLog.cc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VectorBasedDurableLog.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/InMemoryMetadataStore.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/InMemoryMetadataStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/InMemoryMetadataStore.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/NanoLogStoreImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/NanoLogStoreImpl.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/NanoLogStoreImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/NanoLogStoreImpl.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/ReplicaImpl.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/ReplicaImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/ReplicaImpl.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/SequencerImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/SequencerImpl.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/SequencerImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/SequencerImpl.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/VectorBasedNanoLog.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VectorBasedNanoLog.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/VectorBasedNanoLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VectorBasedNanoLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VirtualLogImpl.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/VirtualLogImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VirtualLogImpl.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/MetadataStoreTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/MetadataStoreTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/MockReplica.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/MockReplica.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/ReplicaTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/ReplicaTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/SequencerTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/SequencerTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/TestUtils.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/TestUtils.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/VectorBasedNanoLogTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/VectorBasedNanoLogTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/tests/VirtualLogTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/tests/VirtualLogTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/Common.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/Common.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/DurableLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/DurableLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/MetadataStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/MetadataStore.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/NanoLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/NanoLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/NanoLogStore.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/NanoLogStore.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/Replica.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/Replica.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/Sequencer.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/Sequencer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/VirtualLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/VirtualLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/CounterEntry.proto" beforeDir="false" afterPath="$PROJECT_DIR$/applications/counter/proto/CounterEntry.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/MetadataConfig.proto" beforeDir="false" afterPath="$PROJECT_DIR$/log/proto/MetadataConfig.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/FutureUtils.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/utils/FutureUtils.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/OrderedCompletionQueue.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/utils/OrderedCompletionQueue.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/tests/FutureUtilsTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/utils/tests/FutureUtilsTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/tests/OrderedCompletionQueueTests.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/utils/tests/OrderedCompletionQueueTests.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,11 +143,14 @@
       <recent name="$PROJECT_DIR$/proto" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/applications/counter" />
+      <recent name="$PROJECT_DIR$/log" />
+      <recent name="$PROJECT_DIR$/log/proto" />
       <recent name="$PROJECT_DIR$/utils/tests" />
       <recent name="$PROJECT_DIR$/include" />
     </key>
   </component>
-  <component name="RunManager" selected="Google Test.VirtualLogTests.Reconfigure">
+  <component name="RunManager" selected="CMake Application.LogStorage">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
@@ -148,31 +193,31 @@
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="VirtualLogTests.GetNonExistentLogEntry" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="GetNonExistentLogEntry" TEST_MODE="SUITE_TEST">
+    <configuration name="All in MetadataStoreTest.cc and 6 more" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/log/impl/tests/MetadataStoreTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/MockReplica.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/ReplicaTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/SequencerTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/TestUtils.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/VectorBasedNanoLogTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/VirtualLogTest.cc)" TEST_MODE="PATTERN">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="VirtualLogTests.GetOneLogEntry" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="GetOneLogEntry" TEST_MODE="SUITE_TEST">
+    <configuration name="FutureUtilsTest.anyNSuccessful" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage" TEST_CLASS="FutureUtilsTest" TEST_METHOD="anyNSuccessful" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="VirtualLogTests.GetOneLogEntryWithMinorityFailing" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="GetOneLogEntryWithMinorityFailing" TEST_MODE="SUITE_TEST">
+    <configuration name="VirtualLogTests.GetOneLogEntryWithMinorityFailing" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="GetOneLogEntryWithMinorityFailing" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="VirtualLogTests.GetOneLogEntryWithMostFailing" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="GetOneLogEntryWithMostFailing" TEST_MODE="SUITE_TEST">
+    <configuration name="VirtualLogTests.GetOneLogEntryWithMostFailing" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="GetOneLogEntryWithMostFailing" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="VirtualLogTests.Reconfigure" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="Reconfigure" TEST_MODE="SUITE_TEST">
+    <configuration name="VirtualLogTests.Reconfigure" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="Reconfigure" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
@@ -192,19 +237,19 @@
     <list>
       <item itemvalue="CMake Application.LogStorage" />
       <item itemvalue="Google Test.tests" />
+      <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
+      <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
       <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMinorityFailing" />
       <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMostFailing" />
       <item itemvalue="Google Test.VirtualLogTests.Reconfigure" />
-      <item itemvalue="Google Test.VirtualLogTests.GetNonExistentLogEntry" />
-      <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntry" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
+        <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
         <item itemvalue="Google Test.VirtualLogTests.Reconfigure" />
         <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMostFailing" />
         <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMinorityFailing" />
-        <item itemvalue="Google Test.VirtualLogTests.GetNonExistentLogEntry" />
-        <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntry" />
       </list>
     </recent_temporary>
   </component>
@@ -236,7 +281,7 @@
       <workItem from="1676498785389" duration="3038000" />
       <workItem from="1676685713471" duration="1626000" />
       <workItem from="1676856935103" duration="782000" />
-      <workItem from="1676910142890" duration="3036000" />
+      <workItem from="1676910142890" duration="12627000" />
     </task>
     <servers />
   </component>

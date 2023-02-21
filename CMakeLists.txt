@@ -1,66 +1,64 @@
 cmake_minimum_required(VERSION 3.23)
 project(LogStorage)
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
+add_compile_options(-fsanitize=undefined)
+add_link_options(-fsanitize=undefined)
 
 include_directories(/opt/homebrew/include)
 link_directories(/opt/homebrew/lib)
 
-add_executable(LogStorage main.cpp include/DurableLog.h
-        VectorBasedDurableLog.cc VectorBasedDurableLog.h StateMachine.h
-        Counter.cc Counter.h CounterApplication.cc CounterApplication.h
-        CounterEntry.pb.h CounterEntry.pb.cc
-        include/NanoLog.h include/Common.h include/MetadataStore.h
-        impl/InMemoryMetadataStore.cc impl/InMemoryMetadataStore.h
-        include/VirtualLog.h impl/VirtualLogImpl.h impl/VirtualLogImpl.cc
-        include/Replica.h impl/SequencerImpl.cc impl/SequencerImpl.h
-        include/Sequencer.h impl/VectorBasedNanoLog.cc impl/VectorBasedNanoLog.h
-        impl/tests/VectorBasedNanoLogTest.cc utils/OrderedCompletionQueue.h
-        utils/tests/OrderedCompletionQueueTests.cc utils/FutureUtils.h
-        utils/tests/FutureUtilsTest.cc impl/ReplicaImpl.cc impl/ReplicaImpl.h
-        include/NanoLogStore.h impl/NanoLogStoreImpl.cc impl/NanoLogStoreImpl.h
-        impl/tests/MetadataStoreTest.cc impl/tests/ReplicaTest.cc
-        impl/tests/MockReplica.h impl/tests/SequencerTest.cc
-        impl/tests/VirtualLogTest.cc impl/tests/TestUtils.h)
+add_executable(LogStorage main.cpp log/include/DurableLog.h
+        applications/counter/CounterEntry.pb.h applications/counter/CounterEntry.pb.cc
+        log/include/NanoLog.h log/include/Common.h log/include/MetadataStore.h
+        log/impl/InMemoryMetadataStore.cc log/impl/InMemoryMetadataStore.h
+        log/include/VirtualLog.h log/impl/VirtualLogImpl.h log/impl/VirtualLogImpl.cc
+        log/include/Replica.h log/impl/SequencerImpl.cc log/impl/SequencerImpl.h
+        log/include/Sequencer.h log/impl/VectorBasedNanoLog.cc log/impl/VectorBasedNanoLog.h
+        log/utils/OrderedCompletionQueue.h log/utils/FutureUtils.h
+        log/impl/ReplicaImpl.cc log/impl/ReplicaImpl.h
+        log/include/NanoLogStore.h log/impl/NanoLogStoreImpl.cc log/impl/NanoLogStoreImpl.h
+        applications/counter/CounterApp.cc applications/counter/CounterApp.h
+        log/impl/VirtualLogFactory.h log/impl/VirtualLogFactory.cc
+        log/MetadataConfig.pb.h log/MetadataConfig.pb.cc)
 
-target_link_libraries(LogStorage protobuf)
-target_link_libraries(LogStorage folly)
+target_link_libraries(LogStorage folly protobuf glog)
 
 enable_testing()
 
 add_executable(
         tests
-        impl/VectorBasedNanoLog.cc impl/VectorBasedNanoLog.h
-        impl/tests/VectorBasedNanoLogTest.cc
+        log/impl/VectorBasedNanoLog.cc log/impl/VectorBasedNanoLog.h
+        log/impl/tests/VectorBasedNanoLogTest.cc
 
-        MetadataConfig.pb.h MetadataConfig.pb.cc
-        impl/InMemoryMetadataStore.h impl/InMemoryMetadataStore.cc
-        impl/tests/MetadataStoreTest.cc
+        log/MetadataConfig.pb.h log/MetadataConfig.pb.cc
+        log/impl/InMemoryMetadataStore.h log/impl/InMemoryMetadataStore.cc
+        log/impl/tests/MetadataStoreTest.cc
 
-        impl/ReplicaImpl.h impl/ReplicaImpl.cc
-        impl/NanoLogStoreImpl.h impl/NanoLogStoreImpl.cc
-        impl/tests/ReplicaTest.cc
+        log/impl/ReplicaImpl.h log/impl/ReplicaImpl.cc
+        log/impl/NanoLogStoreImpl.h log/impl/NanoLogStoreImpl.cc
+        log/impl/tests/ReplicaTest.cc
 
-        impl/SequencerImpl.h impl/SequencerImpl.cc
-        include/Sequencer.h impl/VectorBasedNanoLog.h impl/VectorBasedNanoLog.cc
-        impl/tests/SequencerTest.cc
+        log/impl/SequencerImpl.h log/impl/SequencerImpl.cc
+        log/include/Sequencer.h log/impl/VectorBasedNanoLog.h log/impl/VectorBasedNanoLog.cc
+        log/impl/tests/SequencerTest.cc
 
-        impl/tests/MockReplica.h
+        log/impl/tests/MockReplica.h
 
-        impl/VirtualLogImpl.cc impl/VirtualLogImpl.h
-        include/VirtualLog.h
-        impl/tests/VirtualLogTest.cc
+        log/impl/VirtualLogImpl.cc log/impl/VirtualLogImpl.h
+        log/include/VirtualLog.h
+        log/impl/tests/VirtualLogTest.cc
 
-        impl/tests/TestUtils.h
+        log/impl/tests/TestUtils.h
 
-        utils/OrderedCompletionQueue.h
-        utils/tests/OrderedCompletionQueueTests.cc
+        log/utils/OrderedCompletionQueue.h
+        log/utils/tests/OrderedCompletionQueueTests.cc
 
-        utils/FutureUtils.h
-        utils/tests/FutureUtilsTest.cc
+        log/utils/FutureUtils.h
+        log/utils/tests/FutureUtilsTest.cc
 )
 
 target_link_libraries(tests gtest)

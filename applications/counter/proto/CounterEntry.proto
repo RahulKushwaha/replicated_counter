@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package rk.projects.counter_app;
+
+message CounterLogEntry{
+  enum CommandType{
+    INCR = 0;
+    DECR = 1;
+  }
+
+  int64 val = 1;
+  CommandType commandType = 2;
+  string description = 3;
+}

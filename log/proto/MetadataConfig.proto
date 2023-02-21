@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package rk.projects.durable_log;
+
+message MetadataConfig{
+  int64 versionId = 1;
+  int64 previousVersionId = 2;
+
+  int64 startIndex = 3;
+  int64 endIndex = 4;
+  int64 previousVersionEndIndex = 5;
+}

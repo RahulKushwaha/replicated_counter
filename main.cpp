@@ -1,29 +1,24 @@
 #include <iostream>
 #include <utility>
 
-#include "include/DurableLog.h"
-#include "VectorBasedDurableLog.h"
-#include "Counter.h"
-#include "CounterApplication.h"
+#include "applications/counter/CounterApp.h"
+#include "log/impl/VirtualLogFactory.h"
 
 int main() {
-  using namespace rk::project::counter;
+  using namespace rk::projects::durable_log;
+  using namespace rk::projects::counter_app;
 
-  std::cout << "Init Counter Application" << std::endl;
+  LOG(INFO) << "Init Counter Application" << std::endl;
 
-  std::cout << "Init Durable Log" << std::endl;
-  std::shared_ptr<DurableLog>
-      log = std::make_shared<VectorBasedDurableLog>("COUNTER", 0);
 
-  std::cout << "Init Counter Applicator" << std::endl;
-  std::shared_ptr<Counter> counter = std::make_shared<Counter>(0, log, -1);
+  std::shared_ptr<VirtualLog> log = makeVirtualLog("CounterApplication");
+  auto counterApp = CounterApp(log);
 
-  CounterApplication counterApplication{log, counter};
+  LOG(INFO) << "Counter Application Started";
   srand(time(nullptr));
 
-  for (int i = 0; i < 100; i++) {
-    auto val = rand() % 100;
-    std::cout << counterApplication.increment(val) << std::endl;
+  for (int i = 1; i <= 50; i++) {
+    LOG(INFO) << counterApp.incrementAndGet(1);
   }
 
   return 0;
