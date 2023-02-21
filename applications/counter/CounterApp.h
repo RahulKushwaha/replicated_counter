@@ -17,15 +17,16 @@ class CounterApp {
   explicit CounterApp(std::shared_ptr<VirtualLog> virtualLog);
 
   std::int64_t incrementAndGet(std::int64_t incrBy);
-
+  std::int64_t decrementAndGet(std::int64_t decrBy);
   std::int64_t get();
 
  private:
-  static std::string serialize(std::int64_t val);
-
+  static std::string
+  serialize(std::int64_t val, CounterLogEntry_CommandType commandType);
   static CounterLogEntry deserialize(std::string payload);
 
   void apply(const CounterLogEntry &counterLogEntry);
+  void sync(LogId to);
 
  private:
   std::shared_ptr<VirtualLog> virtualLog_;

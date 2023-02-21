@@ -17,9 +17,16 @@ int main() {
   LOG(INFO) << "Counter Application Started";
   srand(time(nullptr));
 
+  std::int64_t val = 0;
   for (int i = 1; i <= 50; i++) {
-    LOG(INFO) << counterApp.incrementAndGet(1);
+    LOG(INFO) << (val = counterApp.incrementAndGet(1));
   }
+
+  for (int i = 1; i <= 50; i++) {
+    LOG(INFO) << (val = counterApp.decrementAndGet(1));
+  }
+
+  assert(val == 0);
 
   return 0;
 }
