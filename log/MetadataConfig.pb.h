@@ -50,17 +50,331 @@ namespace durable_log {
 class MetadataConfig;
 struct MetadataConfigDefaultTypeInternal;
 extern MetadataConfigDefaultTypeInternal _MetadataConfig_default_instance_;
+class ReplicaConfig;
+struct ReplicaConfigDefaultTypeInternal;
+extern ReplicaConfigDefaultTypeInternal _ReplicaConfig_default_instance_;
+class SequencerConfig;
+struct SequencerConfigDefaultTypeInternal;
+extern SequencerConfigDefaultTypeInternal _SequencerConfig_default_instance_;
 }  // namespace durable_log
 }  // namespace projects
 }  // namespace rk
 PROTOBUF_NAMESPACE_OPEN
 template<> ::rk::projects::durable_log::MetadataConfig* Arena::CreateMaybeMessage<::rk::projects::durable_log::MetadataConfig>(Arena*);
+template<> ::rk::projects::durable_log::ReplicaConfig* Arena::CreateMaybeMessage<::rk::projects::durable_log::ReplicaConfig>(Arena*);
+template<> ::rk::projects::durable_log::SequencerConfig* Arena::CreateMaybeMessage<::rk::projects::durable_log::SequencerConfig>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace rk {
 namespace projects {
 namespace durable_log {
 
 // ===================================================================
+
+class SequencerConfig final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:rk.projects.durable_log.SequencerConfig) */ {
+ public:
+  inline SequencerConfig() : SequencerConfig(nullptr) {}
+  ~SequencerConfig() override;
+  explicit PROTOBUF_CONSTEXPR SequencerConfig(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SequencerConfig(const SequencerConfig& from);
+  SequencerConfig(SequencerConfig&& from) noexcept
+    : SequencerConfig() {
+    *this = ::std::move(from);
+  }
+
+  inline SequencerConfig& operator=(const SequencerConfig& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SequencerConfig& operator=(SequencerConfig&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SequencerConfig& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SequencerConfig* internal_default_instance() {
+    return reinterpret_cast<const SequencerConfig*>(
+               &_SequencerConfig_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(SequencerConfig& a, SequencerConfig& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SequencerConfig* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SequencerConfig* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  SequencerConfig* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SequencerConfig>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SequencerConfig& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const SequencerConfig& from) {
+    SequencerConfig::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SequencerConfig* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "rk.projects.durable_log.SequencerConfig";
+  }
+  protected:
+  explicit SequencerConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIdFieldNumber = 1,
+  };
+  // string id = 1;
+  void clear_id();
+  const std::string& id() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_id(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_id();
+  PROTOBUF_NODISCARD std::string* release_id();
+  void set_allocated_id(std::string* id);
+  private:
+  const std::string& _internal_id() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_id(const std::string& value);
+  std::string* _internal_mutable_id();
+  public:
+
+  // @@protoc_insertion_point(class_scope:rk.projects.durable_log.SequencerConfig)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_MetadataConfig_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ReplicaConfig final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:rk.projects.durable_log.ReplicaConfig) */ {
+ public:
+  inline ReplicaConfig() : ReplicaConfig(nullptr) {}
+  ~ReplicaConfig() override;
+  explicit PROTOBUF_CONSTEXPR ReplicaConfig(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ReplicaConfig(const ReplicaConfig& from);
+  ReplicaConfig(ReplicaConfig&& from) noexcept
+    : ReplicaConfig() {
+    *this = ::std::move(from);
+  }
+
+  inline ReplicaConfig& operator=(const ReplicaConfig& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ReplicaConfig& operator=(ReplicaConfig&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ReplicaConfig& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ReplicaConfig* internal_default_instance() {
+    return reinterpret_cast<const ReplicaConfig*>(
+               &_ReplicaConfig_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(ReplicaConfig& a, ReplicaConfig& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ReplicaConfig* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ReplicaConfig* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ReplicaConfig* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ReplicaConfig>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ReplicaConfig& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ReplicaConfig& from) {
+    ReplicaConfig::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ReplicaConfig* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "rk.projects.durable_log.ReplicaConfig";
+  }
+  protected:
+  explicit ReplicaConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIdFieldNumber = 1,
+  };
+  // string id = 1;
+  void clear_id();
+  const std::string& id() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_id(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_id();
+  PROTOBUF_NODISCARD std::string* release_id();
+  void set_allocated_id(std::string* id);
+  private:
+  const std::string& _internal_id() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_id(const std::string& value);
+  std::string* _internal_mutable_id();
+  public:
+
+  // @@protoc_insertion_point(class_scope:rk.projects.durable_log.ReplicaConfig)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_MetadataConfig_2eproto;
+};
+// -------------------------------------------------------------------
 
 class MetadataConfig final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:rk.projects.durable_log.MetadataConfig) */ {
@@ -110,7 +424,7 @@ class MetadataConfig final :
                &_MetadataConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    2;
 
   friend void swap(MetadataConfig& a, MetadataConfig& b) {
     a.Swap(&b);
@@ -183,55 +497,93 @@ class MetadataConfig final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kReplicaSetConfigFieldNumber = 7,
+    kSequencerConfigFieldNumber = 6,
     kVersionIdFieldNumber = 1,
     kPreviousVersionIdFieldNumber = 2,
     kStartIndexFieldNumber = 3,
     kEndIndexFieldNumber = 4,
     kPreviousVersionEndIndexFieldNumber = 5,
   };
-  // int64 versionId = 1;
-  void clear_versionid();
-  int64_t versionid() const;
-  void set_versionid(int64_t value);
+  // repeated .rk.projects.durable_log.ReplicaConfig replica_set_config = 7;
+  int replica_set_config_size() const;
   private:
-  int64_t _internal_versionid() const;
-  void _internal_set_versionid(int64_t value);
+  int _internal_replica_set_config_size() const;
+  public:
+  void clear_replica_set_config();
+  ::rk::projects::durable_log::ReplicaConfig* mutable_replica_set_config(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::rk::projects::durable_log::ReplicaConfig >*
+      mutable_replica_set_config();
+  private:
+  const ::rk::projects::durable_log::ReplicaConfig& _internal_replica_set_config(int index) const;
+  ::rk::projects::durable_log::ReplicaConfig* _internal_add_replica_set_config();
+  public:
+  const ::rk::projects::durable_log::ReplicaConfig& replica_set_config(int index) const;
+  ::rk::projects::durable_log::ReplicaConfig* add_replica_set_config();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::rk::projects::durable_log::ReplicaConfig >&
+      replica_set_config() const;
+
+  // .rk.projects.durable_log.SequencerConfig sequencer_config = 6;
+  bool has_sequencer_config() const;
+  private:
+  bool _internal_has_sequencer_config() const;
+  public:
+  void clear_sequencer_config();
+  const ::rk::projects::durable_log::SequencerConfig& sequencer_config() const;
+  PROTOBUF_NODISCARD ::rk::projects::durable_log::SequencerConfig* release_sequencer_config();
+  ::rk::projects::durable_log::SequencerConfig* mutable_sequencer_config();
+  void set_allocated_sequencer_config(::rk::projects::durable_log::SequencerConfig* sequencer_config);
+  private:
+  const ::rk::projects::durable_log::SequencerConfig& _internal_sequencer_config() const;
+  ::rk::projects::durable_log::SequencerConfig* _internal_mutable_sequencer_config();
+  public:
+  void unsafe_arena_set_allocated_sequencer_config(
+      ::rk::projects::durable_log::SequencerConfig* sequencer_config);
+  ::rk::projects::durable_log::SequencerConfig* unsafe_arena_release_sequencer_config();
+
+  // int64 version_id = 1;
+  void clear_version_id();
+  int64_t version_id() const;
+  void set_version_id(int64_t value);
+  private:
+  int64_t _internal_version_id() const;
+  void _internal_set_version_id(int64_t value);
   public:
 
-  // int64 previousVersionId = 2;
-  void clear_previousversionid();
-  int64_t previousversionid() const;
-  void set_previousversionid(int64_t value);
+  // int64 previous_version_id = 2;
+  void clear_previous_version_id();
+  int64_t previous_version_id() const;
+  void set_previous_version_id(int64_t value);
   private:
-  int64_t _internal_previousversionid() const;
-  void _internal_set_previousversionid(int64_t value);
+  int64_t _internal_previous_version_id() const;
+  void _internal_set_previous_version_id(int64_t value);
   public:
 
-  // int64 startIndex = 3;
-  void clear_startindex();
-  int64_t startindex() const;
-  void set_startindex(int64_t value);
+  // int64 start_index = 3;
+  void clear_start_index();
+  int64_t start_index() const;
+  void set_start_index(int64_t value);
   private:
-  int64_t _internal_startindex() const;
-  void _internal_set_startindex(int64_t value);
+  int64_t _internal_start_index() const;
+  void _internal_set_start_index(int64_t value);
   public:
 
-  // int64 endIndex = 4;
-  void clear_endindex();
-  int64_t endindex() const;
-  void set_endindex(int64_t value);
+  // int64 end_index = 4;
+  void clear_end_index();
+  int64_t end_index() const;
+  void set_end_index(int64_t value);
   private:
-  int64_t _internal_endindex() const;
-  void _internal_set_endindex(int64_t value);
+  int64_t _internal_end_index() const;
+  void _internal_set_end_index(int64_t value);
   public:
 
-  // int64 previousVersionEndIndex = 5;
-  void clear_previousversionendindex();
-  int64_t previousversionendindex() const;
-  void set_previousversionendindex(int64_t value);
+  // int64 previous_version_end_index = 5;
+  void clear_previous_version_end_index();
+  int64_t previous_version_end_index() const;
+  void set_previous_version_end_index(int64_t value);
   private:
-  int64_t _internal_previousversionendindex() const;
-  void _internal_set_previousversionendindex(int64_t value);
+  int64_t _internal_previous_version_end_index() const;
+  void _internal_set_previous_version_end_index(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:rk.projects.durable_log.MetadataConfig)
@@ -242,11 +594,13 @@ class MetadataConfig final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    int64_t versionid_;
-    int64_t previousversionid_;
-    int64_t startindex_;
-    int64_t endindex_;
-    int64_t previousversionendindex_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::rk::projects::durable_log::ReplicaConfig > replica_set_config_;
+    ::rk::projects::durable_log::SequencerConfig* sequencer_config_;
+    int64_t version_id_;
+    int64_t previous_version_id_;
+    int64_t start_index_;
+    int64_t end_index_;
+    int64_t previous_version_end_index_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -261,111 +615,353 @@ class MetadataConfig final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// SequencerConfig
+
+// string id = 1;
+inline void SequencerConfig::clear_id() {
+  _impl_.id_.ClearToEmpty();
+}
+inline const std::string& SequencerConfig::id() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.SequencerConfig.id)
+  return _internal_id();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void SequencerConfig::set_id(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.id_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.SequencerConfig.id)
+}
+inline std::string* SequencerConfig::mutable_id() {
+  std::string* _s = _internal_mutable_id();
+  // @@protoc_insertion_point(field_mutable:rk.projects.durable_log.SequencerConfig.id)
+  return _s;
+}
+inline const std::string& SequencerConfig::_internal_id() const {
+  return _impl_.id_.Get();
+}
+inline void SequencerConfig::_internal_set_id(const std::string& value) {
+  
+  _impl_.id_.Set(value, GetArenaForAllocation());
+}
+inline std::string* SequencerConfig::_internal_mutable_id() {
+  
+  return _impl_.id_.Mutable(GetArenaForAllocation());
+}
+inline std::string* SequencerConfig::release_id() {
+  // @@protoc_insertion_point(field_release:rk.projects.durable_log.SequencerConfig.id)
+  return _impl_.id_.Release();
+}
+inline void SequencerConfig::set_allocated_id(std::string* id) {
+  if (id != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.id_.SetAllocated(id, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.id_.IsDefault()) {
+    _impl_.id_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:rk.projects.durable_log.SequencerConfig.id)
+}
+
+// -------------------------------------------------------------------
+
+// ReplicaConfig
+
+// string id = 1;
+inline void ReplicaConfig::clear_id() {
+  _impl_.id_.ClearToEmpty();
+}
+inline const std::string& ReplicaConfig::id() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.ReplicaConfig.id)
+  return _internal_id();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ReplicaConfig::set_id(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.id_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.ReplicaConfig.id)
+}
+inline std::string* ReplicaConfig::mutable_id() {
+  std::string* _s = _internal_mutable_id();
+  // @@protoc_insertion_point(field_mutable:rk.projects.durable_log.ReplicaConfig.id)
+  return _s;
+}
+inline const std::string& ReplicaConfig::_internal_id() const {
+  return _impl_.id_.Get();
+}
+inline void ReplicaConfig::_internal_set_id(const std::string& value) {
+  
+  _impl_.id_.Set(value, GetArenaForAllocation());
+}
+inline std::string* ReplicaConfig::_internal_mutable_id() {
+  
+  return _impl_.id_.Mutable(GetArenaForAllocation());
+}
+inline std::string* ReplicaConfig::release_id() {
+  // @@protoc_insertion_point(field_release:rk.projects.durable_log.ReplicaConfig.id)
+  return _impl_.id_.Release();
+}
+inline void ReplicaConfig::set_allocated_id(std::string* id) {
+  if (id != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.id_.SetAllocated(id, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.id_.IsDefault()) {
+    _impl_.id_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:rk.projects.durable_log.ReplicaConfig.id)
+}
+
+// -------------------------------------------------------------------
+
 // MetadataConfig
 
-// int64 versionId = 1;
-inline void MetadataConfig::clear_versionid() {
-  _impl_.versionid_ = int64_t{0};
+// int64 version_id = 1;
+inline void MetadataConfig::clear_version_id() {
+  _impl_.version_id_ = int64_t{0};
 }
-inline int64_t MetadataConfig::_internal_versionid() const {
-  return _impl_.versionid_;
+inline int64_t MetadataConfig::_internal_version_id() const {
+  return _impl_.version_id_;
 }
-inline int64_t MetadataConfig::versionid() const {
-  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.versionId)
-  return _internal_versionid();
+inline int64_t MetadataConfig::version_id() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.version_id)
+  return _internal_version_id();
 }
-inline void MetadataConfig::_internal_set_versionid(int64_t value) {
+inline void MetadataConfig::_internal_set_version_id(int64_t value) {
   
-  _impl_.versionid_ = value;
+  _impl_.version_id_ = value;
 }
-inline void MetadataConfig::set_versionid(int64_t value) {
-  _internal_set_versionid(value);
-  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.versionId)
+inline void MetadataConfig::set_version_id(int64_t value) {
+  _internal_set_version_id(value);
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.version_id)
 }
 
-// int64 previousVersionId = 2;
-inline void MetadataConfig::clear_previousversionid() {
-  _impl_.previousversionid_ = int64_t{0};
+// int64 previous_version_id = 2;
+inline void MetadataConfig::clear_previous_version_id() {
+  _impl_.previous_version_id_ = int64_t{0};
 }
-inline int64_t MetadataConfig::_internal_previousversionid() const {
-  return _impl_.previousversionid_;
+inline int64_t MetadataConfig::_internal_previous_version_id() const {
+  return _impl_.previous_version_id_;
 }
-inline int64_t MetadataConfig::previousversionid() const {
-  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.previousVersionId)
-  return _internal_previousversionid();
+inline int64_t MetadataConfig::previous_version_id() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.previous_version_id)
+  return _internal_previous_version_id();
 }
-inline void MetadataConfig::_internal_set_previousversionid(int64_t value) {
+inline void MetadataConfig::_internal_set_previous_version_id(int64_t value) {
   
-  _impl_.previousversionid_ = value;
+  _impl_.previous_version_id_ = value;
 }
-inline void MetadataConfig::set_previousversionid(int64_t value) {
-  _internal_set_previousversionid(value);
-  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.previousVersionId)
+inline void MetadataConfig::set_previous_version_id(int64_t value) {
+  _internal_set_previous_version_id(value);
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.previous_version_id)
 }
 
-// int64 startIndex = 3;
-inline void MetadataConfig::clear_startindex() {
-  _impl_.startindex_ = int64_t{0};
+// int64 start_index = 3;
+inline void MetadataConfig::clear_start_index() {
+  _impl_.start_index_ = int64_t{0};
 }
-inline int64_t MetadataConfig::_internal_startindex() const {
-  return _impl_.startindex_;
+inline int64_t MetadataConfig::_internal_start_index() const {
+  return _impl_.start_index_;
 }
-inline int64_t MetadataConfig::startindex() const {
-  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.startIndex)
-  return _internal_startindex();
+inline int64_t MetadataConfig::start_index() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.start_index)
+  return _internal_start_index();
 }
-inline void MetadataConfig::_internal_set_startindex(int64_t value) {
+inline void MetadataConfig::_internal_set_start_index(int64_t value) {
   
-  _impl_.startindex_ = value;
+  _impl_.start_index_ = value;
 }
-inline void MetadataConfig::set_startindex(int64_t value) {
-  _internal_set_startindex(value);
-  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.startIndex)
+inline void MetadataConfig::set_start_index(int64_t value) {
+  _internal_set_start_index(value);
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.start_index)
 }
 
-// int64 endIndex = 4;
-inline void MetadataConfig::clear_endindex() {
-  _impl_.endindex_ = int64_t{0};
+// int64 end_index = 4;
+inline void MetadataConfig::clear_end_index() {
+  _impl_.end_index_ = int64_t{0};
 }
-inline int64_t MetadataConfig::_internal_endindex() const {
-  return _impl_.endindex_;
+inline int64_t MetadataConfig::_internal_end_index() const {
+  return _impl_.end_index_;
 }
-inline int64_t MetadataConfig::endindex() const {
-  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.endIndex)
-  return _internal_endindex();
+inline int64_t MetadataConfig::end_index() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.end_index)
+  return _internal_end_index();
 }
-inline void MetadataConfig::_internal_set_endindex(int64_t value) {
+inline void MetadataConfig::_internal_set_end_index(int64_t value) {
   
-  _impl_.endindex_ = value;
+  _impl_.end_index_ = value;
 }
-inline void MetadataConfig::set_endindex(int64_t value) {
-  _internal_set_endindex(value);
-  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.endIndex)
+inline void MetadataConfig::set_end_index(int64_t value) {
+  _internal_set_end_index(value);
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.end_index)
 }
 
-// int64 previousVersionEndIndex = 5;
-inline void MetadataConfig::clear_previousversionendindex() {
-  _impl_.previousversionendindex_ = int64_t{0};
+// int64 previous_version_end_index = 5;
+inline void MetadataConfig::clear_previous_version_end_index() {
+  _impl_.previous_version_end_index_ = int64_t{0};
 }
-inline int64_t MetadataConfig::_internal_previousversionendindex() const {
-  return _impl_.previousversionendindex_;
+inline int64_t MetadataConfig::_internal_previous_version_end_index() const {
+  return _impl_.previous_version_end_index_;
 }
-inline int64_t MetadataConfig::previousversionendindex() const {
-  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.previousVersionEndIndex)
-  return _internal_previousversionendindex();
+inline int64_t MetadataConfig::previous_version_end_index() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.previous_version_end_index)
+  return _internal_previous_version_end_index();
 }
-inline void MetadataConfig::_internal_set_previousversionendindex(int64_t value) {
+inline void MetadataConfig::_internal_set_previous_version_end_index(int64_t value) {
   
-  _impl_.previousversionendindex_ = value;
+  _impl_.previous_version_end_index_ = value;
 }
-inline void MetadataConfig::set_previousversionendindex(int64_t value) {
-  _internal_set_previousversionendindex(value);
-  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.previousVersionEndIndex)
+inline void MetadataConfig::set_previous_version_end_index(int64_t value) {
+  _internal_set_previous_version_end_index(value);
+  // @@protoc_insertion_point(field_set:rk.projects.durable_log.MetadataConfig.previous_version_end_index)
+}
+
+// .rk.projects.durable_log.SequencerConfig sequencer_config = 6;
+inline bool MetadataConfig::_internal_has_sequencer_config() const {
+  return this != internal_default_instance() && _impl_.sequencer_config_ != nullptr;
+}
+inline bool MetadataConfig::has_sequencer_config() const {
+  return _internal_has_sequencer_config();
+}
+inline void MetadataConfig::clear_sequencer_config() {
+  if (GetArenaForAllocation() == nullptr && _impl_.sequencer_config_ != nullptr) {
+    delete _impl_.sequencer_config_;
+  }
+  _impl_.sequencer_config_ = nullptr;
+}
+inline const ::rk::projects::durable_log::SequencerConfig& MetadataConfig::_internal_sequencer_config() const {
+  const ::rk::projects::durable_log::SequencerConfig* p = _impl_.sequencer_config_;
+  return p != nullptr ? *p : reinterpret_cast<const ::rk::projects::durable_log::SequencerConfig&>(
+      ::rk::projects::durable_log::_SequencerConfig_default_instance_);
+}
+inline const ::rk::projects::durable_log::SequencerConfig& MetadataConfig::sequencer_config() const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.sequencer_config)
+  return _internal_sequencer_config();
+}
+inline void MetadataConfig::unsafe_arena_set_allocated_sequencer_config(
+    ::rk::projects::durable_log::SequencerConfig* sequencer_config) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.sequencer_config_);
+  }
+  _impl_.sequencer_config_ = sequencer_config;
+  if (sequencer_config) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:rk.projects.durable_log.MetadataConfig.sequencer_config)
+}
+inline ::rk::projects::durable_log::SequencerConfig* MetadataConfig::release_sequencer_config() {
+  
+  ::rk::projects::durable_log::SequencerConfig* temp = _impl_.sequencer_config_;
+  _impl_.sequencer_config_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::rk::projects::durable_log::SequencerConfig* MetadataConfig::unsafe_arena_release_sequencer_config() {
+  // @@protoc_insertion_point(field_release:rk.projects.durable_log.MetadataConfig.sequencer_config)
+  
+  ::rk::projects::durable_log::SequencerConfig* temp = _impl_.sequencer_config_;
+  _impl_.sequencer_config_ = nullptr;
+  return temp;
+}
+inline ::rk::projects::durable_log::SequencerConfig* MetadataConfig::_internal_mutable_sequencer_config() {
+  
+  if (_impl_.sequencer_config_ == nullptr) {
+    auto* p = CreateMaybeMessage<::rk::projects::durable_log::SequencerConfig>(GetArenaForAllocation());
+    _impl_.sequencer_config_ = p;
+  }
+  return _impl_.sequencer_config_;
+}
+inline ::rk::projects::durable_log::SequencerConfig* MetadataConfig::mutable_sequencer_config() {
+  ::rk::projects::durable_log::SequencerConfig* _msg = _internal_mutable_sequencer_config();
+  // @@protoc_insertion_point(field_mutable:rk.projects.durable_log.MetadataConfig.sequencer_config)
+  return _msg;
+}
+inline void MetadataConfig::set_allocated_sequencer_config(::rk::projects::durable_log::SequencerConfig* sequencer_config) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.sequencer_config_;
+  }
+  if (sequencer_config) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(sequencer_config);
+    if (message_arena != submessage_arena) {
+      sequencer_config = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, sequencer_config, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.sequencer_config_ = sequencer_config;
+  // @@protoc_insertion_point(field_set_allocated:rk.projects.durable_log.MetadataConfig.sequencer_config)
+}
+
+// repeated .rk.projects.durable_log.ReplicaConfig replica_set_config = 7;
+inline int MetadataConfig::_internal_replica_set_config_size() const {
+  return _impl_.replica_set_config_.size();
+}
+inline int MetadataConfig::replica_set_config_size() const {
+  return _internal_replica_set_config_size();
+}
+inline void MetadataConfig::clear_replica_set_config() {
+  _impl_.replica_set_config_.Clear();
+}
+inline ::rk::projects::durable_log::ReplicaConfig* MetadataConfig::mutable_replica_set_config(int index) {
+  // @@protoc_insertion_point(field_mutable:rk.projects.durable_log.MetadataConfig.replica_set_config)
+  return _impl_.replica_set_config_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::rk::projects::durable_log::ReplicaConfig >*
+MetadataConfig::mutable_replica_set_config() {
+  // @@protoc_insertion_point(field_mutable_list:rk.projects.durable_log.MetadataConfig.replica_set_config)
+  return &_impl_.replica_set_config_;
+}
+inline const ::rk::projects::durable_log::ReplicaConfig& MetadataConfig::_internal_replica_set_config(int index) const {
+  return _impl_.replica_set_config_.Get(index);
+}
+inline const ::rk::projects::durable_log::ReplicaConfig& MetadataConfig::replica_set_config(int index) const {
+  // @@protoc_insertion_point(field_get:rk.projects.durable_log.MetadataConfig.replica_set_config)
+  return _internal_replica_set_config(index);
+}
+inline ::rk::projects::durable_log::ReplicaConfig* MetadataConfig::_internal_add_replica_set_config() {
+  return _impl_.replica_set_config_.Add();
+}
+inline ::rk::projects::durable_log::ReplicaConfig* MetadataConfig::add_replica_set_config() {
+  ::rk::projects::durable_log::ReplicaConfig* _add = _internal_add_replica_set_config();
+  // @@protoc_insertion_point(field_add:rk.projects.durable_log.MetadataConfig.replica_set_config)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::rk::projects::durable_log::ReplicaConfig >&
+MetadataConfig::replica_set_config() const {
+  // @@protoc_insertion_point(field_list:rk.projects.durable_log.MetadataConfig.replica_set_config)
+  return _impl_.replica_set_config_;
 }
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -23,7 +23,7 @@ InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
   }
 
   while (true) {
-    if (logId >= itr->second.startindex() && logId < itr->second.endindex()) {
+    if (logId >= itr->second.start_index() && logId < itr->second.end_index()) {
       return itr->second;
     }
 
@@ -70,19 +70,19 @@ void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
       throw OptimisticConcurrencyException{};
     }
 
-    state_->configs_[newMetadataConfig.versionid()] = newMetadataConfig;
-    state_->logIdToConfig_[newMetadataConfig.startindex()] = newMetadataConfig;
+    state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
+    state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
     return;
   }
 
   auto lastConfig = state_->configs_.rbegin();
   if (lastConfig->first == versionId
-      && lastConfig->first + 1 == newMetadataConfig.versionid()) {
+      && lastConfig->first + 1 == newMetadataConfig.version_id()) {
     // Now we have an implicit contract that the new index is 1 greater than
     // last config index.
-    state_->configs_[versionId].set_endindex(newMetadataConfig.previousversionendindex());
-    state_->configs_[newMetadataConfig.versionid()] = newMetadataConfig;
-    state_->logIdToConfig_[newMetadataConfig.startindex()] = newMetadataConfig;
+    state_->configs_[versionId].set_end_index(newMetadataConfig.previous_version_end_index());
+    state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
+    state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
     return;
   }
 

@@ -40,19 +40,19 @@ ReplicaImpl::append(LogId logId,
   }
 
   std::shared_ptr<NanoLog>
-      nanoLog = nanoLogStore_->getNanoLog(config->versionid());
+      nanoLog = nanoLogStore_->getNanoLog(config->version_id());
 
   // If there is nanolog for the versionId, we need to create one.
   if (!nanoLog) {
     nanoLog = std::make_shared<VectorBasedNanoLog>
         ("id",
          "name",
-         std::to_string(config->versionid()),
-         config->startindex(),
+         std::to_string(config->version_id()),
+         config->start_index(),
          std::numeric_limits<std::int64_t>::max(),
          false);
 
-    nanoLogStore_->add(config->versionid(), nanoLog);
+    nanoLogStore_->add(config->version_id(), nanoLog);
   }
 
   return nanoLog->append(logId, logEntryPayload, skipSeal)
@@ -77,7 +77,7 @@ ReplicaImpl::getLogEntry(LogId logId) {
   }
 
   std::shared_ptr<NanoLog>
-      nanoLog = nanoLogStore_->getNanoLog(config->versionid());
+      nanoLog = nanoLogStore_->getNanoLog(config->version_id());
 
   if (!nanoLog) {
     return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
@@ -112,12 +112,12 @@ LogId ReplicaImpl::seal(VersionId versionId) {
     nanoLog = std::make_shared<VectorBasedNanoLog>
         ("id",
          "name",
-         std::to_string(config->versionid()),
-         config->startindex(),
+         std::to_string(config->version_id()),
+         config->start_index(),
          std::numeric_limits<std::int64_t>::max(),
          false);
 
-    nanoLogStore_->add(config->versionid(), nanoLog);
+    nanoLogStore_->add(config->version_id(), nanoLog);
 
     nanoLog = nanoLogStore_->getNanoLog(versionId);
   }

@@ -10,6 +10,7 @@ namespace rk::projects::durable_log {
 
 class Sequencer {
  public:
+  virtual std::string getId() = 0;
   virtual folly::SemiFuture<LogId> append(std::string logEntryPayload) = 0;
   virtual ~Sequencer() = default;
 };

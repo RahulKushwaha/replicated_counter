@@ -30,10 +30,10 @@ createSequencer(std::int32_t numberOfBadReplicas = 0) {
 
   // Add metadata block.
   MetadataConfig config;
-  config.set_versionid(1);
-  config.set_previousversionid(0);
-  config.set_startindex(1);
-  config.set_endindex(1000);
+  config.set_version_id(1);
+  config.set_previous_version_id(0);
+  config.set_start_index(1);
+  config.set_end_index(1000);
 
   metadataStore->compareAndAppendRange(0, config);
 
@@ -73,8 +73,8 @@ createSequencer(std::int32_t numberOfBadReplicas = 0) {
     replicaSet.emplace_back(std::move(replica));
   }
 
-  std::shared_ptr<Sequencer>
-      sequencer = std::make_shared<SequencerImpl>(replicaSet, 1);
+  std::shared_ptr<Sequencer> sequencer =
+      std::make_shared<SequencerImpl>("sequencer_id", replicaSet, 1);
 
   return {sequencer, replicaSet, badReplicaSet, goodReplicaSet, metadataStore,
           config};

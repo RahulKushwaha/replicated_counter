@@ -31,7 +31,7 @@ class InMemoryMetadataStore: public MetadataStore {
   struct MetadataConfigComparator {
     bool
     operator()(const MetadataConfig &left, const MetadataConfig &right) const {
-      return left.versionid() < right.versionid();
+      return left.version_id() < right.version_id();
     }
   };
 

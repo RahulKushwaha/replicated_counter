@@ -28,10 +28,10 @@ SequencerCreationResult createReplica() {
   // Add metadata block.
   {
     MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(0);
-    config.set_startindex(500);
-    config.set_endindex(1000);
+    config.set_version_id(1);
+    config.set_previous_version_id(0);
+    config.set_start_index(500);
+    config.set_end_index(1000);
 
     metadataStore->compareAndAppendRange(0, config);
   }

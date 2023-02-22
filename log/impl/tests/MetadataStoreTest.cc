@@ -42,10 +42,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStore) {
 
   {
     MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(0);
-    config.set_startindex(500);
-    config.set_endindex(1000);
+    config.set_version_id(1);
+    config.set_previous_version_id(0);
+    config.set_start_index(500);
+    config.set_end_index(1000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
   }
@@ -53,10 +53,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStore) {
   // Add the next version.
   {
     MetadataConfig config;
-    config.set_versionid(2);
-    config.set_previousversionid(1);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(2);
+    config.set_previous_version_id(1);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(1, config));
   }
@@ -64,10 +64,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStore) {
   // Add the next version.
   {
     MetadataConfig config;
-    config.set_versionid(3);
-    config.set_previousversionid(2);
-    config.set_startindex(4500);
-    config.set_endindex(5000);
+    config.set_version_id(3);
+    config.set_previous_version_id(2);
+    config.set_start_index(4500);
+    config.set_end_index(5000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(2, config));
   }
@@ -78,10 +78,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSameConfig) {
 
   {
     MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(0);
-    config.set_startindex(500);
-    config.set_endindex(1000);
+    config.set_version_id(1);
+    config.set_previous_version_id(0);
+    config.set_start_index(500);
+    config.set_end_index(1000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
   }
@@ -89,10 +89,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSameConfig) {
   // Add the next version.
   {
     MetadataConfig config;
-    config.set_versionid(2);
-    config.set_previousversionid(1);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(2);
+    config.set_previous_version_id(1);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(1, config));
   }
@@ -100,10 +100,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSameConfig) {
   // Add the next version.
   {
     MetadataConfig config;
-    config.set_versionid(2);
-    config.set_previousversionid(1);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(2);
+    config.set_previous_version_id(1);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_THROW(store.compareAndAppendRange(1, config),
                  OptimisticConcurrencyException);
@@ -115,10 +115,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSkippingConfigs) {
 
   {
     MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(0);
-    config.set_startindex(500);
-    config.set_endindex(1000);
+    config.set_version_id(1);
+    config.set_previous_version_id(0);
+    config.set_start_index(500);
+    config.set_end_index(1000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
   }
@@ -126,10 +126,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSkippingConfigs) {
   // Add the next version.
   {
     MetadataConfig config;
-    config.set_versionid(2);
-    config.set_previousversionid(1);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(2);
+    config.set_previous_version_id(1);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(1, config));
   }
@@ -137,10 +137,10 @@ TEST(MetadataStoreTest, addToAlreadyExistingStoreSkippingConfigs) {
   // Add the skipped version.
   {
     MetadataConfig config;
-    config.set_versionid(4);
-    config.set_previousversionid(2);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(4);
+    config.set_previous_version_id(2);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_THROW(store.compareAndAppendRange(2, config),
                  OptimisticConcurrencyException);
@@ -152,10 +152,10 @@ TEST(MetadataStoreTest, getUsingLogId) {
 
   {
     MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(2);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(1);
+    config.set_previous_version_id(2);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
   }
@@ -187,30 +187,30 @@ TEST(MetadataStoreTest, getUsingLogIdWhenEmptyConfigsArePresent) {
 
   {
     MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(2);
-    config.set_startindex(1500);
-    config.set_endindex(2000);
+    config.set_version_id(1);
+    config.set_previous_version_id(2);
+    config.set_start_index(1500);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(0, config));
   }
 
   {
     MetadataConfig config;
-    config.set_versionid(2);
-    config.set_previousversionid(2);
-    config.set_startindex(2000);
-    config.set_endindex(2000);
+    config.set_version_id(2);
+    config.set_previous_version_id(2);
+    config.set_start_index(2000);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(1, config));
   }
 
   {
     MetadataConfig config;
-    config.set_versionid(3);
-    config.set_previousversionid(2);
-    config.set_startindex(2000);
-    config.set_endindex(2000);
+    config.set_version_id(3);
+    config.set_previous_version_id(2);
+    config.set_start_index(2000);
+    config.set_end_index(2000);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(2, config));
   }
@@ -222,10 +222,10 @@ TEST(MetadataStoreTest, getUsingLogIdWhenEmptyConfigsArePresent) {
 
   {
     MetadataConfig config;
-    config.set_versionid(4);
-    config.set_previousversionid(2);
-    config.set_startindex(2000);
-    config.set_endindex(2001);
+    config.set_version_id(4);
+    config.set_previous_version_id(2);
+    config.set_start_index(2000);
+    config.set_end_index(2001);
 
     ASSERT_NO_THROW(store.compareAndAppendRange(3, config));
   }

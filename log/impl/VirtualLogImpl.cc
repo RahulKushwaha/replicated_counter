@@ -167,12 +167,15 @@ void VirtualLogImpl::reconfigure() {
 
   if (metadataConfig) {
     MetadataConfig newConfig{};
-    newConfig.set_previousversionid(versionId);
-    newConfig.set_previousversionendindex(maxLogId);
+    newConfig.set_previous_version_id(versionId);
+    newConfig.set_previous_version_end_index(maxLogId);
 
-    newConfig.set_startindex(maxLogId);
-    newConfig.set_endindex(std::numeric_limits<std::int64_t>::max());
-    newConfig.set_versionid(versionId + 1);
+    newConfig.set_start_index(maxLogId);
+    newConfig.set_end_index(std::numeric_limits<std::int64_t>::max());
+    newConfig.set_version_id(versionId + 1);
+
+    // Set the sequencer id;
+    newConfig.mutable_sequencer_config()->set_id(sequencer_->getId());
 
     metadataStore_->compareAndAppendRange(versionId, newConfig);
   }
