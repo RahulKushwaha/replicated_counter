@@ -32,11 +32,13 @@ VirtualLogImpl::VirtualLogImpl(
     VersionId metadataConfigVersionId)
     : id_{std::move(id)},
       name_{std::move(name)},
-      sequencer_{std::move(sequencer)},
-      replicaSet_{std::move(replicaSet)},
       metadataStore_{std::move(metadataStore)},
-      state_{std::make_unique<State>(State{
-          getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId)})} {}
+      state_{std::make_unique<State>(
+          State{
+              getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId),
+              std::move(sequencer),
+              std::move(replicaSet)}
+      )} {}
 
 std::string VirtualLogImpl::getId() {
   return id_;
@@ -47,18 +49,18 @@ std::string VirtualLogImpl::getName() {
 }
 
 folly::SemiFuture<LogId> VirtualLogImpl::sync() {
-  return sequencer_->latestAppendPosition();
+  return state_->sequencer->latestAppendPosition();
 }
 
 folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
-  return sequencer_->append(logEntryPayload)
+  return state_->sequencer->append(logEntryPayload)
       .via(&folly::InlineExecutor::instance());
 }
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
 VirtualLogImpl::getLogEntry(LogId logId) {
   return folly::futures::retrying(
-      [maxRetries = replicaSet_.size()](
+      [maxRetries = state_->replicaSet.size()](
           std::size_t count,
           const folly::exception_wrapper &) {
         if (count < maxRetries) {
@@ -67,7 +69,7 @@ VirtualLogImpl::getLogEntry(LogId logId) {
           return folly::makeSemiFuture(false);
         }
       }, [this, logId](std::size_t retryAttempt) {
-        auto &replica = replicaSet_[retryAttempt];
+        auto &replica = state_->replicaSet[retryAttempt];
         return replica->getLogEntry(logId)
             .via(&folly::InlineExecutor::instance())
             .then([logId, retryAttempt](folly::Try<std::variant<LogEntry,
@@ -98,7 +100,7 @@ void VirtualLogImpl::reconfigure() {
   VersionId versionId = metadataStore_->getCurrentVersionId();
 
   // Make a copy of the replicaSet
-  std::vector<std::shared_ptr<Replica>> replicaSet = replicaSet_;
+  std::vector<std::shared_ptr<Replica>> replicaSet = state_->replicaSet;
 
   std::random_device randomDevice;
   std::mt19937 twisterEngine(randomDevice());
@@ -148,7 +150,7 @@ void VirtualLogImpl::reconfigure() {
             .get();
 
     std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
-    for (auto &replica: replicaSet_) {
+    for (auto &replica: state_->replicaSet) {
       folly::SemiFuture<folly::Unit>
           appendFuture =
           replica->append(logEntry.logId, logEntry.payload, true)
@@ -157,7 +159,8 @@ void VirtualLogImpl::reconfigure() {
       appendFutures.emplace_back(std::move(appendFuture));
     }
 
-    utils::anyNSuccessful(std::move(appendFutures), replicaSet_.size() / 2 + 1)
+    utils::anyNSuccessful(std::move(appendFutures),
+                          state_->replicaSet.size() / 2 + 1)
         .via(&folly::InlineExecutor::instance())
         .thenValue([logId](auto &&) {
           return logId;
@@ -179,7 +182,7 @@ void VirtualLogImpl::reconfigure() {
     newConfig.set_version_id(versionId + 1);
 
     // Set the sequencer id;
-    newConfig.mutable_sequencer_config()->set_id(sequencer_->getId());
+    newConfig.mutable_sequencer_config()->set_id(state_->sequencer->getId());
 
     metadataStore_->compareAndAppendRange(versionId, newConfig);
   }

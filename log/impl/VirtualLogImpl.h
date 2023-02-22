@@ -29,7 +29,6 @@ class VirtualLogImpl: public VirtualLog {
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) override;
   void reconfigure() override;
-
   folly::SemiFuture<LogId> sync() override;
 
   ~VirtualLogImpl() override = default;
@@ -37,13 +36,13 @@ class VirtualLogImpl: public VirtualLog {
  private:
   struct State {
     MetadataConfig metadataConfig;
+    std::shared_ptr<Sequencer> sequencer;
+    std::vector<std::shared_ptr<Replica>> replicaSet;
   };
 
  private:
   std::string id_;
   std::string name_;
-  std::shared_ptr<Sequencer> sequencer_;
-  std::vector<std::shared_ptr<Replica>> replicaSet_;
   std::shared_ptr<MetadataStore> metadataStore_;
   std::unique_ptr<State> state_;
 };
