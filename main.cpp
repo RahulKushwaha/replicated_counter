@@ -27,6 +27,7 @@ int main() {
   }
 
   assert(val == 0);
+  assert(val == counterApp.get());
 
   return 0;
 }

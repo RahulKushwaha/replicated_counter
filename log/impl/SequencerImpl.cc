@@ -25,6 +25,12 @@ std::string SequencerImpl::getId() {
   return id_;
 }
 
+folly::SemiFuture<LogId> SequencerImpl::latestAppendPosition() {
+  // Current sequenceNum_ always points to the next available entry.
+  // Last occupied entry will be sequenceNum_ - 1;
+  return folly::makeSemiFuture<LogId>(sequenceNum_ - 1);
+}
+
 folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
   LogId logId = sequenceNum_++;
 

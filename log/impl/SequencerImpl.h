@@ -19,6 +19,7 @@ class SequencerImpl: public Sequencer {
  public:
   std::string getId() override;
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
+  folly::SemiFuture<LogId> latestAppendPosition() override;
   ~SequencerImpl() override = default;
 
  private:

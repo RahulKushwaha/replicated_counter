@@ -46,6 +46,10 @@ std::string VirtualLogImpl::getName() {
   return name_;
 }
 
+folly::SemiFuture<LogId> VirtualLogImpl::sync() {
+  return sequencer_->latestAppendPosition();
+}
+
 folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
   return sequencer_->append(logEntryPayload)
       .via(&folly::InlineExecutor::instance());

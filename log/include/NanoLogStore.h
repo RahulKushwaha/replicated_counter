@@ -12,7 +12,7 @@ class NanoLogStore {
  public:
   virtual std::shared_ptr<NanoLog> getNanoLog(VersionId versionId) = 0;
   virtual void add(VersionId versionId, std::shared_ptr<NanoLog> nanoLog) = 0;
-  virtual ~NanoLogStore() {}
+  virtual ~NanoLogStore() = default;
 };
 
 }

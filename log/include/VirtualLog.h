@@ -18,6 +18,7 @@ class VirtualLog {
   virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) = 0;
   virtual void reconfigure() = 0;
+  virtual folly::SemiFuture<LogId> sync() = 0;
 
   virtual ~VirtualLog() = default;
 };

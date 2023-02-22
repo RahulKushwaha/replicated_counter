@@ -30,10 +30,10 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
 
   // Add metadata block.
   MetadataConfig config;
-  config.set_versionid(1);
-  config.set_previousversionid(0);
-  config.set_startindex(1);
-  config.set_endindex(1000);
+  config.set_version_id(1);
+  config.set_previous_version_id(0);
+  config.set_start_index(1);
+  config.set_end_index(1000);
 
   metadataStore->compareAndAppendRange(0, config);
 
@@ -51,7 +51,7 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
       sequencer,
       replicaSet,
       metadataStore,
-      config.versionid()
+      config.version_id()
   );
 
   return virtualLog;

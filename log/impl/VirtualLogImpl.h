@@ -30,6 +30,8 @@ class VirtualLogImpl: public VirtualLog {
   getLogEntry(LogId logId) override;
   void reconfigure() override;
 
+  folly::SemiFuture<LogId> sync() override;
+
   ~VirtualLogImpl() override = default;
 
  private:
