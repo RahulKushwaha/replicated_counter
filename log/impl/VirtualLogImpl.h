@@ -18,7 +18,8 @@ class VirtualLogImpl: public VirtualLog {
       std::string name,
       std::shared_ptr<Sequencer> sequencer,
       std::vector<std::shared_ptr<Replica>> replicaSet,
-      std::shared_ptr<MetadataStore> metadataStore);
+      std::shared_ptr<MetadataStore> metadataStore,
+      VersionId metadataConfigVersionId);
 
  public:
 
@@ -32,11 +33,17 @@ class VirtualLogImpl: public VirtualLog {
   ~VirtualLogImpl() override = default;
 
  private:
+  struct State {
+    MetadataConfig metadataConfig;
+  };
+
+ private:
   std::string id_;
   std::string name_;
   std::shared_ptr<Sequencer> sequencer_;
   std::vector<std::shared_ptr<Replica>> replicaSet_;
   std::shared_ptr<MetadataStore> metadataStore_;
+  std::unique_ptr<State> state_;
 };
 
 }

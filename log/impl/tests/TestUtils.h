@@ -20,23 +20,22 @@ struct SequencerCreationResult {
   std::vector<std::shared_ptr<Replica>> badReplicaSet;
   std::vector<std::shared_ptr<Replica>> goodReplicaSet;
   std::shared_ptr<MetadataStore> metadataStore;
+  MetadataConfig initialMetadataConfig;
 };
 
 inline SequencerCreationResult
-createSequencer(std::int32_t numberOfBadReplicas) {
+createSequencer(std::int32_t numberOfBadReplicas = 0) {
   std::shared_ptr<MetadataStore>
       metadataStore = std::make_shared<InMemoryMetadataStore>();
 
   // Add metadata block.
-  {
-    MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(0);
-    config.set_startindex(1);
-    config.set_endindex(1000);
+  MetadataConfig config;
+  config.set_versionid(1);
+  config.set_previousversionid(0);
+  config.set_startindex(1);
+  config.set_endindex(1000);
 
-    metadataStore->compareAndAppendRange(0, config);
-  }
+  metadataStore->compareAndAppendRange(0, config);
 
   std::int32_t totalNumberOfReplicas = 5;
   std::vector<std::shared_ptr<Replica>> replicaSet;
@@ -77,7 +76,8 @@ createSequencer(std::int32_t numberOfBadReplicas) {
   std::shared_ptr<Sequencer>
       sequencer = std::make_shared<SequencerImpl>(replicaSet, 1);
 
-  return {sequencer, replicaSet, badReplicaSet, goodReplicaSet, metadataStore};
+  return {sequencer, replicaSet, badReplicaSet, goodReplicaSet, metadataStore,
+          config};
 }
 
 }

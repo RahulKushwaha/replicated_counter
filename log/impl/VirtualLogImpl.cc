@@ -3,25 +3,40 @@
 //
 #include "VirtualLogImpl.h"
 #include "../utils/FutureUtils.h"
-#include <folly/futures/Retrying.h>
 #include <folly/executors/InlineExecutor.h>
+#include <folly/futures/Retrying.h>
 
 #include <random>
 
 namespace rk::projects::durable_log {
+
+namespace {
+
+MetadataConfig
+getConfigOrFatalFailure(const std::shared_ptr<MetadataStore> &metadataStore,
+                        VersionId metadataConfigVersionId) {
+  auto &&config = metadataStore->getConfig(metadataConfigVersionId);
+  CHECK(config.has_value());
+
+  return config.value();
+}
+
+}
 
 VirtualLogImpl::VirtualLogImpl(
     std::string id,
     std::string name,
     std::shared_ptr<Sequencer> sequencer,
     std::vector<std::shared_ptr<Replica>> replicaSet,
-    std::shared_ptr<MetadataStore> metadataStore)
+    std::shared_ptr<MetadataStore> metadataStore,
+    VersionId metadataConfigVersionId)
     : id_{std::move(id)},
       name_{std::move(name)},
       sequencer_{std::move(sequencer)},
       replicaSet_{std::move(replicaSet)},
-      metadataStore_{std::move(metadataStore)} {
-}
+      metadataStore_{std::move(metadataStore)},
+      state_{std::make_unique<State>(State{
+          getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId)})} {}
 
 std::string VirtualLogImpl::getId() {
   return id_;
@@ -155,7 +170,7 @@ void VirtualLogImpl::reconfigure() {
     newConfig.set_previousversionid(versionId);
     newConfig.set_previousversionendindex(maxLogId);
 
-    newConfig.set_startindex(maxLogId + 1);
+    newConfig.set_startindex(maxLogId);
     newConfig.set_endindex(std::numeric_limits<std::int64_t>::max());
     newConfig.set_versionid(versionId + 1);
 

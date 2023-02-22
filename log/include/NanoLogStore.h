@@ -1,9 +1,8 @@
 //
 // Created by Rahul  Kushwaha on 1/2/23.
 //
+#pragma once
 
-#ifndef LOGSTORAGE_NANOLOGSTORE_H
-#define LOGSTORAGE_NANOLOGSTORE_H
 #include "NanoLog.h"
 #include "MetadataStore.h"
 
@@ -17,5 +16,3 @@ class NanoLogStore {
 };
 
 }
-
-#endif //LOGSTORAGE_NANOLOGSTORE_H

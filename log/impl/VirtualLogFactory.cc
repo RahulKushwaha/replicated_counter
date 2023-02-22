@@ -29,15 +29,14 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
   std::shared_ptr<MetadataStore> metadataStore = makeMetadataStore();
 
   // Add metadata block.
-  {
-    MetadataConfig config;
-    config.set_versionid(1);
-    config.set_previousversionid(0);
-    config.set_startindex(1);
-    config.set_endindex(1000);
+  MetadataConfig config;
+  config.set_versionid(1);
+  config.set_previousversionid(0);
+  config.set_startindex(1);
+  config.set_endindex(1000);
 
-    metadataStore->compareAndAppendRange(0, config);
-  }
+  metadataStore->compareAndAppendRange(0, config);
+
 
   std::vector<std::shared_ptr<Replica>> replicaSet;
   for (int i = 0; i < 5; i++) {
@@ -51,7 +50,8 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
       std::move(name),
       sequencer,
       replicaSet,
-      metadataStore
+      metadataStore,
+      config.versionid()
   );
 
   return virtualLog;

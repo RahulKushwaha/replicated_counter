@@ -105,6 +105,23 @@ LogId ReplicaImpl::seal(VersionId versionId) {
   }
 
   std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
+
+  // There might be a case where an empty segment might be sealed
+  // due to multiple seal commands one after the another.
+  if (!nanoLog) {
+    nanoLog = std::make_shared<VectorBasedNanoLog>
+        ("id",
+         "name",
+         std::to_string(config->versionid()),
+         config->startindex(),
+         std::numeric_limits<std::int64_t>::max(),
+         false);
+
+    nanoLogStore_->add(config->versionid(), nanoLog);
+
+    nanoLog = nanoLogStore_->getNanoLog(versionId);
+  }
+
   if (nanoLog) {
     return nanoLog->seal();
   }
