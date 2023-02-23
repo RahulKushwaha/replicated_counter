@@ -1,0 +1,33 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package rk.projects.counter_app;
+
+// The Counter service definition.
+service CounterService {
+  // Sends a request to increment and get the resulting value.
+  rpc IncrementAndGet (IncrementRequest) returns (CounterValue) {
+  }
+
+  // Sends a request to decrement and get the resulting value.
+  rpc DecrementAndGet (DecrementRequest) returns (CounterValue) {
+  }
+
+  rpc GetCounterValue(google.protobuf.Empty) returns(CounterValue){
+  }
+}
+
+// The request message containing the increment value.
+message IncrementRequest {
+  int64 incr_by = 1;
+}
+
+// The request message containing the decrement value.
+message DecrementRequest {
+  int64 decr_by = 1;
+}
+
+// The response message containing the current value of counter.
+message CounterValue {
+  int64 value = 1;
+}

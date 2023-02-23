@@ -18,7 +18,7 @@ class CounterApp {
 
   std::int64_t incrementAndGet(std::int64_t incrBy);
   std::int64_t decrementAndGet(std::int64_t decrBy);
-  std::int64_t get();
+  std::int64_t getValue();
 
  private:
   static std::string

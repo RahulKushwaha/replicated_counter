@@ -2,32 +2,39 @@
 #include <utility>
 
 #include "applications/counter/CounterApp.h"
+#include "applications/counter/server/CounterAppServer.h"
+#include "applications/counter/client/CounterAppClient.h"
 #include "log/impl/VirtualLogFactory.h"
 
 int main() {
   using namespace rk::projects::durable_log;
   using namespace rk::projects::counter_app;
 
-  LOG(INFO) << "Init Counter Application" << std::endl;
+  {
+    std::shared_ptr<VirtualLog> log = makeVirtualLog("CounterApplication");
+    auto counterApp = std::make_shared<CounterApp>(log);
 
+    std::string serverAddress{"localhost:8080"};
+    auto future = runServer(serverAddress, counterApp);
 
-  std::shared_ptr<VirtualLog> log = makeVirtualLog("CounterApplication");
-  auto counterApp = CounterApp(log);
+    CounterAppClient client{
+        grpc::CreateChannel(serverAddress,
+                            grpc::InsecureChannelCredentials())};
 
-  LOG(INFO) << "Counter Application Started";
-  srand(time(nullptr));
+    std::int64_t val = 0;
+    for (int i = 1; i <= 50; i++) {
+      LOG(INFO) << (val = client.incrementAndGet(1));
+    }
 
-  std::int64_t val = 0;
-  for (int i = 1; i <= 50; i++) {
-    LOG(INFO) << (val = counterApp.incrementAndGet(1));
+    for (int i = 1; i <= 50; i++) {
+      LOG(INFO) << (val = client.decrementAndGet(1));
+    }
+
+    assert(val == 0);
+    assert(val == client.getValue());
+
+    future.value()->Shutdown();
   }
-
-  for (int i = 1; i <= 50; i++) {
-    LOG(INFO) << (val = counterApp.decrementAndGet(1));
-  }
-
-  assert(val == 0);
-  assert(val == counterApp.get());
 
   return 0;
 }

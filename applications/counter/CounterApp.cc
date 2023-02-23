@@ -29,7 +29,7 @@ std::int64_t CounterApp::decrementAndGet(std::int64_t decrBy) {
   return val_;
 }
 
-std::int64_t CounterApp::get() {
+std::int64_t CounterApp::getValue() {
   auto latestLogId = virtualLog_->sync().get();
   sync(latestLogId);
   return val_;
