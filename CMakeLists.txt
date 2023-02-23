@@ -9,6 +9,7 @@ set(CMAKE_CXX_COMPILER clang++)
 
 file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/log/proto/*.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/log/server/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/server/proto/*.proto"
         )
@@ -59,7 +60,7 @@ add_executable(LogStorage main.cpp log/include/DurableLog.h
         log/include/NanoLogStore.h log/impl/NanoLogStoreImpl.cc log/impl/NanoLogStoreImpl.h
         applications/counter/CounterApp.cc applications/counter/CounterApp.h
         log/impl/VirtualLogFactory.h log/impl/VirtualLogFactory.cc
-        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h)
+        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h log/server/ReplicaServer.cc log/server/ReplicaServer.h log/server/SequencerServer.cc log/server/SequencerServer.h)
 
 target_link_libraries(LogStorage folly protobuf glog)
 target_link_libraries(LogStorage proto-objects)

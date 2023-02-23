@@ -11,7 +11,6 @@
 #include "Common.h"
 #include "MetadataStore.h"
 
-
 namespace rk::projects::durable_log {
 
 class Replica {

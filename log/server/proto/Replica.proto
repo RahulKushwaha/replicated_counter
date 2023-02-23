@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "log/server/proto/Common.proto";
+
+package rk.projects.durable_log.server;
+
+service ReplicaService {
+
+  rpc getId(google.protobuf.Empty) returns (IdResponse){}
+
+  rpc append(ReplicaAppendRequest) returns (google.protobuf.Empty){}
+
+  rpc getLogEntry(GetLogEntryRequest)returns(GetLogEntryResponse){}
+
+  rpc getLocalCommitIndex(google.protobuf.Empty) returns (LogIdResponse){}
+
+  rpc seal(SealRequest) returns (LogIdResponse){}
+}
+
+message GetLogEntryRequest{
+  int64  log_id = 1;
+}
+
+message ReplicaAppendRequest{
+  int64 log_id = 1;
+  string payload = 2;
+  bool skip_seal = 3;
+}
+
+message SealRequest{
+  int64 version_id = 1;
+}
+
+message GetLogEntryResponse{
+  enum LOG_READ_ERROR{
+    UNKNOWN = 0;
+    INDEX_OUT_OF_BOUNDS = 1;
+    NOT_FOUND = 2;
+  }
+
+  optional LOG_READ_ERROR log_read_error = 10;
+  LogEntry log_entry = 11;
+}

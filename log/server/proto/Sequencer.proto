@@ -1,0 +1,23 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "log/server/proto/Common.proto";
+
+package rk.projects.durable_log.server;
+
+service SequencerService{
+  rpc getId(google.protobuf.Empty) returns (IdResponse){}
+
+  rpc append(SequencerAppendRequest) returns (LogIdResponse){}
+
+  rpc latestAppendPosition(google.protobuf.Empty) returns (LogIdResponse){}
+
+  rpc isAlive(google.protobuf.Empty) returns (IsAliveResponse){}
+}
+
+message SequencerAppendRequest{
+  string payload = 1;
+}
+
+message IsAliveResponse{
+  bool is_alive = 1;
+}

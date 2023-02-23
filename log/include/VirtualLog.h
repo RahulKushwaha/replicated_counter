@@ -1,9 +1,8 @@
 //
 // Created by Rahul  Kushwaha on 12/29/22.
 //
+#pragma once
 
-#ifndef LOGSTORAGE_VIRTUALLOG_H
-#define LOGSTORAGE_VIRTUALLOG_H
 #include <string>
 #include <folly/futures/Future.h>
 #include "Common.h"
@@ -24,5 +23,3 @@ class VirtualLog {
 };
 
 }
-
-#endif //LOGSTORAGE_VIRTUALLOG_H

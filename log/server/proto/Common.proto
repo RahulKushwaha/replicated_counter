@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package rk.projects.durable_log.server;
+
+message IdResponse{
+  string id = 1;
+}
+
+message LogIdResponse{
+  int64 log_id = 1;
+}
+
+message LogEntry{
+  int64 log_id = 5;
+  string payload = 6;
+}
