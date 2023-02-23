@@ -7,7 +7,7 @@
 
 #include "Common.h"
 #include "NanoLog.h"
-#include "../MetadataConfig.pb.h"
+#include "log/proto/MetadataConfig.pb.h"
 
 #include <optional>
 

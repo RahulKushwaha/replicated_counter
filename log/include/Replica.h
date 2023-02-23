@@ -2,8 +2,8 @@
 // Created by Rahul  Kushwaha on 12/31/22.
 //
 
-#ifndef LOGSTORAGE_REPLICA_H
-#define LOGSTORAGE_REPLICA_H
+#pragma once
+
 #include <string>
 #include <variant>
 #include <folly/futures/Future.h>
@@ -39,5 +39,3 @@ class MetadataBlockNotPresent: public std::exception {
 };
 
 }
-
-#endif //LOGSTORAGE_REPLICA_H

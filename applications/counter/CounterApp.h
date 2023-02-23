@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "../../log/include/VirtualLog.h"
-#include "CounterEntry.pb.h"
+#include "applications/counter/proto/CounterEntry.pb.h"
 
 namespace rk::projects::counter_app {
 

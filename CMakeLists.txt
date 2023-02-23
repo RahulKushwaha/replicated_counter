@@ -7,6 +7,40 @@ include(external/uuid/CMakeLists.txt)
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 
+file(GLOB PROTO_SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/log/proto/*.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/applications/counter/proto/*.proto"
+        )
+
+find_package(Protobuf)
+find_package(grpc)
+add_library(proto-objects OBJECT ${PROTO_SOURCES})
+set_target_properties(proto-objects PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(proto-objects PUBLIC protobuf::libprotobuf gRPC::grpc++_unsecure)
+
+set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(PROTO_IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/proto")
+
+protobuf_generate(
+        TARGET proto-objects
+        OUT_VAR PROTO_GENERATED_FILES
+        IMPORT_DIRS ${PROTO_IMPORT_DIRS}
+        PROTOC_OUT_DIR "${PROTO_BINARY_DIR}")
+set_source_files_properties(${PROTO_GENERATED_FILES} PROPERTIES SKIP_UNITY_BUILD_INCLUSION on)
+
+protobuf_generate(
+        TARGET proto-objects
+        OUT_VAR PROTO_GENERATED_FILES
+        LANGUAGE grpc
+        GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+        PLUGIN "protoc-gen-grpc=\$<TARGET_FILE:gRPC::grpc_cpp_plugin>"
+        IMPORT_DIRS ${PROTO_IMPORT_DIRS}
+        PROTOC_OUT_DIR "${PROTO_BINARY_DIR}")
+set_source_files_properties(${PROTO_GENERATED_FILES} PROPERTIES SKIP_UNITY_BUILD_INCLUSION on)
+
+include_directories("$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
+
 add_compile_options(-fsanitize=undefined)
 add_link_options(-fsanitize=undefined)
 
@@ -14,7 +48,6 @@ include_directories(/opt/homebrew/include)
 link_directories(/opt/homebrew/lib)
 
 add_executable(LogStorage main.cpp log/include/DurableLog.h
-        applications/counter/CounterEntry.pb.h applications/counter/CounterEntry.pb.cc
         log/include/NanoLog.h log/include/Common.h log/include/MetadataStore.h
         log/impl/InMemoryMetadataStore.cc log/impl/InMemoryMetadataStore.h
         log/include/VirtualLog.h log/impl/VirtualLogImpl.h log/impl/VirtualLogImpl.cc
@@ -25,9 +58,10 @@ add_executable(LogStorage main.cpp log/include/DurableLog.h
         log/include/NanoLogStore.h log/impl/NanoLogStoreImpl.cc log/impl/NanoLogStoreImpl.h
         applications/counter/CounterApp.cc applications/counter/CounterApp.h
         log/impl/VirtualLogFactory.h log/impl/VirtualLogFactory.cc
-        log/MetadataConfig.pb.h log/MetadataConfig.pb.cc)
+        log/include/Registry.h)
 
 target_link_libraries(LogStorage folly protobuf glog)
+target_link_libraries(LogStorage proto-objects)
 
 enable_testing()
 
@@ -36,7 +70,6 @@ add_executable(
         log/impl/VectorBasedNanoLog.cc log/impl/VectorBasedNanoLog.h
         log/impl/tests/VectorBasedNanoLogTest.cc
 
-        log/MetadataConfig.pb.h log/MetadataConfig.pb.cc
         log/impl/InMemoryMetadataStore.h log/impl/InMemoryMetadataStore.cc
         log/impl/tests/MetadataStoreTest.cc
 
@@ -68,6 +101,7 @@ target_link_libraries(tests glog)
 target_link_libraries(tests gmock)
 target_link_libraries(tests protobuf)
 target_link_libraries(tests folly)
+target_link_libraries(tests proto-objects)
 
 target_link_libraries(
         tests
