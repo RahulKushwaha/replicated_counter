@@ -13,6 +13,7 @@
     <generated>
       <config projectName="LogStorage" targetName="tests" />
       <config projectName="LogStorage" targetName="LogStorage" />
+      <config projectName="LogStorage" targetName="proto-objects" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -175,7 +176,13 @@
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="proto-objects" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="proto-objects" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
+      <item itemvalue="CMake Application.proto-objects" />
       <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
       <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
       <item itemvalue="Google Test.VirtualLogTests.GetOneLogEntryWithMinorityFailing" />
