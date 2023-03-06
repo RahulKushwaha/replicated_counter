@@ -23,11 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/log/utils/UuidGenerator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/log/utils/tests/UuidGeneratorTest.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/applications/Ensemble.h" beforeDir="false" afterPath="$PROJECT_DIR$/applications/Ensemble.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/applications/EnsembleNode.h" beforeDir="false" afterPath="$PROJECT_DIR$/applications/EnsembleNode.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/client/SequencerClient.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/client/SequencerClient.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/impl/RegistryImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/RegistryImpl.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -155,7 +155,13 @@
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="VirtualLogTests.Reconfigure" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="VirtualLogTests" TEST_METHOD="Reconfigure" TEST_MODE="SUITE_TEST">
+    <configuration name="UuidGeneratorTests.createUuid" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="UuidGeneratorTests" TEST_METHOD="createUuid" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UuidGeneratorTests.createUuidMultipleAndAreUnique" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="UuidGeneratorTests" TEST_METHOD="createUuidMultipleAndAreUnique" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
@@ -189,16 +195,18 @@
     <list>
       <item itemvalue="CMake Application.proto-objects" />
       <item itemvalue="CMake Application.LogStorage" />
+      <item itemvalue="Google Test.UuidGeneratorTests.createUuid" />
+      <item itemvalue="Google Test.UuidGeneratorTests.createUuidMultipleAndAreUnique" />
       <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
       <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
-      <item itemvalue="Google Test.VirtualLogTests.Reconfigure" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="CMake Application.LogStorage" />
+        <item itemvalue="Google Test.UuidGeneratorTests.createUuidMultipleAndAreUnique" />
+        <item itemvalue="Google Test.UuidGeneratorTests.createUuid" />
         <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
         <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
-        <item itemvalue="Google Test.VirtualLogTests.Reconfigure" />
       </list>
     </recent_temporary>
   </component>
@@ -235,7 +243,7 @@
       <workItem from="1677890668749" duration="838000" />
       <workItem from="1677965308967" duration="192000" />
       <workItem from="1677965507399" duration="1814000" />
-      <workItem from="1678072773802" duration="3003000" />
+      <workItem from="1678072773802" duration="4301000" />
     </task>
     <servers />
   </component>
