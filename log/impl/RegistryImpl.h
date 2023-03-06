@@ -17,7 +17,7 @@ class RegistryImpl: public Registry {
   std::shared_ptr<Replica> replica(std::string replicaId) override;
   std::shared_ptr<Sequencer> sequencer(std::string sequencerId) override;
 
-  ~RegistryImpl() = default;
+  ~RegistryImpl() override = default;
  private:
   std::unordered_map<std::string, std::shared_ptr<Replica>> replicas_;
   std::unordered_map<std::string, std::shared_ptr<Sequencer>> sequencers_;

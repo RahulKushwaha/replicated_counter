@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include <memory>
 #include "../log/server/SequencerServer.h"
 #include "../log/server/ReplicaServer.h"

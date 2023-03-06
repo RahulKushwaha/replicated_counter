@@ -23,12 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/applications/CounterAppEnsembleNode.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/log/impl/RemoteReplica.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/applications/counter/CounterApp.cc" beforeDir="false" afterPath="$PROJECT_DIR$/applications/counter/CounterApp.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/include/NanoLog.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/NanoLog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/applications/Ensemble.h" beforeDir="false" afterPath="$PROJECT_DIR$/applications/Ensemble.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/applications/EnsembleNode.h" beforeDir="false" afterPath="$PROJECT_DIR$/applications/EnsembleNode.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/client/SequencerClient.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/client/SequencerClient.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/impl/RegistryImpl.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/RegistryImpl.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,11 +143,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="All in MetadataStoreTest.cc and 6 more" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/log/impl/tests/MetadataStoreTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/MockReplica.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/ReplicaTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/SequencerTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/TestUtils.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/VectorBasedNanoLogTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/VirtualLogTest.cc)" TEST_MODE="PATTERN">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -168,6 +162,11 @@
       </method>
     </configuration>
     <configuration name="LogStorage" type="CMakeRunConfiguration" factoryName="Application" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -236,6 +235,7 @@
       <workItem from="1677890668749" duration="838000" />
       <workItem from="1677965308967" duration="192000" />
       <workItem from="1677965507399" duration="1814000" />
+      <workItem from="1678072773802" duration="3003000" />
     </task>
     <servers />
   </component>

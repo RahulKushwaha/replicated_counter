@@ -4,7 +4,6 @@
 
 #include "SequencerClient.h"
 
-
 namespace rk::projects::durable_log::client {
 
 SequencerClient::SequencerClient(std::shared_ptr<grpc::Channel> channel) :
