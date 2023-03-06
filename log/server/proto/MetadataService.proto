@@ -1,0 +1,27 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "log/server/proto/Common.proto";
+import "log/proto/MetadataConfig.proto";
+
+package rk.projects.durable_log.server;
+
+service MetadataService{
+  rpc getConfig(MetadataVersionId) returns(MetadataConfig){}
+
+  rpc getConfigUsingLogId(LogId) returns (MetadataConfig){}
+
+  rpc compareAndAppendRange(CompareAndAppendRangeRequest) returns (google.protobuf.Empty){}
+}
+
+message CompareAndAppendRangeRequest{
+  MetadataVersionId metadata_version_id = 1;
+  MetadataConfig metadata_config = 2;
+}
+
+message LogId{
+  int64 id = 1;
+}
+
+message MetadataVersionId{
+  int64 id = 1;
+}

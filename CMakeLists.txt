@@ -49,7 +49,7 @@ add_link_options(-fsanitize=undefined)
 include_directories(/opt/homebrew/include)
 link_directories(/opt/homebrew/lib)
 
-add_executable(LogStorage main.cpp log/include/DurableLog.h
+add_executable(LogStorage main.cpp
         log/include/NanoLog.h log/include/Common.h log/include/MetadataStore.h
         log/impl/InMemoryMetadataStore.cc log/impl/InMemoryMetadataStore.h
         log/include/VirtualLog.h log/impl/VirtualLogImpl.h log/impl/VirtualLogImpl.cc
@@ -60,7 +60,7 @@ add_executable(LogStorage main.cpp log/include/DurableLog.h
         log/include/NanoLogStore.h log/impl/NanoLogStoreImpl.cc log/impl/NanoLogStoreImpl.h
         applications/counter/CounterApp.cc applications/counter/CounterApp.h
         log/impl/VirtualLogFactory.h log/impl/VirtualLogFactory.cc
-        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h log/server/ReplicaServer.cc log/server/ReplicaServer.h log/server/SequencerServer.cc log/server/SequencerServer.h)
+        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h log/server/ReplicaServer.cc log/server/ReplicaServer.h log/server/SequencerServer.cc log/server/SequencerServer.h log/server/MetadataServer.cc log/server/MetadataServer.h log/client/ReplicaClient.cc log/client/ReplicaClient.h log/client/SequencerClient.cc log/client/SequencerClient.h log/client/MetadataStoreClient.cc log/client/MetadataStoreClient.h applications/EnsembleNode.h log/impl/RemoteSequencer.h log/impl/RemoteReplica.h applications/CounterAppEnsembleNode.h applications/Ensemble.h log/impl/RegistryImpl.cc log/impl/RegistryImpl.h log/utils/GrpcServerFactory.h)
 
 target_link_libraries(LogStorage folly protobuf glog)
 target_link_libraries(LogStorage proto-objects)

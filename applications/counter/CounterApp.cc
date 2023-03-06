@@ -10,6 +10,7 @@ CounterApp::CounterApp(std::shared_ptr<VirtualLog> virtualLog)
     : virtualLog_{std::move(virtualLog)}, lastAppliedEntry_{0}, val_{0} {}
 
 std::int64_t CounterApp::incrementAndGet(std::int64_t incrBy) {
+  LOG(INFO) << "incrementAndGet " << incrBy;
   LogId logId = virtualLog_->append(
           serialize(incrBy,
                     CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR))

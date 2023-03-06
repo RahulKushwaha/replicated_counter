@@ -8,7 +8,7 @@
 #include "log/server/proto/Common.pb.h"
 #include "../include/Replica.h"
 
-namespace rk::projects::durable_log {
+namespace rk::projects::durable_log::server {
 
 class ReplicaServer final: public server::ReplicaService::Service {
  public:

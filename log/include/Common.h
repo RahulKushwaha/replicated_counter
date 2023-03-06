@@ -2,10 +2,12 @@
 // Created by Rahul  Kushwaha on 12/29/22.
 //
 
-#ifndef LOGSTORAGE_COMMON_H
-#define LOGSTORAGE_COMMON_H
+#pragma once
+
 #include <cstdint>
 #include <string>
+
+namespace rk::projects::durable_log {
 
 using LogId = std::int64_t;
 
@@ -22,7 +24,8 @@ struct LogEntry {
 
 enum class LogReadError {
   IndexOutOfBounds,
-  NotFound
+  NotFound,
+  Unknown,
 };
 
 class NonRecoverableError: public std::exception {
@@ -32,5 +35,11 @@ class NonRecoverableError: public std::exception {
   }
 };
 
+class NotImplementedException: public std::exception {
+ public:
+  const char *what() const _NOEXCEPT override {
+    return "Method Not Implmented";
+  }
+};
 
-#endif //LOGSTORAGE_COMMON_H
+}

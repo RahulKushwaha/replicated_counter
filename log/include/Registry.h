@@ -15,6 +15,8 @@ class Registry {
 
   virtual std::shared_ptr<Replica> replica(std::string replicaId) = 0;
   virtual std::shared_ptr<Sequencer> sequencer(std::string sequencerId) = 0;
+
+  virtual ~Registry() = default;
 };
 
 }

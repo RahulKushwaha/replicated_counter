@@ -84,7 +84,6 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
 
 void SequencerImpl::start() {
   isAlive_ = true;
-
 }
 
 bool SequencerImpl::isAlive() {
