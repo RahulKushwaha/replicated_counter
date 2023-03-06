@@ -6,7 +6,6 @@
 #define LOGSTORAGE_NANOLOG_H
 
 #include "Common.h"
-#include "DurableLog.h"
 #include <folly/futures/Future.h>
 
 namespace rk::projects::durable_log {

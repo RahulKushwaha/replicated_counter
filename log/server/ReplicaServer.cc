@@ -4,7 +4,7 @@
 
 #include "ReplicaServer.h"
 
-namespace rk::projects::durable_log {
+namespace rk::projects::durable_log::server {
 
 ReplicaServer::ReplicaServer(std::shared_ptr<Replica> replica)
     : replica_{std::move(replica)} {}
@@ -21,7 +21,13 @@ grpc::Status
 ReplicaServer::append(::grpc::ServerContext *context,
                       const server::ReplicaAppendRequest *request,
                       ::google::protobuf::Empty *response) {
-  replica_->append(request->log_id(), request->payload(), request->skip_seal())
+  LOG(INFO) << "Append Request: [" << request->log_id() << ", "
+            << request->payload() << ", Size: "
+            << request->payload().size() << "]";
+
+  replica_->append(request->log_id(),
+                   request->payload(),
+                   request->skip_seal())
       .get();
 
   return grpc::Status::OK;
@@ -32,8 +38,8 @@ ReplicaServer::getLogEntry(::grpc::ServerContext *context,
                            const server::GetLogEntryRequest *request,
                            server::GetLogEntryResponse *response) {
   auto logEntryResponse = replica_->getLogEntry(request->log_id()).get();
-  if (std::holds_alternative<LogEntry>(logEntryResponse)) {
-    LogEntry logEntry = std::get<LogEntry>(logEntryResponse);
+  if (std::holds_alternative<durable_log::LogEntry>(logEntryResponse)) {
+    auto logEntry = std::get<durable_log::LogEntry>(logEntryResponse);
     response->mutable_log_entry()->set_log_id(logEntry.logId);
     response->mutable_log_entry()->set_payload(logEntry.payload);
   } else {

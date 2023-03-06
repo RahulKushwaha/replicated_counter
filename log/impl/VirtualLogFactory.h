@@ -11,6 +11,7 @@
 #include "NanoLogStoreImpl.h"
 #include "../include/Replica.h"
 #include "ReplicaImpl.h"
+#include "../include/Registry.h"
 
 namespace rk::projects::durable_log {
 
@@ -26,5 +27,7 @@ makeReplica(std::string id,
 
 std::unique_ptr<Sequencer>
 makeSequencer(std::vector<std::shared_ptr<Replica>> replicaSet);
+
+std::unique_ptr<Registry> makeRegistry();
 
 }

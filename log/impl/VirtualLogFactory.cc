@@ -6,6 +6,7 @@
 #include "VirtualLogImpl.h"
 #include "SequencerImpl.h"
 #include "uuid.h"
+#include "RegistryImpl.h"
 
 namespace rk::projects::durable_log {
 
@@ -80,6 +81,10 @@ makeReplica(std::string id,
 std::unique_ptr<Sequencer>
 makeSequencer(std::vector<std::shared_ptr<Replica>> replicaSet) {
   return std::make_unique<SequencerImpl>("", std::move(replicaSet), 1);
+}
+
+std::unique_ptr<Registry> makeRegistry() {
+  return std::make_unique<RegistryImpl>();
 }
 
 }

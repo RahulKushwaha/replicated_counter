@@ -2,8 +2,7 @@
 // Created by Rahul  Kushwaha on 12/31/22.
 //
 
-#ifndef LOGSTORAGE_VECTORBASEDNANOLOG_H
-#define LOGSTORAGE_VECTORBASEDNANOLOG_H
+#pragma once
 
 #include "../include/NanoLog.h"
 #include "../utils/OrderedCompletionQueue.h"
@@ -52,4 +51,3 @@ class VectorBasedNanoLog: public NanoLog {
   OrderedCompletionQueue<LogId> completionQueue_;
 };
 }
-#endif //LOGSTORAGE_VECTORBASEDNANOLOG_H
