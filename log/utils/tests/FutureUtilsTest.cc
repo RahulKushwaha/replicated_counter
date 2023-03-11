@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 #include <thread>
 #include <future>
-#include <folly/executors/ManualExecutor.h>
 
 #include "../FutureUtils.h"
 

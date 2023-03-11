@@ -14,6 +14,7 @@
       <config projectName="LogStorage" targetName="tests" />
       <config projectName="LogStorage" targetName="LogStorage" />
       <config projectName="LogStorage" targetName="proto-objects" />
+      <config projectName="LogStorage" targetName="FOLLY" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -23,11 +24,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/log/utils/UuidGenerator.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/log/utils/tests/UuidGeneratorTest.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/VirtualLogFactory.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/utils/tests/FutureUtilsTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/utils/tests/FutureUtilsTest.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,28 +142,32 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="All in MetadataStoreTest.cc and 6 more" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/log/impl/tests/MetadataStoreTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/MockReplica.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/ReplicaTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/SequencerTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/TestUtils.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/VectorBasedNanoLogTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/VirtualLogTest.cc)" TEST_MODE="PATTERN">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in FutureUtilsTest.cc and 2 more" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/log/utils/tests/FutureUtilsTest.cc):all-tests(file://$PROJECT_DIR$/log/utils/tests/OrderedCompletionQueueTests.cc):all-tests(file://$PROJECT_DIR$/log/utils/tests/UuidGeneratorTest.cc)" TEST_MODE="PATTERN">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="FutureUtilsTest.anyNSuccessful" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage" TEST_CLASS="FutureUtilsTest" TEST_METHOD="anyNSuccessful" TEST_MODE="SUITE_TEST">
+    <configuration name="All in MetadataStoreTest.cc and 6 more" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/log/impl/tests/MetadataStoreTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/MockReplica.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/ReplicaTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/SequencerTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/TestUtils.h):all-tests(file://$PROJECT_DIR$/log/impl/tests/VectorBasedNanoLogTest.cc):all-tests(file://$PROJECT_DIR$/log/impl/tests/VirtualLogTest.cc)" TEST_MODE="PATTERN">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UuidGeneratorTests.createUuid" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="UuidGeneratorTests" TEST_METHOD="createUuid" TEST_MODE="SUITE_TEST">
+    <configuration name="All in OrderedCompletionQueueTests.cc and 1 more" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_PATTERN="all-tests(file://$PROJECT_DIR$/log/utils/tests/OrderedCompletionQueueTests.cc):all-tests(file://$PROJECT_DIR$/log/utils/tests/UuidGeneratorTest.cc)" TEST_MODE="PATTERN">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UuidGeneratorTests.createUuidMultipleAndAreUnique" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="tests" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="tests" TEST_CLASS="UuidGeneratorTests" TEST_METHOD="createUuidMultipleAndAreUnique" TEST_MODE="SUITE_TEST">
+    <configuration name="FOLLY" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="FOLLY" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-        <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="LogStorage" type="CMakeRunConfiguration" factoryName="Application" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="LogStorage" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="LogStorage" RUN_TARGET_NAME="LogStorage">
@@ -172,11 +175,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="proto-objects" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="LogStorage" TARGET_NAME="proto-objects" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -191,22 +189,37 @@
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="Python tests in tests" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="LogStorage" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/log/impl/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/log/impl/tests&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
     </configuration>
     <list>
       <item itemvalue="CMake Application.proto-objects" />
+      <item itemvalue="CMake Application.FOLLY" />
       <item itemvalue="CMake Application.LogStorage" />
-      <item itemvalue="Google Test.UuidGeneratorTests.createUuid" />
-      <item itemvalue="Google Test.UuidGeneratorTests.createUuidMultipleAndAreUnique" />
+      <item itemvalue="Google Test.All in FutureUtilsTest.cc and 2 more" />
       <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
-      <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
+      <item itemvalue="Google Test.All in OrderedCompletionQueueTests.cc and 1 more" />
+      <item itemvalue="Python tests.Python tests in tests" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="CMake Application.LogStorage" />
-        <item itemvalue="Google Test.UuidGeneratorTests.createUuidMultipleAndAreUnique" />
-        <item itemvalue="Google Test.UuidGeneratorTests.createUuid" />
         <item itemvalue="Google Test.All in MetadataStoreTest.cc and 6 more" />
-        <item itemvalue="Google Test.FutureUtilsTest.anyNSuccessful" />
+        <item itemvalue="Python tests.Python tests in tests" />
+        <item itemvalue="Google Test.All in FutureUtilsTest.cc and 2 more" />
+        <item itemvalue="Google Test.All in OrderedCompletionQueueTests.cc and 1 more" />
       </list>
     </recent_temporary>
   </component>

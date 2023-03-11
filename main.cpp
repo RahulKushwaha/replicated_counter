@@ -1,12 +1,14 @@
 #include <iostream>
 #include <utility>
 
-#include "applications/counter/CounterApp.h"
-#include "applications/counter/server/CounterAppServer.h"
-#include "applications/counter/client/CounterAppClient.h"
-#include "log/impl/VirtualLogFactory.h"
 #include "applications/CounterAppEnsembleNode.h"
+#include "applications/counter/CounterApp.h"
+#include "applications/counter/client/CounterAppClient.h"
+#include "applications/counter/server/CounterAppServer.h"
+#include "log/impl/VirtualLogFactory.h"
 #include <folly/executors/CPUThreadPoolExecutor.h>
+#include <folly/experimental/coro/BlockingWait.h>
+#include <folly/experimental/coro/Task.h>
 
 const char *SERVER_NAME = R"(
   ____            _ _           _           _   _
@@ -17,9 +19,21 @@ const char *SERVER_NAME = R"(
            |_|                                             |___/
 )";
 
+folly::coro::Task<int> slow() {
+  std::cout << "before sleep" << std::endl;
+  co_await folly::futures::sleep(std::chrono::seconds{1});
+  std::cout << "after sleep" << std::endl;
+  co_return 1;
+}
+
 int main() {
   using namespace rk::projects::durable_log;
   using namespace rk::projects::counter_app;
+  {
+    LOG(INFO) << "Testing Coroutines";
+    folly::coro::blockingWait(
+        slow().scheduleOn(folly::getGlobalCPUExecutor().get()));
+  }
 
   {
     std::shared_ptr<VirtualLog> log = makeVirtualLog("CounterApplication");
