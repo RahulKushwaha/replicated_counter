@@ -7,33 +7,33 @@
 namespace rk::projects::counter_app {
 
 CounterApp::CounterApp(std::shared_ptr<VirtualLog> virtualLog)
-    : virtualLog_{std::move(virtualLog)}, lastAppliedEntry_{0}, val_{0} {}
+    : virtualLog_{std::move(virtualLog)}, lastAppliedEntry_{0}, lookup_{} {}
 
-std::int64_t CounterApp::incrementAndGet(std::int64_t incrBy) {
+std::int64_t CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
   LOG(INFO) << "incrementAndGet " << incrBy;
   LogId logId = virtualLog_->append(
-          serialize(incrBy,
+          serialize(key, incrBy,
                     CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR))
       .get();
   sync(logId);
 
-  return val_;
+  return lookup_[key];
 }
 
-std::int64_t CounterApp::decrementAndGet(std::int64_t decrBy) {
+std::int64_t CounterApp::decrementAndGet(std::string key, std::int64_t decrBy) {
   LogId logId = virtualLog_->append(
-          serialize(decrBy,
+          serialize(key, decrBy,
                     CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR))
       .get();
   sync(logId);
 
-  return val_;
+  return lookup_[key];
 }
 
-std::int64_t CounterApp::getValue() {
+std::int64_t CounterApp::getValue(std::string key) {
   auto latestLogId = virtualLog_->sync().get();
   sync(latestLogId);
-  return val_;
+  return lookup_[key];
 }
 
 void CounterApp::sync(LogId to) {
@@ -53,10 +53,12 @@ void CounterApp::sync(LogId to) {
   }
 }
 
-/* static */ std::string CounterApp::serialize(std::int64_t val,
-                                               CounterLogEntry_CommandType commandType) {
+/* static */ std::string
+CounterApp::serialize(std::string key, std::int64_t val,
+                      CounterLogEntry_CommandType commandType) {
   CounterLogEntry entry;
   entry.set_commandtype(commandType);
+  entry.set_key(std::move(key));
   entry.set_val(val);
 
   return entry.SerializeAsString();
@@ -69,12 +71,14 @@ void CounterApp::sync(LogId to) {
 }
 
 void CounterApp::apply(const CounterLogEntry &counterLogEntry) {
+  auto &val = lookup_[counterLogEntry.key()];
+
   if (counterLogEntry.commandtype()
       == CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR) {
-    val_.store(val_ + counterLogEntry.val());
+    val.store(val + counterLogEntry.val());
   } else if (counterLogEntry.commandtype()
       == CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR) {
-    val_.store(val_ - counterLogEntry.val());
+    val.store(val - counterLogEntry.val());
   } else {
     throw std::runtime_error{
         "Unknown Command. This is a non-recoverable error."};

@@ -4,8 +4,9 @@
 
 #pragma once
 #include <memory>
+#include <unordered_map>
 
-#include "../../log/include/VirtualLog.h"
+#include "log/include/VirtualLog.h"
 #include "applications/counter/proto/CounterEntry.pb.h"
 
 namespace rk::projects::counter_app {
@@ -16,13 +17,15 @@ class CounterApp {
  public:
   explicit CounterApp(std::shared_ptr<VirtualLog> virtualLog);
 
-  std::int64_t incrementAndGet(std::int64_t incrBy);
-  std::int64_t decrementAndGet(std::int64_t decrBy);
-  std::int64_t getValue();
+  std::int64_t incrementAndGet(std::string key, std::int64_t incrBy);
+  std::int64_t decrementAndGet(std::string key, std::int64_t decrBy);
+  std::int64_t getValue(std::string key);
 
  private:
   static std::string
-  serialize(std::int64_t val, CounterLogEntry_CommandType commandType);
+  serialize(std::string key,
+            std::int64_t val,
+            CounterLogEntry_CommandType commandType);
   static CounterLogEntry deserialize(std::string payload);
 
   void apply(const CounterLogEntry &counterLogEntry);
@@ -32,7 +35,7 @@ class CounterApp {
   std::shared_ptr<VirtualLog> virtualLog_;
   LogId lastAppliedEntry_;
 
-  std::atomic_int64_t val_;
+  std::unordered_map<std::string, std::atomic_int64_t> lookup_;
 };
 
 }
