@@ -12,9 +12,9 @@ class CounterAppClient {
  public:
   explicit CounterAppClient(std::shared_ptr<grpc::Channel> channel);
 
-  std::int64_t incrementAndGet(std::int64_t incrBy);
-  std::int64_t decrementAndGet(std::int64_t decrBy);
-  std::int64_t getValue();
+  std::int64_t incrementAndGet(std::string key, std::int64_t incrBy);
+  std::int64_t decrementAndGet(std::string key, std::int64_t decrBy);
+  std::int64_t getValue(std::string key);
 
  private:
   std::unique_ptr<CounterService::Stub> stub_;

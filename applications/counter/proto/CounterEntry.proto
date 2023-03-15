@@ -8,7 +8,8 @@ message CounterLogEntry{
     DECR = 1;
   }
 
-  int64 val = 1;
-  CommandType commandType = 2;
-  string description = 3;
+  string key = 1;
+  int64 val = 2;
+  CommandType commandType = 3;
+  string description = 4;
 }

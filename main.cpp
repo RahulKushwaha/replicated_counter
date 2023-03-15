@@ -19,23 +19,12 @@ const char *SERVER_NAME = R"(
            |_|                                             |___/
 )";
 
-folly::coro::Task<int> slow() {
-  std::cout << "before sleep" << std::endl;
-  co_await folly::futures::sleep(std::chrono::seconds{1});
-  std::cout << "after sleep" << std::endl;
-  co_return 1;
-}
-
 int main() {
   using namespace rk::projects::durable_log;
   using namespace rk::projects::counter_app;
-  {
-    LOG(INFO) << "Testing Coroutines";
-    folly::coro::blockingWait(
-        slow().scheduleOn(folly::getGlobalCPUExecutor().get()));
-  }
 
   {
+    std::string key{"TEST_KEY"};
     std::shared_ptr<VirtualLog> log = makeVirtualLog("CounterApplication");
     auto counterApp = std::make_shared<CounterApp>(log);
 
@@ -48,21 +37,22 @@ int main() {
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = client.incrementAndGet(1));
+      LOG(INFO) << (val = client.incrementAndGet(key, 1));
     }
 
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = client.decrementAndGet(1));
+      LOG(INFO) << (val = client.decrementAndGet(key, 1));
     }
 
     assert(val == 0);
-    assert(val == client.getValue());
+    assert(val == client.getValue(key));
 
     future.value()->Shutdown();
   }
 
 
   {
+    std::string key{"TEST_KEY"};
     LOG(INFO) << SERVER_NAME;
     folly::CPUThreadPoolExecutor threadPoolExecutor{16};
     LOG(INFO) << "Created a threadPool with size: "
@@ -76,17 +66,17 @@ int main() {
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = app1->incrementAndGet(1));
+      LOG(INFO) << (val = app1->incrementAndGet(key, 1));
     }
 
     auto &app2 = counterAppEnsemble.nodes_[0].app;
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = app2->decrementAndGet(1));
+      LOG(INFO) << (val = app2->decrementAndGet(key, 1));
     }
 
     assert(val == 0);
     for (int i = 0; i < 5; i++) {
-      assert(counterAppEnsemble.nodes_[i].app->getValue() == 0);
+      assert(counterAppEnsemble.nodes_[i].app->getValue(key) == 0);
     }
 
     LOG(INFO) << "Every Replica has the same value: " << val;

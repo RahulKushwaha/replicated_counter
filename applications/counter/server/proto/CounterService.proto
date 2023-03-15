@@ -13,21 +13,46 @@ service CounterService {
   rpc DecrementAndGet (DecrementRequest) returns (CounterValue) {
   }
 
-  rpc GetCounterValue(google.protobuf.Empty) returns(CounterValue){
+  rpc GetCounterValue(GetCounterValueRequest) returns(CounterValue){
+  }
+
+  rpc BatchUpdate(BatchUpdateRequest) returns(BatchUpdateResponse){
+  }
+}
+
+message BatchUpdateResponse{
+  repeated CounterValue counterValues = 1;
+}
+
+message BatchUpdateRequest{
+  repeated BatchOperation batch_operation = 1;
+}
+
+message BatchOperation{
+  oneof operation{
+    IncrementRequest increment_request = 1;
+    DecrementRequest decrement_request = 2;
   }
 }
 
 // The request message containing the increment value.
 message IncrementRequest {
-  int64 incr_by = 1;
+  string key = 1;
+  int64 incr_by = 2;
 }
 
 // The request message containing the decrement value.
 message DecrementRequest {
-  int64 decr_by = 1;
+  string key = 1;
+  int64 decr_by = 2;
+}
+
+message GetCounterValueRequest{
+  string key = 1;
 }
 
 // The response message containing the current value of counter.
 message CounterValue {
-  int64 value = 1;
+  string key = 1;
+  int64 value = 2;
 }

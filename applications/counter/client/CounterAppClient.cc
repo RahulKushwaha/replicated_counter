@@ -10,8 +10,10 @@ CounterAppClient::CounterAppClient(std::shared_ptr<grpc::Channel> channel) :
     stub_{CounterService::NewStub(std::move(channel))} {}
 
 
-std::int64_t CounterAppClient::incrementAndGet(std::int64_t incrBy) {
+std::int64_t
+CounterAppClient::incrementAndGet(std::string key, std::int64_t incrBy) {
   IncrementRequest request{};
+  request.set_key(std::move(key));
   request.set_incr_by(incrBy);
 
   CounterValue response;
@@ -26,8 +28,10 @@ std::int64_t CounterAppClient::incrementAndGet(std::int64_t incrBy) {
   return response.value();
 }
 
-std::int64_t CounterAppClient::decrementAndGet(std::int64_t decrBy) {
+std::int64_t
+CounterAppClient::decrementAndGet(std::string key, std::int64_t decrBy) {
   DecrementRequest request{};
+  request.set_key(std::move(key));
   request.set_decr_by(decrBy);
 
   CounterValue response;
@@ -42,11 +46,14 @@ std::int64_t CounterAppClient::decrementAndGet(std::int64_t decrBy) {
   return response.value();
 }
 
-std::int64_t CounterAppClient::getValue() {
+std::int64_t CounterAppClient::getValue(std::string key) {
+  GetCounterValueRequest request;
+  request.set_key(std::move(key));
+
   CounterValue response;
   grpc::ClientContext context;
   grpc::Status status;
-  stub_->GetCounterValue(&context, google::protobuf::Empty(), &response);
+  stub_->GetCounterValue(&context, request, &response);
 
   if (!status.ok()) {
     LOG(INFO) << "Failed: " << status.error_details();
