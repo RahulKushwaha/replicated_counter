@@ -35,6 +35,13 @@ class NonRecoverableError: public std::exception {
   }
 };
 
+class NullSequencerException: public std::exception {
+ public:
+  const char *what() const _NOEXCEPT override {
+    return "Null Sequencer cannot answer.";
+  }
+};
+
 class NotImplementedException: public std::exception {
  public:
   const char *what() const _NOEXCEPT override {

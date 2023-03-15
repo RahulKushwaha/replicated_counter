@@ -132,6 +132,7 @@ include_directories("$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
 add_compile_options(-fsanitize=undefined)
 add_link_options(-fsanitize=undefined)
 
+include_directories(${CMAKE_SOURCE_DIR})
 
 # hack to enable protobuf
 # need to add it as external_project
@@ -149,7 +150,7 @@ add_executable(LogStorage main.cpp
         log/include/NanoLogStore.h log/impl/NanoLogStoreImpl.cc log/impl/NanoLogStoreImpl.h
         applications/counter/CounterApp.cc applications/counter/CounterApp.h
         log/impl/VirtualLogFactory.h log/impl/VirtualLogFactory.cc
-        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h log/server/ReplicaServer.cc log/server/ReplicaServer.h log/server/SequencerServer.cc log/server/SequencerServer.h log/server/MetadataServer.cc log/server/MetadataServer.h log/client/ReplicaClient.cc log/client/ReplicaClient.h log/client/SequencerClient.cc log/client/SequencerClient.h log/client/MetadataStoreClient.cc log/client/MetadataStoreClient.h applications/EnsembleNode.h log/impl/RemoteSequencer.h log/impl/RemoteReplica.h applications/CounterAppEnsembleNode.h applications/Ensemble.h log/impl/RegistryImpl.cc log/impl/RegistryImpl.h log/utils/GrpcServerFactory.h log/utils/UuidGenerator.h)
+        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h log/server/ReplicaServer.cc log/server/ReplicaServer.h log/server/SequencerServer.cc log/server/SequencerServer.h log/server/MetadataServer.cc log/server/MetadataServer.h log/client/ReplicaClient.cc log/client/ReplicaClient.h log/client/SequencerClient.cc log/client/SequencerClient.h log/client/MetadataStoreClient.cc log/client/MetadataStoreClient.h applications/EnsembleNode.h log/impl/RemoteSequencer.h log/impl/RemoteReplica.h applications/CounterAppEnsembleNode.h applications/Ensemble.h log/impl/RegistryImpl.cc log/impl/RegistryImpl.h log/utils/GrpcServerFactory.h log/utils/UuidGenerator.h log/impl/NullSequencer.h)
 
 target_link_libraries(LogStorage
         folly protobuf glog
