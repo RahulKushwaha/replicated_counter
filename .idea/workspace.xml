@@ -26,7 +26,8 @@
     <list default="true" id="69e96492-3aaf-4089-9245-625c6c5e25f5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/utils/tests/FutureUtilsTest.cc" beforeDir="false" afterPath="$PROJECT_DIR$/log/utils/tests/FutureUtilsTest.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/impl/NullSequencer.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/impl/NullSequencer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/include/Common.h" beforeDir="false" afterPath="$PROJECT_DIR$/log/include/Common.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
