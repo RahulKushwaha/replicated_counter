@@ -19,7 +19,8 @@ TEST(VirtualLogTests, AppendOneLogEntry) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
   ASSERT_EQ(log->append("hello_world").get(), 1);
 }
@@ -34,7 +35,8 @@ TEST(VirtualLogTests, GetOneLogEntry) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
   ASSERT_EQ(log->append(logEntryPayload).get(), 1);
 
@@ -56,7 +58,8 @@ TEST(VirtualLogTests, GetNonExistentLogEntry) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
   // Fetch the appended log entry.
   ASSERT_THROW(log->getLogEntry(1).get(), std::exception);
@@ -72,7 +75,8 @@ TEST(VirtualLogTests, GetOneLogEntryWithMinorityFailing) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
   ASSERT_EQ(log->append(logEntryPayload).get(), 1);
 
@@ -93,9 +97,10 @@ TEST(VirtualLogTests, ReconfigureOnEmptySegment) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
-  ASSERT_NO_THROW(log->reconfigure());
+  ASSERT_NO_THROW(log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get());
 }
 
 TEST(VirtualLogTests, ReconfigureOnEmptySegmentMultipleTimes) {
@@ -107,10 +112,11 @@ TEST(VirtualLogTests, ReconfigureOnEmptySegmentMultipleTimes) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
   for (int i = 0; i < 10; i++) {
-    ASSERT_NO_THROW(log->reconfigure());
+    ASSERT_NO_THROW(log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get());
   }
 }
 
@@ -142,9 +148,10 @@ TEST(VirtualLogTests, Reconfigure) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
-  ASSERT_NO_THROW(log->reconfigure());
+  ASSERT_NO_THROW(log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get());
 
   // Successfully installed a new metadata block.
   auto versionId = metadataStore->getCurrentVersionId();
@@ -188,7 +195,8 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
        sequencerCreationResult.sequencer,
        sequencerCreationResult.replicaSet,
        sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id());
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
 
   constexpr int limit = 100;
   int totalNumberOfReconfigurations = 0;
@@ -197,11 +205,11 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
     ASSERT_EQ(logId, i);
 
     if (i % 2 == 0) {
-      log->reconfigure();
+      log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get();
       totalNumberOfReconfigurations++;
 
       if (i % 6 == 0 || i % 8 == 0) {
-        log->reconfigure();
+        log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get();
         totalNumberOfReconfigurations++;
       }
     }
@@ -218,4 +226,50 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
   }
 }
 
+TEST(VirtualLogTests, MajorityReplicaWithHoles) {
+  auto sequencerCreationResult = createSequencer(0, 11);
+  auto replicaSet = sequencerCreationResult.replicaSet;
+  auto metadataStore = sequencerCreationResult.metadataStore;
+  auto sequencer = sequencerCreationResult.sequencer;
+
+  std::vector<std::vector<int>> logEntriesOrder{
+      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+      {1, 2, 3, 4, /*MISSING*/ 6, 7, 8, 9, 10},
+      {1, 2, 3, 4, 5, /*MISSING*/ 7, 8, 9, 10},
+      {1, 2, 3, 4, 5, 6, /*MISSING*/ 8, 9, 10},
+  };
+
+  int logEntriesIndex = 0;
+  for (auto &replica: replicaSet) {
+    auto &logEntries = logEntriesOrder[logEntriesIndex];
+    for (const auto logEntry: logEntries) {
+      replica->append(logEntry, "Log_Entry" + std::to_string(logEntry));
+    }
+
+    logEntriesIndex++;
+  }
+
+  ASSERT_EQ(replicaSet[0]->getLocalCommitIndex(), 11);
+  ASSERT_EQ(replicaSet[1]->getLocalCommitIndex(), 11);
+  // Replica 2,3,4 have holes. Therefore, they cannot ack to the entries after
+  // the holes.
+  ASSERT_EQ(replicaSet[2]->getLocalCommitIndex(), 5);
+  ASSERT_EQ(replicaSet[3]->getLocalCommitIndex(), 6);
+  ASSERT_EQ(replicaSet[4]->getLocalCommitIndex(), 7);
+
+
+  std::shared_ptr<VirtualLog>
+      log = std::make_shared<VirtualLogImpl>
+      ("virtual_log_id",
+       "virtual_log_name",
+       sequencerCreationResult.sequencer,
+       sequencerCreationResult.replicaSet,
+       sequencerCreationResult.metadataStore,
+       sequencerCreationResult.initialMetadataConfig.version_id(),
+       sequencerCreationResult.registry);
+
+
+  ASSERT_NO_THROW(log->append("Hello World").get(std::chrono::milliseconds(1000)));
+}
 }

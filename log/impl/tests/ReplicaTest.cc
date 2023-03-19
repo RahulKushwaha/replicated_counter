@@ -106,7 +106,6 @@ TEST(ReplicaTest, AppendDuplicateLogEntry) {
 }
 
 TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
-  folly::InlineExecutor inlineExecutor{};
   SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
 
@@ -136,7 +135,7 @@ TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   folly::collectAll(futures.begin(), futures.end()).get();
 
   for (auto &future: futures) {
-    ASSERT_TRUE(future.hasValue());
+    ASSERT_NO_THROW(future.value());
   }
 }
 

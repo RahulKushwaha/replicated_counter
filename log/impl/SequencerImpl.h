@@ -3,8 +3,9 @@
 //
 
 #pragma once
-#include "../include/Sequencer.h"
-#include "../include/Replica.h"
+
+#include "log/include/Sequencer.h"
+#include "log/include/Replica.h"
 
 #include <vector>
 

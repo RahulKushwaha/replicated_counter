@@ -2,12 +2,11 @@
 // Created by Rahul  Kushwaha on 1/2/23.
 //
 
-#ifndef LOGSTORAGE_REPLICAIMPL_H
-#define LOGSTORAGE_REPLICAIMPL_H
+#pragma once
 
-#include "../include/Replica.h"
-#include "../include/Sequencer.h"
-#include "../include/NanoLogStore.h"
+#include "log/include/Replica.h"
+#include "log/include/Sequencer.h"
+#include "log/include/NanoLogStore.h"
 
 namespace rk::projects::durable_log {
 
@@ -46,5 +45,3 @@ class ReplicaImpl: public Replica {
 };
 
 }
-
-#endif //LOGSTORAGE_REPLICAIMPL_H

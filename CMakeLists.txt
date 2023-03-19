@@ -141,11 +141,14 @@ link_directories(/opt/homebrew/Cellar/googletest/1.13.0/lib)
 
 add_executable(LogStorage
         main.cpp
+        # Sorted lines below.
         applications/CounterAppEnsembleNode.h
         applications/Ensemble.h
         applications/EnsembleNode.h
         applications/counter/CounterApp.cc
         applications/counter/CounterApp.h
+        applications/counter/CounterHealthCheck.cc
+        applications/counter/CounterHealthCheck.h
         applications/counter/client/CounterAppClient.cc
         applications/counter/client/CounterAppClient.h
         applications/counter/server/CounterAppServer.h
@@ -155,6 +158,8 @@ add_executable(LogStorage
         log/client/ReplicaClient.h
         log/client/SequencerClient.cc
         log/client/SequencerClient.h
+        log/impl/FailureDetectorImpl.cc
+        log/impl/FailureDetectorImpl.h
         log/impl/InMemoryMetadataStore.cc
         log/impl/InMemoryMetadataStore.h
         log/impl/NanoLogStoreImpl.cc
@@ -175,6 +180,8 @@ add_executable(LogStorage
         log/impl/VirtualLogImpl.cc
         log/impl/VirtualLogImpl.h
         log/include/Common.h
+        log/include/FailureDetector.h
+        log/include/HealthCheck.h
         log/include/MetadataStore.h
         log/include/NanoLog.h
         log/include/NanoLogStore.h
@@ -182,6 +189,8 @@ add_executable(LogStorage
         log/include/Replica.h
         log/include/Sequencer.h
         log/include/VirtualLog.h
+        log/server/AdminServer.cc
+        log/server/AdminServer.h
         log/server/MetadataServer.cc
         log/server/MetadataServer.h
         log/server/ReplicaServer.cc
@@ -213,10 +222,14 @@ enable_testing()
 add_executable(
         tests
         # Sorted lines below.
+        log/impl/FailureDetectorImpl.cc
+        log/impl/FailureDetectorImpl.h
         log/impl/InMemoryMetadataStore.cc
         log/impl/InMemoryMetadataStore.h
         log/impl/NanoLogStoreImpl.cc
         log/impl/NanoLogStoreImpl.h
+        log/impl/RegistryImpl.cc
+        log/impl/RegistryImpl.h
         log/impl/ReplicaImpl.cc
         log/impl/ReplicaImpl.h
         log/impl/SequencerImpl.cc
@@ -232,6 +245,7 @@ add_executable(
         log/impl/tests/TestUtils.h
         log/impl/tests/VectorBasedNanoLogTest.cc
         log/impl/tests/VirtualLogTest.cc
+        log/include/FailureDetector.h
         log/include/Sequencer.h
         log/include/VirtualLog.h
         log/utils/FutureUtils.h

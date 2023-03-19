@@ -4,7 +4,7 @@
 
 #include "SequencerImpl.h"
 #include <folly/futures/Retrying.h>
-#include "../utils/FutureUtils.h"
+#include "log/utils/FutureUtils.h"
 
 namespace rk::projects::durable_log {
 
