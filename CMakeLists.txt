@@ -139,64 +139,121 @@ include_directories(${CMAKE_SOURCE_DIR})
 link_directories(/opt/homebrew/Cellar/protobuf/21.12/lib)
 link_directories(/opt/homebrew/Cellar/googletest/1.13.0/lib)
 
-add_executable(LogStorage main.cpp
-        log/include/NanoLog.h log/include/Common.h log/include/MetadataStore.h
-        log/impl/InMemoryMetadataStore.cc log/impl/InMemoryMetadataStore.h
-        log/include/VirtualLog.h log/impl/VirtualLogImpl.h log/impl/VirtualLogImpl.cc
-        log/include/Replica.h log/impl/SequencerImpl.cc log/impl/SequencerImpl.h
-        log/include/Sequencer.h log/impl/VectorBasedNanoLog.cc log/impl/VectorBasedNanoLog.h
-        log/utils/OrderedCompletionQueue.h log/utils/FutureUtils.h
-        log/impl/ReplicaImpl.cc log/impl/ReplicaImpl.h
-        log/include/NanoLogStore.h log/impl/NanoLogStoreImpl.cc log/impl/NanoLogStoreImpl.h
-        applications/counter/CounterApp.cc applications/counter/CounterApp.h
-        log/impl/VirtualLogFactory.h log/impl/VirtualLogFactory.cc
-        log/include/Registry.h applications/counter/server/CounterAppServer.h applications/counter/client/CounterAppClient.cc applications/counter/client/CounterAppClient.h log/server/ReplicaServer.cc log/server/ReplicaServer.h log/server/SequencerServer.cc log/server/SequencerServer.h log/server/MetadataServer.cc log/server/MetadataServer.h log/client/ReplicaClient.cc log/client/ReplicaClient.h log/client/SequencerClient.cc log/client/SequencerClient.h log/client/MetadataStoreClient.cc log/client/MetadataStoreClient.h applications/EnsembleNode.h log/impl/RemoteSequencer.h log/impl/RemoteReplica.h applications/CounterAppEnsembleNode.h applications/Ensemble.h log/impl/RegistryImpl.cc log/impl/RegistryImpl.h log/utils/GrpcServerFactory.h log/utils/UuidGenerator.h log/impl/NullSequencer.h)
+add_executable(LogStorage
+        main.cpp
+        applications/CounterAppEnsembleNode.h
+        applications/Ensemble.h
+        applications/EnsembleNode.h
+        applications/counter/CounterApp.cc
+        applications/counter/CounterApp.h
+        applications/counter/client/CounterAppClient.cc
+        applications/counter/client/CounterAppClient.h
+        applications/counter/server/CounterAppServer.h
+        log/client/MetadataStoreClient.cc
+        log/client/MetadataStoreClient.h
+        log/client/ReplicaClient.cc
+        log/client/ReplicaClient.h
+        log/client/SequencerClient.cc
+        log/client/SequencerClient.h
+        log/impl/InMemoryMetadataStore.cc
+        log/impl/InMemoryMetadataStore.h
+        log/impl/NanoLogStoreImpl.cc
+        log/impl/NanoLogStoreImpl.h
+        log/impl/NullSequencer.h
+        log/impl/RegistryImpl.cc
+        log/impl/RegistryImpl.h
+        log/impl/RemoteReplica.h
+        log/impl/RemoteSequencer.h
+        log/impl/ReplicaImpl.cc
+        log/impl/ReplicaImpl.h
+        log/impl/SequencerImpl.cc
+        log/impl/SequencerImpl.h
+        log/impl/VectorBasedNanoLog.cc
+        log/impl/VectorBasedNanoLog.h
+        log/impl/VirtualLogFactory.cc
+        log/impl/VirtualLogFactory.h
+        log/impl/VirtualLogImpl.cc
+        log/impl/VirtualLogImpl.h
+        log/include/Common.h
+        log/include/MetadataStore.h
+        log/include/NanoLog.h
+        log/include/NanoLogStore.h
+        log/include/Registry.h
+        log/include/Replica.h
+        log/include/Sequencer.h
+        log/include/VirtualLog.h
+        log/server/MetadataServer.cc
+        log/server/MetadataServer.h
+        log/server/ReplicaServer.cc
+        log/server/ReplicaServer.h
+        log/server/SequencerServer.cc
+        log/server/SequencerServer.h
+        log/utils/FutureUtils.h
+        log/utils/GrpcServerFactory.h
+        log/utils/OrderedCompletionQueue.h
+        log/utils/UuidGenerator.h
+        )
 
 target_link_libraries(LogStorage
-        folly protobuf glog
-        proto-objects event
-        glog gflags folly
-        fmt double-conversion
-        boost_context dl)
+        # Sorted lines below.
+        boost_context
+        dl
+        double-conversion
+        event
+        fmt
+        folly
+        gflags
+        glog
+        proto-objects
+        protobuf
+        )
 
 enable_testing()
 
 add_executable(
         tests
-        log/impl/VectorBasedNanoLog.cc log/impl/VectorBasedNanoLog.h
-        log/impl/tests/VectorBasedNanoLogTest.cc
-
-        log/impl/InMemoryMetadataStore.h log/impl/InMemoryMetadataStore.cc
+        # Sorted lines below.
+        log/impl/InMemoryMetadataStore.cc
+        log/impl/InMemoryMetadataStore.h
+        log/impl/NanoLogStoreImpl.cc
+        log/impl/NanoLogStoreImpl.h
+        log/impl/ReplicaImpl.cc
+        log/impl/ReplicaImpl.h
+        log/impl/SequencerImpl.cc
+        log/impl/SequencerImpl.h
+        log/impl/VectorBasedNanoLog.cc
+        log/impl/VectorBasedNanoLog.h
+        log/impl/VirtualLogImpl.cc
+        log/impl/VirtualLogImpl.h
         log/impl/tests/MetadataStoreTest.cc
-
-        log/impl/ReplicaImpl.h log/impl/ReplicaImpl.cc
-        log/impl/NanoLogStoreImpl.h log/impl/NanoLogStoreImpl.cc
-        log/impl/tests/ReplicaTest.cc
-
-        log/impl/SequencerImpl.h log/impl/SequencerImpl.cc
-        log/include/Sequencer.h log/impl/VectorBasedNanoLog.h log/impl/VectorBasedNanoLog.cc
-        log/impl/tests/SequencerTest.cc
-
         log/impl/tests/MockReplica.h
-
-        log/impl/VirtualLogImpl.cc log/impl/VirtualLogImpl.h
-        log/include/VirtualLog.h
-        log/impl/tests/VirtualLogTest.cc
-
+        log/impl/tests/ReplicaTest.cc
+        log/impl/tests/SequencerTest.cc
         log/impl/tests/TestUtils.h
-
-        log/utils/OrderedCompletionQueue.h
-        log/utils/tests/OrderedCompletionQueueTests.cc
-
+        log/impl/tests/VectorBasedNanoLogTest.cc
+        log/impl/tests/VirtualLogTest.cc
+        log/include/Sequencer.h
+        log/include/VirtualLog.h
         log/utils/FutureUtils.h
+        log/utils/OrderedCompletionQueue.h
         log/utils/tests/FutureUtilsTest.cc
-        log/utils/tests/UuidGeneratorTest.cc)
+        log/utils/tests/OrderedCompletionQueueTests.cc
+        log/utils/tests/UuidGeneratorTest.cc
+)
 
 target_link_libraries(tests
-        folly protobuf glog
-        proto-objects event
-        glog gflags folly
-        fmt double-conversion
-        gmock gtest
-        boost_context dl
-        gtest_main)
+        # Sorted lines below.
+        boost_context
+        dl
+        double-conversion
+        event
+        fmt
+        folly
+        gflags
+        glog
+        gmock
+        gtest
+        gtest_main
+        proto-objects
+        protobuf
+        )

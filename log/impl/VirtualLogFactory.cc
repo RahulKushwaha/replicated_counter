@@ -6,7 +6,7 @@
 #include "VirtualLogImpl.h"
 #include "SequencerImpl.h"
 #include "RegistryImpl.h"
-#include "../../../LogStorage/log/utils/UuidGenerator.h"
+#include "log/utils/UuidGenerator.h"
 
 namespace rk::projects::durable_log {
 
