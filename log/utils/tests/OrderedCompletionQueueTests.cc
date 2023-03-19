@@ -60,6 +60,35 @@ TEST(OrderedCompletionQueueTests, AddElementsInSequence) {
   }
 }
 
+TEST(OrderedCompletionQueueTests, AddElementsRandomlyAndCompleteOld) {
+  OrderedCompletionQueue<std::int32_t> queue;
+  std::vector<std::int32_t> elements{1, 3, 5, 7, 8, 56};
+
+  std::vector<folly::Future<std::int32_t >> futures;
+  for (auto element: elements) {
+    folly::Promise<std::int32_t> promise;
+    folly::Future<std::int32_t> future = promise.getFuture();
+
+    queue.add(element, std::move(promise), element);
+
+    futures.emplace_back(std::move(future));
+  }
+
+  // Add 57 which completes all previous ones.
+  {
+    folly::Promise<std::int32_t> promise;
+    folly::Future<std::int32_t> future = promise.getFuture();
+
+    queue.addAndCompleteOld(57, std::move(promise), 57);
+  }
+
+  folly::collectAll(futures.begin(), futures.end()).get();
+
+  for (auto &future: futures) {
+    ASSERT_TRUE(future.hasValue());
+  }
+}
+
 TEST(OrderedCompletionQueueTests, AddElementsRandomly) {
   OrderedCompletionQueue<std::int32_t> queue;
   std::vector<std::int32_t> elements;
@@ -80,7 +109,7 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomly) {
     futures.emplace_back(std::move(future));
   }
 
-  folly::collectAll(futures.begin(), futures.end());
+  folly::collectAll(futures.begin(), futures.end()).get();
 
   for (auto &future: futures) {
     ASSERT_TRUE(future.hasValue());

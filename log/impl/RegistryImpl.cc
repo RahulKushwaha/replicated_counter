@@ -17,6 +17,7 @@ void RegistryImpl::registerSequencer(std::shared_ptr<Sequencer> sequencer) {
 }
 
 std::shared_ptr<Replica> RegistryImpl::replica(std::string replicaId) {
+  LOG(INFO) << "Retrieving Replica: " << replicaId;
   if (auto itr = replicas_.find(replicaId); itr != replicas_.end()) {
     return itr->second;
   }
@@ -25,6 +26,7 @@ std::shared_ptr<Replica> RegistryImpl::replica(std::string replicaId) {
 }
 
 std::shared_ptr<Sequencer> RegistryImpl::sequencer(std::string sequencerId) {
+  LOG(INFO) << "Retrieving Sequencer: " << sequencerId;
   if (auto itr = sequencers_.find(sequencerId); itr != sequencers_.end()) {
     return itr->second;
   }

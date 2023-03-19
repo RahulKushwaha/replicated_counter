@@ -1,11 +1,12 @@
 //
 // Created by Rahul  Kushwaha on 12/30/22.
 //
-#include "../include/VirtualLog.h"
-#include "../include/Sequencer.h"
-#include "../include/NanoLog.h"
-#include "../include/MetadataStore.h"
-#include "../include/Replica.h"
+#include "log/include/VirtualLog.h"
+#include "log/include/Sequencer.h"
+#include "log/include/NanoLog.h"
+#include "log/include/MetadataStore.h"
+#include "log/include/Replica.h"
+#include "log/include/Registry.h"
 
 #include <vector>
 
@@ -19,7 +20,8 @@ class VirtualLogImpl: public VirtualLog {
       std::shared_ptr<Sequencer> sequencer,
       std::vector<std::shared_ptr<Replica>> replicaSet,
       std::shared_ptr<MetadataStore> metadataStore,
-      VersionId metadataConfigVersionId);
+      VersionId metadataConfigVersionId,
+      std::shared_ptr<Registry> registry);
 
  public:
 
@@ -28,10 +30,15 @@ class VirtualLogImpl: public VirtualLog {
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) override;
-  void reconfigure() override;
+  folly::coro::Task<MetadataConfig> getCurrentConfig() override;
+  folly::coro::Task<MetadataConfig>
+  reconfigure(MetadataConfig targetMetadataConfig) override;
   folly::SemiFuture<LogId> sync() override;
 
   ~VirtualLogImpl() override = default;
+
+ private:
+  void setState(VersionId versionId);
 
  private:
   struct State {
@@ -45,6 +52,7 @@ class VirtualLogImpl: public VirtualLog {
   std::string name_;
   std::shared_ptr<MetadataStore> metadataStore_;
   std::unique_ptr<State> state_;
+  std::shared_ptr<Registry> registry_;
 };
 
 }

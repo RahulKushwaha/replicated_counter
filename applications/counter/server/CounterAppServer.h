@@ -4,7 +4,7 @@
 #include <grpc++/grpc++.h>
 #include "applications/counter/server/proto/CounterService.grpc.pb.h"
 #include <folly/executors/GlobalExecutor.h>
-#include "../CounterApp.h"
+#include "applications/counter/CounterApp.h"
 
 namespace rk::projects::counter_app {
 

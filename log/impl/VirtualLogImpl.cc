@@ -2,7 +2,7 @@
 // Created by Rahul  Kushwaha on 12/30/22.
 //
 #include "VirtualLogImpl.h"
-#include "../utils/FutureUtils.h"
+#include "log/utils/FutureUtils.h"
 #include <folly/executors/InlineExecutor.h>
 #include <folly/futures/Retrying.h>
 
@@ -16,7 +16,7 @@ MetadataConfig
 getConfigOrFatalFailure(const std::shared_ptr<MetadataStore> &metadataStore,
                         VersionId metadataConfigVersionId) {
   auto &&config = metadataStore->getConfig(metadataConfigVersionId);
-  CHECK(config.has_value());
+  assert(config.has_value());
 
   return config.value();
 }
@@ -29,7 +29,8 @@ VirtualLogImpl::VirtualLogImpl(
     std::shared_ptr<Sequencer> sequencer,
     std::vector<std::shared_ptr<Replica>> replicaSet,
     std::shared_ptr<MetadataStore> metadataStore,
-    VersionId metadataConfigVersionId)
+    VersionId metadataConfigVersionId,
+    std::shared_ptr<Registry> registry)
     : id_{std::move(id)},
       name_{std::move(name)},
       metadataStore_{std::move(metadataStore)},
@@ -38,7 +39,8 @@ VirtualLogImpl::VirtualLogImpl(
               getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId),
               std::move(sequencer),
               std::move(replicaSet)}
-      )} {}
+      )},
+      registry_{std::move(registry)} {}
 
 std::string VirtualLogImpl::getId() {
   return id_;
@@ -96,7 +98,8 @@ VirtualLogImpl::getLogEntry(LogId logId) {
       });
 }
 
-void VirtualLogImpl::reconfigure() {
+folly::coro::Task<MetadataConfig>
+VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   VersionId versionId = metadataStore_->getCurrentVersionId();
 
   // Make a copy of the replicaSet
@@ -168,6 +171,10 @@ void VirtualLogImpl::reconfigure() {
         .get();
   }
 
+  LOG(INFO)
+      << "Completed Re-Replication. All replica's have been populated to: "
+      << maxLogId;
+
   // Quorum of the nanologs have been re-replicated.
   // Update the MetadataConfig block.
   auto metadataConfig = metadataStore_->getConfig(versionId);
@@ -182,10 +189,58 @@ void VirtualLogImpl::reconfigure() {
     newConfig.set_version_id(versionId + 1);
 
     // Set the sequencer id;
-    newConfig.mutable_sequencer_config()->set_id(state_->sequencer->getId());
+    auto sequencerConfig = newConfig.mutable_sequencer_config();
+    sequencerConfig->CopyFrom(targetMetadataConfig.sequencer_config());
 
-    metadataStore_->compareAndAppendRange(versionId, newConfig);
+    auto replicaConfig = newConfig.mutable_replica_set_config();
+    replicaConfig->CopyFrom(targetMetadataConfig.replica_set_config());
+
+    try {
+      metadataStore_->compareAndAppendRange(versionId, newConfig);
+    } catch (const OptimisticConcurrencyException &e) {
+      LOG(INFO) << "Some other replica was able to install metadata. "
+                << e.what();
+      setState(newConfig.version_id());
+      co_return newConfig;
+    }
   }
+
+  auto newVersionId = metadataStore_->getCurrentVersionId();
+
+  setState(newVersionId);
+  co_return *metadataStore_->getConfig(newVersionId);
+}
+
+folly::coro::Task<MetadataConfig> VirtualLogImpl::getCurrentConfig() {
+  return folly::coro::makeTask(state_->metadataConfig);
+}
+
+void VirtualLogImpl::setState(VersionId versionId) {
+  LOG(INFO) << "Installing new State";
+  auto config = metadataStore_->getConfig(versionId);
+
+  if (!config.has_value()) {
+    LOG(INFO) << "Config is not present.";
+  }
+
+  LOG(INFO) << "New Sequencer: " << config->sequencer_config().id();
+  std::shared_ptr<Sequencer>
+      sequencer = registry_->sequencer(config->sequencer_config().id());
+
+  std::vector<std::shared_ptr<Replica>> replicaSet;
+
+  for (const auto &replicaConfig: config->replica_set_config()) {
+    auto replica = registry_->replica(replicaConfig.id());
+    replicaSet.emplace_back(std::move(replica));
+  }
+
+  std::unique_ptr<State> state = std::make_unique<State>(
+      State{*config, std::move(sequencer), std::move(replicaSet)}
+  );
+
+  state_ = std::move(state);
+
+  LOG(INFO) << "Completed Installing new State";
 }
 
 }

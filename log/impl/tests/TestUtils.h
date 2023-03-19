@@ -5,11 +5,14 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include "../SequencerImpl.h"
-#include "../ReplicaImpl.h"
-#include "../InMemoryMetadataStore.h"
-#include "../NanoLogStoreImpl.h"
+#include "log/impl/SequencerImpl.h"
+#include "log/impl/ReplicaImpl.h"
+#include "log/impl/InMemoryMetadataStore.h"
+#include "log/impl/NanoLogStoreImpl.h"
 #include "MockReplica.h"
+#include "log/utils/UuidGenerator.h"
+#include "log/include/Registry.h"
+#include "log/impl/RegistryImpl.h"
 
 namespace rk::projects::durable_log {
 using namespace testing;
@@ -21,10 +24,13 @@ struct SequencerCreationResult {
   std::vector<std::shared_ptr<Replica>> goodReplicaSet;
   std::shared_ptr<MetadataStore> metadataStore;
   MetadataConfig initialMetadataConfig;
+  std::shared_ptr<Registry> registry;
 };
 
 inline SequencerCreationResult
-createSequencer(std::int32_t numberOfBadReplicas = 0) {
+createSequencer(std::int32_t numberOfBadReplicas = 0,
+                std::int64_t sequencerStartNum = 1) {
+  std::shared_ptr<Registry> registry = std::make_shared<RegistryImpl>();
   std::shared_ptr<MetadataStore>
       metadataStore = std::make_shared<InMemoryMetadataStore>();
 
@@ -35,8 +41,6 @@ createSequencer(std::int32_t numberOfBadReplicas = 0) {
   config.set_start_index(1);
   config.set_end_index(1000);
 
-  metadataStore->compareAndAppendRange(0, config);
-
   std::int32_t totalNumberOfReplicas = 5;
   std::vector<std::shared_ptr<Replica>> replicaSet;
   std::vector<std::shared_ptr<Replica>> badReplicaSet;
@@ -44,6 +48,11 @@ createSequencer(std::int32_t numberOfBadReplicas = 0) {
 
   for (std::int32_t i = 0; i < numberOfBadReplicas; i++) {
     std::shared_ptr<MockReplica> mockReplica = std::make_shared<MockReplica>();
+    ON_CALL(*mockReplica, getId())
+        .WillByDefault([]() {
+          return "MOCK_REPLICA_" + utils::UuidGenerator::instance().generate();
+        });
+
     ON_CALL(*mockReplica, append(_, _, _))
         .WillByDefault([]() {
           return folly::makeSemiFuture<folly::Unit>
@@ -58,6 +67,8 @@ createSequencer(std::int32_t numberOfBadReplicas = 0) {
                   NonRecoverableError{}));
         });
 
+    config.mutable_replica_set_config()->Add()->set_id(mockReplica->getId());
+    registry->registerReplica(mockReplica);
     badReplicaSet.emplace_back(mockReplica);
     replicaSet.emplace_back(std::move(mockReplica));
   }
@@ -66,18 +77,30 @@ createSequencer(std::int32_t numberOfBadReplicas = 0) {
        i++) {
     std::shared_ptr<Replica>
         replica = std::make_shared<ReplicaImpl>
-        ("random_name", "random_id", std::make_shared<NanoLogStoreImpl>(),
+        ("REPLICA_" + utils::UuidGenerator::instance().generate(),
+         "random_name",
+         std::make_shared<NanoLogStoreImpl>(),
          metadataStore);
 
+    config.mutable_replica_set_config()->Add()->set_id(replica->getId());
+    registry->registerReplica(replica);
     goodReplicaSet.emplace_back(replica);
     replicaSet.emplace_back(std::move(replica));
   }
 
   std::shared_ptr<Sequencer> sequencer =
-      std::make_shared<SequencerImpl>("sequencer_id", replicaSet, 1);
+      std::make_shared<SequencerImpl>(
+          "SEQUENCER_" + utils::UuidGenerator::instance().generate(),
+          replicaSet,
+          sequencerStartNum);
+  registry->registerSequencer(sequencer);
+
+  config.mutable_sequencer_config()->set_id(sequencer->getId());
+
+  metadataStore->compareAndAppendRange(0, config);
 
   return {sequencer, replicaSet, badReplicaSet, goodReplicaSet, metadataStore,
-          config};
+          config, registry};
 }
 
 }

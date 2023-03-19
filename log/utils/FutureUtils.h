@@ -2,8 +2,7 @@
 // Created by Rahul  Kushwaha on 1/2/23.
 //
 
-#ifndef LOGSTORAGE_FUTUREUTILS_H
-#define LOGSTORAGE_FUTUREUTILS_H
+#pragma once
 
 #include <vector>
 #include <folly/futures/Future.h>
@@ -80,5 +79,3 @@ anyNSuccessful(std::vector<folly::SemiFuture<T>> futures,
 }
 
 }
-
-#endif //LOGSTORAGE_FUTUREUTILS_H

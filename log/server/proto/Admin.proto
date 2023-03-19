@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "log/proto/MetadataConfig.proto";
+
+package rk.projects.durable_log.server;
+
+service AdminService{
+  rpc getCurrentConfig(google.protobuf.Empty) returns(MetadataConfig);
+
+  rpc reconfigure(ReconfigurationRequest) returns (ReconfigurationResponse);
+}
+
+message ReconfigurationRequest{
+}
+
+message ReconfigurationResponse{
+  int64 config_version_id = 1;
+}

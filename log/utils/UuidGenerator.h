@@ -16,21 +16,34 @@ class UuidGenerator final {
   }
 
   std::string generate() {
-    return to_string(gen_());
+    return to_string(state_->gen());
   }
 
  private:
-  explicit UuidGenerator() : gen_{[]() {
-    std::random_device rd;
-    auto seed_data = std::array<int, std::mt19937::state_size>{};
-    std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
-    std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-    std::mt19937 generator(seq);
-    uuids::uuid_random_generator gen{generator};
-    return gen;
-  }()} {}
+  explicit UuidGenerator() : state_{std::make_unique<State>()} {}
 
-  uuids::uuid_random_generator gen_;
+  struct State {
+    std::random_device rd;
+    std::array<int, std::mt19937::state_size> seedData;
+    std::mt19937 generator;
+    uuids::uuid_random_generator gen;
+
+    explicit State() :
+        rd{},
+        seedData{},
+        generator{[this]() {
+          std::generate(std::begin(seedData),
+                        std::end(seedData),
+                        std::ref(rd));
+          std::seed_seq seq(std::begin(seedData), std::end(seedData));
+          return std::mt19937(seq);
+        }()},
+        gen{[this]() {
+          return uuids::uuid_random_generator{generator};
+        }()} {}
+  };
+
+  std::shared_ptr<State> state_;
 };
 
 }
