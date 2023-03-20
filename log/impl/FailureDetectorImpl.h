@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include "log/impl/EnsembleConfig.h"
 #include "log/include/FailureDetector.h"
-#include "log/include/VirtualLog.h"
-#include "log/include/MetadataStore.h"
 #include "log/include/HealthCheck.h"
+#include "log/include/MetadataStore.h"
+#include "log/include/VirtualLog.h"
 
 namespace rk::projects::durable_log {
 
@@ -15,12 +16,20 @@ class FailureDetectorImpl: public FailureDetector {
  public:
   explicit FailureDetectorImpl(std::shared_ptr<HealthCheck> healthCheck,
                                std::shared_ptr<VirtualLog> virtualLog,
-                               std::shared_ptr<folly::Executor> executor);
+                               std::shared_ptr<folly::Executor> executor,
+                               EnsembleNodeConfig self,
+                               std::vector<EnsembleNodeConfig> replicaSet);
 
  public:
   std::optional<MetadataConfig> getLatestMetadataConfig() override;
-  bool failure() override;
-  folly::coro::Task<void> reconcile() override;
+  bool healthy() override;
+  folly::coro::Task<void> reconcileLoop() override;
+
+  ~FailureDetectorImpl() override {
+    LOG(INFO) << "Destructor Called";
+    healthCheckLoopCancellationSource_.requestCancellation();
+    reconciliationLoopCancellationSource_.requestCancellation();
+  }
 
  private:
 
@@ -35,9 +44,14 @@ class FailureDetectorImpl: public FailureDetector {
   std::shared_ptr<VirtualLog> virtualLog_;
   std::unique_ptr<State> state_;
   std::atomic_bool ensembleAlive_;
+  EnsembleNodeConfig self_;
+  std::vector<EnsembleNodeConfig> replicaSet_;
 
   std::vector<bool> healthCheckRecords_;
   std::shared_ptr<folly::Executor> executor_;
+
+  folly::CancellationSource healthCheckLoopCancellationSource_;
+  folly::CancellationSource reconciliationLoopCancellationSource_;
 };
 
 }

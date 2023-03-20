@@ -4,16 +4,22 @@
 #pragma once
 
 #include <string>
-#include "Ensemble.h"
+#include "log/impl/Ensemble.h"
+#include "applications/counter/CounterHealthCheck.h"
 #include "counter/CounterApp.h"
-#include "../log/impl/RemoteReplica.h"
-#include "../log/impl/RemoteSequencer.h"
-#include "../log/impl/VirtualLogFactory.h"
-#include "../log/server/ReplicaServer.h"
-#include "../log/server/SequencerServer.h"
-#include "../log/impl/VirtualLogImpl.h"
-#include "../log/utils/GrpcServerFactory.h"
-#include <folly/executors/ThreadPoolExecutor.h>
+#include "folly/executors/CPUThreadPoolExecutor.h"
+#include "folly/executors/ThreadPoolExecutor.h"
+#include "log/impl/FailureDetectorImpl.h"
+#include "log/impl/NullSequencer.h"
+#include "log/impl/RemoteReplica.h"
+#include "log/impl/RemoteSequencer.h"
+#include "log/impl/VirtualLogFactory.h"
+#include "log/impl/VirtualLogImpl.h"
+#include "log/server/ReplicaServer.h"
+#include "log/server/SequencerServer.h"
+#include "log/utils/GrpcServerFactory.h"
+#include "log/utils/UuidGenerator.h"
+#include "log/impl/EnsembleConfig.h"
 
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/create_channel.h>
@@ -23,17 +29,65 @@ namespace rk::projects::counter_app {
 using CounterAppEnsembleNode = EnsembleNode<CounterApp>;
 using CounterAppEnsemble = Ensemble<CounterApp, 5>;
 
-struct EnsembleNodeConfig {
-  std::int32_t sequencerPort;
-  std::int32_t replicaPort;
-  std::int32_t metadataStorePort;
-};
+EnsembleNodeConfig
+    ensembleNode1
+    {
+        .sequencerId = "SEQUENCER_"
+            + utils::UuidGenerator::instance().generate(),
+        .sequencerPort=10'000,
 
-EnsembleNodeConfig ensembleNode1{10'000, 10'001, 10'002};
-EnsembleNodeConfig ensembleNode2{20'000, 20'001, 20'002};
-EnsembleNodeConfig ensembleNode3{30'000, 30'001, 30'002};
-EnsembleNodeConfig ensembleNode4{40'000, 40'001, 40'002};
-EnsembleNodeConfig ensembleNode5{50'000, 50'001, 50'002};
+        .replicaId = "REPLICA_" + utils::UuidGenerator::instance().generate(),
+        .replicaPort= 10'001,
+        .metadataStorePort= 10'002
+    };
+
+EnsembleNodeConfig ensembleNode2
+    {
+        .sequencerId = "SEQUENCER_"
+            + utils::UuidGenerator::instance().generate(),
+        .sequencerPort=20'000,
+
+        .replicaId = "REPLICA_" + utils::UuidGenerator::instance().generate(),
+        .replicaPort=20'001,
+
+        .metadataStorePort=20'002
+    };
+
+EnsembleNodeConfig ensembleNode3
+    {
+        .sequencerId = "SEQUENCER_"
+            + utils::UuidGenerator::instance().generate(),
+        .sequencerPort=30'000,
+
+        .replicaId = "REPLICA_" + utils::UuidGenerator::instance().generate(),
+        .replicaPort=30'001,
+
+        .metadataStorePort=30'002
+    };
+
+EnsembleNodeConfig ensembleNode4
+    {
+        .sequencerId = "SEQUENCER_"
+            + utils::UuidGenerator::instance().generate(),
+        .sequencerPort=40'000,
+
+        .replicaId = "REPLICA_" + utils::UuidGenerator::instance().generate(),
+        .replicaPort=40'001,
+
+        .metadataStorePort=40'002
+    };
+
+EnsembleNodeConfig ensembleNode5
+    {
+        .sequencerId = "SEQUENCER_"
+            + utils::UuidGenerator::instance().generate(),
+        .sequencerPort=50'000,
+
+        .replicaId = "REPLICA_" + utils::UuidGenerator::instance().generate(),
+        .replicaPort=50'001,
+
+        .metadataStorePort=50'002
+    };
 
 std::array<EnsembleNodeConfig, 5>
     configs
@@ -63,7 +117,8 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
         serverAddressFormat + std::to_string(config.replicaPort);
 
     auto replicaClient = std::make_shared<client::ReplicaClient>(
-        grpc::CreateChannel(replicaAddress, grpc::InsecureChannelCredentials())
+        grpc::CreateChannel(replicaAddress,
+                            grpc::InsecureChannelCredentials())
     );
 
     std::shared_ptr<NanoLogStore> nanoLogStore = makeNanoLogStore();
@@ -73,7 +128,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
 
     std::shared_ptr<Replica>
         localReplica =
-        makeReplica(replicaAddress, "", nanoLogStore, metadataStore);
+        makeReplica(config.replicaId, "", nanoLogStore, metadataStore);
 
     auto localReplicaServer =
         std::make_shared<server::ReplicaServer>(localReplica);
@@ -83,6 +138,8 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
                                       executor,
                                       "Replica")
         .get();
+
+    registry->registerReplica(remoteReplica);
 
     auto &ensembleNode = counterAppEnsemble.nodes_[index];
     ensembleNode.replica = localReplicaServer;
@@ -120,10 +177,11 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
       LOG(INFO) << "  has Replica: " << replica->getId();
     }
 
-    auto remoteSequencer = std::make_shared<RemoteSequencer>(sequencerClient);
+    auto remoteSequencer =
+        std::make_shared<RemoteSequencer>(sequencerClient);
 
     std::shared_ptr<Sequencer>
-        sequencer = makeSequencer(ensembleNode.replicaSet);
+        sequencer = makeSequencer(config.sequencerId, ensembleNode.replicaSet);
 
     std::shared_ptr<server::SequencerServer> localSequencerServer =
         std::make_shared<server::SequencerServer>(sequencer);
@@ -136,16 +194,43 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
                                       "Sequencer")
         .get();
 
+    registry->registerSequencer(remoteSequencer);
+
     std::shared_ptr<VirtualLog>
-        log = std::make_shared<VirtualLogImpl>("id",
-                                               appName,
-                                               sequencer,
-                                               ensembleNode.replicaSet,
-                                               metadataStore,
-                                               metadataConfig.version_id());
+        log =
+        std::make_shared<VirtualLogImpl>(
+            "VIRTUAL_LOG_"
+                + utils::UuidGenerator::instance().generate(),
+            appName,
+            std::make_shared<NullSequencer>(),
+            ensembleNode.replicaSet,
+            metadataStore,
+            metadataConfig.version_id(),
+            registry);
 
     auto counterApp = std::make_shared<CounterApp>(log);
     ensembleNode.app = counterApp;
+    if (true) {
+      std::shared_ptr<folly::Executor>
+          failureDetectorPool =
+          std::make_shared<folly::CPUThreadPoolExecutor>(2);
+
+      std::shared_ptr<HealthCheck>
+          healthCheck =
+          std::make_shared<CounterHealthCheck>(ensembleNode.app);
+
+      std::vector<EnsembleNodeConfig>
+          replicaConfigs{configs.begin(), configs.end()};
+
+      std::shared_ptr<FailureDetector>
+          failureDetector =
+          std::make_shared<FailureDetectorImpl>(healthCheck,
+                                                log,
+                                                failureDetectorPool,
+                                                config,
+                                                replicaConfigs);
+      ensembleNode.failureDetector = failureDetector;
+    }
 
     index++;
   }

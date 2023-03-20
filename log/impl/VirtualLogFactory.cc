@@ -12,6 +12,7 @@ namespace rk::projects::durable_log {
 
 std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
   std::shared_ptr<MetadataStore> metadataStore = makeMetadataStore();
+  std::shared_ptr<Registry> registry = std::make_shared<RegistryImpl>();
 
   // Add metadata block.
   MetadataConfig config;
@@ -25,18 +26,25 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
 
   std::vector<std::shared_ptr<Replica>> replicaSet;
   for (int i = 0; i < 5; i++) {
-    auto replica = makeReplica("", "", makeNanoLogStore(), metadataStore);
+    auto replica =
+        makeReplica("REPLICA_" + utils::UuidGenerator::instance().generate(),
+                    "Replica Instance",
+                    makeNanoLogStore(),
+                    metadataStore);
     replicaSet.emplace_back(std::move(replica));
   }
 
-  std::shared_ptr<Sequencer> sequencer = makeSequencer(replicaSet);
+  std::shared_ptr<Sequencer> sequencer =
+      makeSequencer("SEQUENCER_" + utils::UuidGenerator::instance().generate(),
+                    replicaSet);
   std::unique_ptr<VirtualLog> virtualLog = std::make_unique<VirtualLogImpl>(
       utils::UuidGenerator::instance().generate(),
       std::move(name),
       sequencer,
       replicaSet,
       metadataStore,
-      config.version_id()
+      config.version_id(),
+      registry
   );
 
   return virtualLog;
@@ -63,8 +71,9 @@ makeReplica(std::string id,
 }
 
 std::unique_ptr<Sequencer>
-makeSequencer(std::vector<std::shared_ptr<Replica>> replicaSet) {
-  return std::make_unique<SequencerImpl>("", std::move(replicaSet), 1);
+makeSequencer(std::string sequencerId,
+              std::vector<std::shared_ptr<Replica>> replicaSet) {
+  return std::make_unique<SequencerImpl>(sequencerId, std::move(replicaSet), 1);
 }
 
 std::unique_ptr<Registry> makeRegistry() {

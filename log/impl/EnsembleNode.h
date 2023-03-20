@@ -5,10 +5,11 @@
 #pragma once
 
 #include <memory>
-#include "../log/server/SequencerServer.h"
-#include "../log/server/ReplicaServer.h"
-#include "../log/include/Replica.h"
-#include "../log/include/Registry.h"
+#include "log/server/SequencerServer.h"
+#include "log/server/ReplicaServer.h"
+#include "log/include/Replica.h"
+#include "log/include/Registry.h"
+#include "log/include/FailureDetector.h"
 
 namespace rk::projects::durable_log {
 
@@ -19,6 +20,11 @@ struct EnsembleNode {
   std::shared_ptr<server::ReplicaServer> replica;
   std::vector<std::shared_ptr<Replica>> replicaSet;
   std::shared_ptr<Registry> registry;
+  std::shared_ptr<FailureDetector> failureDetector;
+
+  ~EnsembleNode() {
+    LOG(INFO) << "Destructor Called";
+  }
 };
 
 }

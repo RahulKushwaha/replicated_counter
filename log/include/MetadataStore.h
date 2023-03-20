@@ -32,6 +32,8 @@ class MetadataStore {
   compareAndAppendRange(VersionId versionId,
                         MetadataConfig newMetadataConfig) = 0;
 
+  virtual void printConfigChain() = 0;
+
   virtual ~MetadataStore() = default;
 };
 

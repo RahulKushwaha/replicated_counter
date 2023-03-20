@@ -61,6 +61,13 @@ VersionId InMemoryMetadataStore::getCurrentVersionId() {
   return state_->configs_.rbegin()->first;
 }
 
+void InMemoryMetadataStore::printConfigChain() {
+  std::lock_guard<std::mutex> lockGuard{state_->mtx};
+  for (auto &[key, config]: state_->configs_) {
+    LOG(INFO) << config.DebugString();
+  }
+}
+
 void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
                                                   MetadataConfig newMetadataConfig) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
@@ -71,7 +78,8 @@ void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
     }
 
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
-    state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
+    state_->logIdToConfig_[newMetadataConfig.start_index()] =
+        newMetadataConfig;
     return;
   }
 
@@ -82,7 +90,8 @@ void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
     // last config index.
     state_->configs_[versionId].set_end_index(newMetadataConfig.previous_version_end_index());
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
-    state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
+    state_->logIdToConfig_[newMetadataConfig.start_index()] =
+        newMetadataConfig;
     return;
   }
 
