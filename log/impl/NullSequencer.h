@@ -8,9 +8,7 @@
 
 namespace rk::projects::durable_log {
 
-namespace {
-constexpr char *NULL_SEQUENCER_ID = "NULL_SEQUENCER";
-}
+constexpr std::string_view NULL_SEQUENCER_ID = "NULL_SEQUENCER";
 
 /* NullSequencer is a special kind of Sequencer that throws exception
  * for any kind of action.

@@ -62,7 +62,30 @@ int main() {
         makeCounterAppEnsemble("CounterApp", &threadPoolExecutor);
 
     LOG(INFO) << "\n\nSequencers and Replica stared\n\n";
+    auto &ensembleNode = counterAppEnsemble.nodes_[0];
+
+    bool healthy = false;
+    while (!healthy) {
+      bool currentState = false;
+      folly::futures::sleep(std::chrono::milliseconds{500}).get();
+      LOG(INFO) << "Waiting for server to be alive before sending request";
+
+      std::int32_t index = 0;
+
+      for (auto &ensemble: counterAppEnsemble.nodes_) {
+        auto ensembleAlive = ensemble.failureDetector->healthy();
+        LOG(INFO) << "Ensemble Node: " << index << " "
+                  << (ensembleAlive ? "T" : "F");
+
+        currentState &= ensembleAlive;
+        index++;
+      }
+
+      healthy = currentState;
+    }
+
     auto &app1 = counterAppEnsemble.nodes_[0].app;
+
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
@@ -80,6 +103,11 @@ int main() {
     }
 
     LOG(INFO) << "Every Replica has the same value: " << val;
+
+//    while (true) {
+//      LOG(INFO) << "Sleeping for 2 seconds";
+//      folly::futures::sleep(std::chrono::milliseconds{20000}).get();
+//    }
   }
 
   return 0;

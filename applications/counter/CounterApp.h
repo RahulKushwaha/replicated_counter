@@ -34,6 +34,7 @@ class CounterApp {
  private:
   std::shared_ptr<VirtualLog> virtualLog_;
   LogId lastAppliedEntry_;
+  std::unique_ptr<std::mutex> mtx_;
 
   std::unordered_map<std::string, std::atomic_int64_t> lookup_;
 };

@@ -13,7 +13,7 @@ class FailureDetector {
  public:
   virtual std::optional<MetadataConfig> getLatestMetadataConfig() = 0;
 
-  virtual bool failure() = 0;
+  virtual bool healthy() = 0;
   /*
    * The reconciliation loop is as follows:
    *  INIT: Get the latest metadata version.
@@ -22,7 +22,9 @@ class FailureDetector {
    *  newly installed medata is greater than to the current.
    *  3. Update local metadata version.
    */
-  virtual folly::coro::Task<void> reconcile() = 0;
+  virtual folly::coro::Task<void> reconcileLoop() = 0;
+
+  virtual ~FailureDetector() = default;
 };
 
 }

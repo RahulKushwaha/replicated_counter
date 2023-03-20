@@ -2,10 +2,9 @@
 // Created by Rahul  Kushwaha on 12/29/22.
 //
 
-#ifndef LOGSTORAGE_INMEMORYMETADATASTORE_H
-#define LOGSTORAGE_INMEMORYMETADATASTORE_H
+#pragma once
 
-#include "../include/MetadataStore.h"
+#include "log/include/MetadataStore.h"
 
 #include <mutex>
 #include <map>
@@ -25,16 +24,11 @@ class InMemoryMetadataStore: public MetadataStore {
   compareAndAppendRange(VersionId versionId,
                         MetadataConfig newMetadataConfig) override;
 
+  void printConfigChain() override;
+
   ~InMemoryMetadataStore() override = default;
 
  private:
-  struct MetadataConfigComparator {
-    bool
-    operator()(const MetadataConfig &left, const MetadataConfig &right) const {
-      return left.version_id() < right.version_id();
-    }
-  };
-
   struct State {
     std::mutex mtx;
     std::map<VersionId, MetadataConfig> configs_;
@@ -45,4 +39,3 @@ class InMemoryMetadataStore: public MetadataStore {
 };
 
 }
-#endif //LOGSTORAGE_INMEMORYMETADATASTORE_H

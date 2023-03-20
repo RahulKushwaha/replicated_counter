@@ -101,6 +101,7 @@ VirtualLogImpl::getLogEntry(LogId logId) {
 folly::coro::Task<MetadataConfig>
 VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   VersionId versionId = metadataStore_->getCurrentVersionId();
+  LOG(INFO) << "Starting Reconfiguration: VersionId: " << versionId;
 
   // Make a copy of the replicaSet
   std::vector<std::shared_ptr<Replica>> replicaSet = state_->replicaSet;
@@ -114,6 +115,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   replicaSet.resize(majorityCount);
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
+  LOG(INFO) << "Number of Replicas: " << replicaSet.size();
   for (auto &replica: replicaSet) {
     auto endLogId = replica->seal(versionId);
 
@@ -227,6 +229,8 @@ void VirtualLogImpl::setState(VersionId versionId) {
   std::shared_ptr<Sequencer>
       sequencer = registry_->sequencer(config->sequencer_config().id());
 
+  CHECK(sequencer != nullptr);
+
   std::vector<std::shared_ptr<Replica>> replicaSet;
 
   for (const auto &replicaConfig: config->replica_set_config()) {
@@ -241,6 +245,8 @@ void VirtualLogImpl::setState(VersionId versionId) {
   state_ = std::move(state);
 
   LOG(INFO) << "Completed Installing new State";
+  LOG(INFO) << "Printing Metadata Chain";
+  metadataStore_->printConfigChain();
 }
 
 }

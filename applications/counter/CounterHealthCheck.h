@@ -3,8 +3,9 @@
 //
 #pragma once
 
-#include "log/include/HealthCheck.h"
 #include "CounterApp.h"
+#include "log/include/HealthCheck.h"
+#include "log/utils/UuidGenerator.h"
 
 namespace rk::projects::counter_app {
 
@@ -17,7 +18,8 @@ class CounterHealthCheck: public durable_log::HealthCheck {
 
  private:
   std::shared_ptr<CounterApp> app_;
-  static constexpr std::string_view KEY_NAME = "TEST_KEY";
+  std::string
+      KEY_NAME{"HEALTH_CHECK_" + utils::UuidGenerator::instance().generate()};
 };
 
 }

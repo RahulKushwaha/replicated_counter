@@ -143,8 +143,6 @@ add_executable(LogStorage
         main.cpp
         # Sorted lines below.
         applications/CounterAppEnsembleNode.h
-        applications/Ensemble.h
-        applications/EnsembleNode.h
         applications/counter/CounterApp.cc
         applications/counter/CounterApp.h
         applications/counter/CounterHealthCheck.cc
@@ -158,6 +156,9 @@ add_executable(LogStorage
         log/client/ReplicaClient.h
         log/client/SequencerClient.cc
         log/client/SequencerClient.h
+        log/impl/Ensemble.h
+        log/impl/EnsembleConfig.h
+        log/impl/EnsembleNode.h
         log/impl/FailureDetectorImpl.cc
         log/impl/FailureDetectorImpl.h
         log/impl/InMemoryMetadataStore.cc

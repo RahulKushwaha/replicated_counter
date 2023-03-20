@@ -7,9 +7,14 @@
 namespace rk::projects::counter_app {
 
 CounterApp::CounterApp(std::shared_ptr<VirtualLog> virtualLog)
-    : virtualLog_{std::move(virtualLog)}, lastAppliedEntry_{0}, lookup_{} {}
+    : virtualLog_{std::move(virtualLog)},
+      lastAppliedEntry_{0},
+      mtx_{std::make_unique<std::mutex>()},
+      lookup_{} {}
 
 std::int64_t CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
+  std::lock_guard lk{*mtx_};
+
   LOG(INFO) << "incrementAndGet " << incrBy;
   LogId logId = virtualLog_->append(
           serialize(key, incrBy,
@@ -21,6 +26,7 @@ std::int64_t CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
 }
 
 std::int64_t CounterApp::decrementAndGet(std::string key, std::int64_t decrBy) {
+  std::lock_guard lk{*mtx_};
   LogId logId = virtualLog_->append(
           serialize(key, decrBy,
                     CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR))
@@ -31,6 +37,7 @@ std::int64_t CounterApp::decrementAndGet(std::string key, std::int64_t decrBy) {
 }
 
 std::int64_t CounterApp::getValue(std::string key) {
+  std::lock_guard lk{*mtx_};
   auto latestLogId = virtualLog_->sync().get();
   sync(latestLogId);
   return lookup_[key];

@@ -19,7 +19,8 @@ grpc::Status AdminServer::getCurrentConfig(::grpc::ServerContext *context,
 grpc::Status AdminServer::reconfigure(::grpc::ServerContext *context,
                                       const ReconfigurationRequest *request,
                                       ReconfigurationResponse *response) {
-  virtualLog_->reconfigure().semi().get();
+  MetadataConfig metadataConfig{};
+  virtualLog_->reconfigure(metadataConfig).semi().get();
   return Service::reconfigure(context, request, response);
 }
 

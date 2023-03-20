@@ -41,7 +41,7 @@ MetadataServer::compareAndAppendRange(::grpc::ServerContext *context,
                                           request->metadata_config());
   } catch (const OptimisticConcurrencyException &e) {
     return grpc::Status{grpc::StatusCode::INTERNAL,
-                        "Optimistic Concurrency Control failure"};
+                        "Optimistic Concurrency Control healthy"};
   }
 
   return grpc::Status::OK;
