@@ -66,7 +66,7 @@ int main() {
 
     bool healthy = false;
     while (!healthy) {
-      bool currentState = false;
+      bool currentState = true;
       folly::futures::sleep(std::chrono::milliseconds{500}).get();
       LOG(INFO) << "Waiting for server to be alive before sending request";
 

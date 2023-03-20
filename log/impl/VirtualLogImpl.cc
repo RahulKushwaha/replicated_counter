@@ -115,7 +115,6 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   replicaSet.resize(majorityCount);
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
-  LOG(INFO) << "Number of Replicas: " << replicaSet.size();
   for (auto &replica: replicaSet) {
     auto endLogId = replica->seal(versionId);
 

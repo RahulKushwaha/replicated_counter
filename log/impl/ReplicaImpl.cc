@@ -17,7 +17,8 @@ ReplicaImpl::ReplicaImpl(
     : id_{std::move(id)}, name_{std::move(name)},
       nanoLogStore_{std::move(nanoLogStore)},
       metadataStore_{std::move(metadataStore)},
-      local_{local} {
+      local_{local},
+      mtx_{std::make_unique<std::mutex>()} {
 }
 
 std::string ReplicaImpl::getId() {
@@ -31,6 +32,8 @@ std::string ReplicaImpl::getName() {
 folly::SemiFuture<folly::Unit>
 ReplicaImpl::append(LogId logId,
                     std::string logEntryPayload, bool skipSeal) {
+  std::lock_guard lk{*mtx_};
+
   std::optional<MetadataConfig>
       config = metadataStore_->getConfigUsingLogId(logId);
 
@@ -68,6 +71,8 @@ ReplicaImpl::append(LogId logId,
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
 ReplicaImpl::getLogEntry(LogId logId) {
+  std::lock_guard lk{*mtx_};
+
   std::optional<MetadataConfig>
       config = metadataStore_->getConfigUsingLogId(logId);
 
@@ -88,6 +93,8 @@ ReplicaImpl::getLogEntry(LogId logId) {
 }
 
 LogId ReplicaImpl::getLocalCommitIndex() {
+  std::lock_guard lk{*mtx_};
+
   VersionId versionId = metadataStore_->getCurrentVersionId();
   auto config = metadataStore_->getConfigUsingLogId(versionId);
   if (!config.has_value()) {
@@ -99,6 +106,8 @@ LogId ReplicaImpl::getLocalCommitIndex() {
 }
 
 LogId ReplicaImpl::seal(VersionId versionId) {
+  std::lock_guard lk{*mtx_};
+
   std::optional<MetadataConfig> config = metadataStore_->getConfig(versionId);
   if (!config.has_value()) {
     throw MetadataBlockNotPresent{};
