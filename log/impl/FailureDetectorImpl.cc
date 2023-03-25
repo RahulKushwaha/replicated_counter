@@ -90,9 +90,6 @@ folly::coro::Task<void> FailureDetectorImpl::runHealthCheckLoop() {
     auto diff = std::chrono::steady_clock::now() - startTime;
     auto diffInMs = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 
-    LOG(INFO) << "Received HealthCheck Response in: " << diffInMs.count()
-              << "ms";
-
     if (auto sleepTime = std::chrono::milliseconds{200} - diffInMs; sleepTime
         > std::chrono::milliseconds{0}) {
       LOG(INFO) << "HealthCheck Ended. Sleeping for: " << sleepTime.count()
@@ -115,7 +112,10 @@ folly::coro::Task<void> FailureDetectorImpl::runHealthCheckLoop() {
     }
 
     ensembleAlive_.store(alive);
+
+    if (!ensembleAlive_.load()) {
+      co_await virtualLog_->refreshConfiguration();
+    }
   }
 }
-
 }

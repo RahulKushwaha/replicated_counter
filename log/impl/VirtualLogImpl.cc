@@ -202,6 +202,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
       LOG(INFO) << "Some other replica was able to install metadata. "
                 << e.what();
       setState(newConfig.version_id());
+      state_->sequencer->start(newConfig.start_index());
       co_return newConfig;
     }
   }
@@ -214,6 +215,22 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
 
 folly::coro::Task<MetadataConfig> VirtualLogImpl::getCurrentConfig() {
   return folly::coro::makeTask(state_->metadataConfig);
+}
+
+folly::coro::Task<void> VirtualLogImpl::refreshConfiguration() {
+  LOG(INFO) << "Refreshing State";
+  auto versionId = metadataStore_->getCurrentVersionId();
+  auto currentVersionId = state_->metadataConfig.version_id();
+
+  CHECK(currentVersionId <= versionId);
+
+  if (currentVersionId <=
+  versionId) {
+    LOG(INFO) << "New version of metadata found: " << versionId;
+    setState(versionId);
+  }
+
+  co_return;
 }
 
 void VirtualLogImpl::setState(VersionId versionId) {

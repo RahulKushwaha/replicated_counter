@@ -18,7 +18,7 @@ ReplicaImpl::ReplicaImpl(
       nanoLogStore_{std::move(nanoLogStore)},
       metadataStore_{std::move(metadataStore)},
       local_{local},
-      mtx_{std::make_unique<std::mutex>()} {
+      mtx_{std::make_shared<std::mutex>()} {
 }
 
 std::string ReplicaImpl::getId() {
