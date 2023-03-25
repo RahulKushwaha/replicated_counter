@@ -27,7 +27,7 @@ class RemoteSequencer final: public Sequencer {
     return sequencerClient_->latestAppendPosition();
   }
 
-  void start() override {
+  void start(LogId sequenceNum) override {
     throw NotImplementedException{};
   }
 
@@ -35,7 +35,7 @@ class RemoteSequencer final: public Sequencer {
     return sequencerClient_->isAlive().get();
   }
 
-  void kill() override {
+  void stop() override {
     throw NotImplementedException{};
   }
 

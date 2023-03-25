@@ -33,6 +33,7 @@ class VirtualLogImpl: public VirtualLog {
   folly::coro::Task<MetadataConfig> getCurrentConfig() override;
   folly::coro::Task<MetadataConfig>
   reconfigure(MetadataConfig targetMetadataConfig) override;
+  folly::coro::Task<void> refreshConfiguration() override;
   folly::SemiFuture<LogId> sync() override;
 
   ~VirtualLogImpl() override = default;

@@ -42,7 +42,7 @@ class ReplicaImpl: public Replica {
   std::shared_ptr<NanoLogStore> nanoLogStore_;
   std::shared_ptr<MetadataStore> metadataStore_;
   const bool local_;
-  std::unique_ptr<std::mutex> mtx_;
+  std::shared_ptr<std::mutex> mtx_;
 };
 
 }

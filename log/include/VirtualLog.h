@@ -21,6 +21,7 @@ class VirtualLog {
   virtual folly::coro::Task<MetadataConfig> getCurrentConfig() = 0;
   virtual folly::coro::Task<MetadataConfig>
   reconfigure(MetadataConfig metadataConfig) = 0;
+  virtual folly::coro::Task<void> refreshConfiguration() = 0;
   virtual folly::SemiFuture<LogId> sync() = 0;
 
   virtual ~VirtualLog() = default;

@@ -15,7 +15,6 @@ CounterApp::CounterApp(std::shared_ptr<VirtualLog> virtualLog)
 std::int64_t CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
   std::lock_guard lk{*mtx_};
 
-  LOG(INFO) << "incrementAndGet " << incrBy;
   LogId logId = virtualLog_->append(
           serialize(key, incrBy,
                     CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR))
