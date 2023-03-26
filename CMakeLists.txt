@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 project(LogStorage)
 set(CMAKE_CXX_STANDARD 20)
 
-include(external/uuid/CMakeLists.txt)
+include(cmake/uuid_generator.cmake)
 include(cmake/prometheus.cmake)
 
 set(CMAKE_C_COMPILER "gcc")
