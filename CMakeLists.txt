@@ -3,6 +3,7 @@ project(LogStorage)
 set(CMAKE_CXX_STANDARD 20)
 
 include(external/uuid/CMakeLists.txt)
+include(cmake/prometheus.cmake)
 
 set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
@@ -202,7 +203,7 @@ add_executable(LogStorage
         log/utils/GrpcServerFactory.h
         log/utils/OrderedCompletionQueue.h
         log/utils/UuidGenerator.h
-        )
+        metrics/MetricsRegistry.h)
 
 target_link_libraries(LogStorage
         # Sorted lines below.
@@ -216,6 +217,7 @@ target_link_libraries(LogStorage
         glog
         proto-objects
         protobuf
+        prometheus-cpp::pull
         )
 
 enable_testing()
