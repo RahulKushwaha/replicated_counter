@@ -1,0 +1,67 @@
+# proto-file: log/server/proto/ServerConfig.proto
+# proto-message: ServerConfig
+
+id: ""
+
+sequencer_config {
+  id: "SEQUENCER_02"
+  ip_address{
+    host: "127.0.0.1"
+    port: 30001
+  }
+  seed_seq_num: 1
+}
+
+replica_config{
+  id: "REPLICA_02"
+  ip_address{
+    host: "127.0.0.1"
+    port: 30002
+  }
+}
+
+metadata_config{
+  id: "METADATA_02"
+  ip_address{
+    host: "127.0.0.1"
+    port: 30003
+  }
+}
+
+replica_set[
+  {
+    id: "REPLICA_00"
+    ip_address {
+      host: "127.0.0.1"
+      port: 10002
+    }
+  },
+  {
+    id: "REPLICA_01"
+    ip_address {
+      host: "127.0.0.1"
+      port: 20002
+    }
+  },
+  {
+    id: "REPLICA_02",
+    ip_address {
+      host: "127.0.0.1"
+      port: 30002
+    }
+  },
+  {
+    id: "REPLICA_03",
+    ip_address {
+      host: "127.0.0.1"
+      port: 40002
+    }
+  },
+  {
+    id: "REPLICA_04",
+    ip_address {
+      host: "127.0.0.1"
+      port: 50002
+    }
+  }
+]
