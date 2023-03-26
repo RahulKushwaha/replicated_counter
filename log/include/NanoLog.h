@@ -2,8 +2,7 @@
 // Created by Rahul  Kushwaha on 12/29/22.
 //
 
-#ifndef LOGSTORAGE_NANOLOG_H
-#define LOGSTORAGE_NANOLOG_H
+#pragma once
 
 #include "Common.h"
 #include <folly/futures/Future.h>
@@ -26,7 +25,7 @@ class NanoLog {
   virtual LogId getEndIndex() = 0;
   virtual bool isSealed() = 0;
 
-  virtual ~NanoLog() {}
+  virtual ~NanoLog() = default;
 };
 
 class NanoLogSealedException: public std::exception {
@@ -51,5 +50,3 @@ class NanoLogLogNotAvailable: public std::exception {
 };
 
 }
-
-#endif //LOGSTORAGE_NANOLOG_H

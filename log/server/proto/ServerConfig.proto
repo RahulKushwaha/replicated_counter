@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package rk.projects.server;
+
+message IpAddress{
+  string host = 1;
+  int32 port = 2;
+}
+
+message SequencerServerConfig{
+  string id = 1;
+  IpAddress ip_address = 2;
+
+  optional int64 seed_seq_num = 3;
+}
+
+message ReplicaServerConfig{
+  string id = 1;
+  IpAddress ip_address = 2;
+}
+
+message MetadataServerConfig {
+  string id = 1;
+  IpAddress ip_address = 2;
+}
+
+message ServerConfig{
+  string id = 1;
+
+  SequencerServerConfig sequencer_config = 3;
+  ReplicaServerConfig replica_config = 4;
+  MetadataServerConfig metadata_config = 5;
+
+  repeated ReplicaServerConfig replica_set = 6;
+}
