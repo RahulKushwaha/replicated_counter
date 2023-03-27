@@ -20,11 +20,25 @@ replica_config{
   }
 }
 
+admin_server_config{
+  ip_address{
+    host: "127.0.0.1"
+    port: 50004
+  }
+}
+
 metadata_config{
   id: "METADATA_05"
   ip_address{
     host: "127.0.0.1"
     port: 50003
+  }
+}
+
+metric_server_config{
+  ip_address{
+    host: "127.0.0.1"
+    port: 50099
   }
 }
 

@@ -12,8 +12,6 @@ namespace rk::projects::durable_log::server {
 
 class MetadataServer final: public server::MetadataService::Service {
  public:
-  ~MetadataServer() override;
-
   grpc::Status getConfig(::grpc::ServerContext *context,
                          const MetadataVersionId *request,
                          MetadataConfig *response) override;
@@ -26,7 +24,7 @@ class MetadataServer final: public server::MetadataService::Service {
                                      const CompareAndAppendRangeRequest *request,
                                      ::google::protobuf::Empty *response) override;
 
-
+  ~MetadataServer() override;
  private:
   std::shared_ptr<MetadataStore> metadataStore_;
 };

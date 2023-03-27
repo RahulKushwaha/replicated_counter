@@ -28,6 +28,20 @@ metadata_config{
   }
 }
 
+admin_server_config{
+  ip_address{
+    host: "127.0.0.1"
+    port: 30004
+  }
+}
+
+metric_server_config{
+  ip_address{
+    host: "127.0.0.1"
+    port: 30099
+  }
+}
+
 replica_set[
   {
     id: "REPLICA_00"
