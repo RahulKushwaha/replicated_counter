@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../include/Replica.h"
-#include "../client/ReplicaClient.h"
+#include "log/include/Replica.h"
+#include "log/client/ReplicaClient.h"
 
 namespace rk::projects::durable_log {
 

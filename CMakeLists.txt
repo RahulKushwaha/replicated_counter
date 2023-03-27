@@ -161,8 +161,8 @@ set(
 add_executable(LogStorage main.cpp ${SOURCE_FILES_LIST})
 target_link_libraries(LogStorage ${SERVER_LIBS})
 
-add_executable(Server log/main.cc ${SOURCE_FILES_LIST})
-target_link_libraries(Server ${SERVER_LIBS})
+add_executable(LogServer log/main.cc ${SOURCE_FILES_LIST})
+target_link_libraries(LogServer ${SERVER_LIBS})
 
 enable_testing()
 

@@ -1,5 +1,6 @@
 set(
         TEST_FILES_LIST
+
         log/impl/FailureDetectorImpl.cc
         log/impl/FailureDetectorImpl.h
         log/impl/InMemoryMetadataStore.cc
@@ -8,6 +9,7 @@ set(
         log/impl/NanoLogStoreImpl.h
         log/impl/RegistryImpl.cc
         log/impl/RegistryImpl.h
+        log/impl/RemoteMetadataStore.h
         log/impl/ReplicaImpl.cc
         log/impl/ReplicaImpl.h
         log/impl/SequencerImpl.cc
@@ -26,6 +28,7 @@ set(
         log/include/FailureDetector.h
         log/include/Sequencer.h
         log/include/VirtualLog.h
+        log/server/RunServer.h
         log/utils/FutureUtils.h
         log/utils/OrderedCompletionQueue.h
         log/utils/tests/FutureUtilsTest.cc

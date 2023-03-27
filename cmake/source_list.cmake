@@ -1,5 +1,6 @@
 set(
         SOURCE_FILES_LIST
+
         applications/CounterAppEnsembleNode.h
         applications/counter/CounterApp.cc
         applications/counter/CounterApp.h
@@ -26,6 +27,7 @@ set(
         log/impl/NullSequencer.h
         log/impl/RegistryImpl.cc
         log/impl/RegistryImpl.h
+        log/impl/RemoteMetadataStore.h
         log/impl/RemoteReplica.h
         log/impl/RemoteSequencer.h
         log/impl/ReplicaImpl.cc
@@ -54,6 +56,7 @@ set(
         log/server/MetadataServer.h
         log/server/ReplicaServer.cc
         log/server/ReplicaServer.h
+        log/server/RunServer.h
         log/server/SequencerServer.cc
         log/server/SequencerServer.h
         log/utils/FutureUtils.h

@@ -2,7 +2,7 @@
 // Created by Rahul  Kushwaha on 2/26/23.
 //
 
-#include "MetadataStoreClient.h"
+#include "log/client/MetadataStoreClient.h"
 
 namespace rk::projects::durable_log::client {
 
