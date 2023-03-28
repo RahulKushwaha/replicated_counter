@@ -24,7 +24,7 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/server/proto/*.proto"
         )
 
-find_package(Protobuf)
+find_package(Protobuf REQUIRED)
 find_package(grpc)
 add_library(proto-objects OBJECT ${PROTO_SOURCES})
 set_target_properties(proto-objects PROPERTIES LINKER_LANGUAGE CXX)

@@ -5,5 +5,4 @@ FetchContent_Declare(
         GIT_TAG v1.1.0
 )
 FetchContent_MakeAvailable(prometheus)
-find_package(prometheus-cpp)
 set(ENABLE_TESTING ON)
