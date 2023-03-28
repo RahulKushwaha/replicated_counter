@@ -25,8 +25,8 @@ file(GLOB PROTO_SOURCES
         )
 
 find_package(Protobuf REQUIRED)
-find_package(grpc)
-add_library(proto-objects OBJECT ${PROTO_SOURCES})
+find_package(grpc REQUIRED)
+add_library(proto-objects STATIC ${PROTO_SOURCES})
 set_target_properties(proto-objects PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(proto-objects PUBLIC protobuf::libprotobuf gRPC::grpc++_unsecure)
@@ -58,10 +58,6 @@ add_link_options(-fsanitize=undefined)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-# hack to enable protobuf
-# need to add it as external_project
-link_directories(/opt/homebrew/Cellar/protobuf/21.12/lib)
-
 set(
         SERVER_LIBS
         boost_context
@@ -73,7 +69,7 @@ set(
         gflags
         glog
         proto-objects
-        protobuf
+        ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
 )
 
