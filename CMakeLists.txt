@@ -5,9 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include(cmake/uuid_generator.cmake)
-include(cmake/prometheus.cmake)
 include(cmake/source_list.cmake)
 include(cmake/test_files_list.cmake)
+include(cmake/gtest.cmake)
+include(cmake/prometheus.cmake)
 
 set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
@@ -60,7 +61,6 @@ include_directories(${CMAKE_SOURCE_DIR})
 # hack to enable protobuf
 # need to add it as external_project
 link_directories(/opt/homebrew/Cellar/protobuf/21.12/lib)
-link_directories(/opt/homebrew/Cellar/googletest/1.13.0/lib)
 
 set(
         SERVER_LIBS

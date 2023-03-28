@@ -1,3 +1,4 @@
+set(ENABLE_TESTING OFF)
 FetchContent_Declare(
         prometheus
         GIT_REPOSITORY https://github.com/jupp0r/prometheus-cpp.git
@@ -5,3 +6,4 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(prometheus)
 find_package(prometheus-cpp)
+set(ENABLE_TESTING ON)
