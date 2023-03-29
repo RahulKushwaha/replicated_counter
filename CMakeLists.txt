@@ -9,11 +9,7 @@ include(cmake/source_list.cmake)
 include(cmake/test_files_list.cmake)
 include(cmake/gtest.cmake)
 include(cmake/prometheus.cmake)
-
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-fcoroutines-ts")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+include(cmake/openssl.cmake)
 include(cmake/folly.cmake)
 
 file(GLOB PROTO_SOURCES
@@ -60,14 +56,12 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(
         SERVER_LIBS
-        boost_context
-        dl
-        double-conversion
-        event
-        fmt
+#        double-conversion
+#        event
+#        fmt
         folly
-        gflags
-        glog
+#        gflags
+#        glog
         proto-objects
         ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
