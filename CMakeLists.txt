@@ -3,6 +3,7 @@ project(LogStorage)
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
 
 include(cmake/uuid_generator.cmake)
 include(cmake/source_list.cmake)
@@ -10,7 +11,14 @@ include(cmake/test_files_list.cmake)
 include(cmake/gtest.cmake)
 include(cmake/prometheus.cmake)
 include(cmake/openssl.cmake)
-include(cmake/folly.cmake)
+
+set(ENV{OPENSSL_ROOT_DIR} ${OPENSSL_INSTALL_DIR})
+find_package(OpenSSL 1.1.1 MODULE)
+if ("${OpenSSL_FOUND}" STREQUAL "FALSE")
+    message(WARNING "folly cannot be included. pls build openssl first")
+else ()
+    include(cmake/folly.cmake)
+endif ()
 
 file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/log/proto/*.proto"
@@ -56,12 +64,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(
         SERVER_LIBS
-#        double-conversion
-#        event
-#        fmt
         folly
-#        gflags
-#        glog
         proto-objects
         ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
@@ -79,17 +82,10 @@ add_executable(tests ${TEST_FILES_LIST})
 
 target_link_libraries(tests
         # Sorted lines below.
-        boost_context
-        dl
-        double-conversion
-        event
-        fmt
         folly
-        gflags
-        glog
         gmock
         gtest
         gtest_main
         proto-objects
-        protobuf
+        ${PROTOBUF_LIBRARIES}
         )
