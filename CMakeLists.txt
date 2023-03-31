@@ -76,6 +76,12 @@ target_link_libraries(LogStorage ${SERVER_LIBS})
 add_executable(LogServer log/main.cc ${SOURCE_FILES_LIST})
 target_link_libraries(LogServer ${SERVER_LIBS})
 
+add_executable(CounterAppServer applications/main.cc ${SOURCE_FILES_LIST})
+target_link_libraries(CounterAppServer ${SERVER_LIBS})
+
+add_executable(MetadataServer metadata/main.cc ${SOURCE_FILES_LIST})
+target_link_libraries(MetadataServer ${SERVER_LIBS})
+
 enable_testing()
 
 add_executable(tests ${TEST_FILES_LIST})

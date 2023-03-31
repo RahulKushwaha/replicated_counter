@@ -12,6 +12,7 @@ namespace rk::projects::durable_log::server {
 
 class MetadataServer final: public server::MetadataService::Service {
  public:
+  explicit MetadataServer(std::shared_ptr<MetadataStore> metadataStore);
   grpc::Status getConfig(::grpc::ServerContext *context,
                          const MetadataVersionId *request,
                          MetadataConfig *response) override;

@@ -6,6 +6,9 @@
 
 namespace rk::projects::durable_log::server {
 
+MetadataServer::MetadataServer(std::shared_ptr<MetadataStore> metadataStore)
+    : metadataStore_{std::move(metadataStore)} {}
+
 grpc::Status MetadataServer::getConfig(::grpc::ServerContext *context,
                                        const server::MetadataVersionId *request,
                                        MetadataConfig *response) {

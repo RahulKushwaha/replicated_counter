@@ -6,6 +6,7 @@
 #include "folly/executors/CPUThreadPoolExecutor.h"
 #include "folly/executors/thread_factory/NamedThreadFactory.h"
 #include "folly/experimental/coro/Collect.h"
+#include "folly/experimental/coro/Timeout.h"
 
 namespace rk::projects::durable_log {
 
@@ -13,14 +14,12 @@ FailureDetectorImpl::FailureDetectorImpl
     (std::shared_ptr<HealthCheck> healthCheck,
      std::shared_ptr<VirtualLog> virtualLog,
      std::shared_ptr<folly::Executor> executor,
-     EnsembleNodeConfig self,
-     std::vector<EnsembleNodeConfig> replicaSet)
+     rk::projects::server::ServerConfig logServerConfig)
     : healthCheck_{std::move(healthCheck)},
       virtualLog_{std::move(virtualLog)},
       state_{std::make_unique<State>(State{-1})},
       ensembleAlive_{false},
-      self_{std::move(self)},
-      replicaSet_{std::move(replicaSet)},
+      logServerConfig_{std::move(logServerConfig)},
       healthCheckRecords_{std::vector<bool>(5, false)},
       executor_{std::move(executor)},
       healthCheckLoopCancellationSource_{},
@@ -53,16 +52,16 @@ folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
       LOG(INFO) << "Ensemble is not alive. Trigger Reconfiguration";
       // Reconfigure.
       MetadataConfig config{};
-      config.mutable_sequencer_config()->set_id(self_.sequencerId);
-      for (const auto &replica: replicaSet_) {
-        config.mutable_replica_set_config()->Add()->set_id(replica.replicaId);
+      config.mutable_sequencer_config()->set_id(logServerConfig_.sequencer_config().id());
+      for (const auto &replica: logServerConfig_.replica_set()) {
+        config.mutable_replica_set_config()->Add()->set_id(replica.id());
       }
 
       co_await virtualLog_->reconfigure(config);
     }
 
     // Wait for some time to see if the ensemble is back up and alive.
-    co_await folly::futures::sleep(std::chrono::milliseconds{5000});
+    co_await folly::futures::sleep(std::chrono::milliseconds{2000});
   }
 }
 
@@ -114,7 +113,10 @@ folly::coro::Task<void> FailureDetectorImpl::runHealthCheckLoop() {
     ensembleAlive_.store(alive);
 
     if (!ensembleAlive_.load()) {
-      co_await virtualLog_->refreshConfiguration();
+      co_await folly::coro::collectAny(folly::coro::co_invoke([]() -> folly::coro::Task<
+          void> {
+        co_await folly::futures::sleep(std::chrono::milliseconds{1000});
+      }), virtualLog_->refreshConfiguration());
     }
   }
 }
