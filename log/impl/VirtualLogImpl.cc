@@ -36,7 +36,8 @@ VirtualLogImpl::VirtualLogImpl(
       metadataStore_{std::move(metadataStore)},
       state_{std::make_unique<State>(
           State{
-              getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId),
+//              getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId),
+              MetadataConfig{},
               std::move(sequencer),
               std::move(replicaSet)}
       )},
@@ -225,7 +226,7 @@ folly::coro::Task<void> VirtualLogImpl::refreshConfiguration() {
   CHECK(currentVersionId <= versionId);
 
   if (currentVersionId <=
-  versionId) {
+      versionId) {
     LOG(INFO) << "New version of metadata found: " << versionId;
     setState(versionId);
   }

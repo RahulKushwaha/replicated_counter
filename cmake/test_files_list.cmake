@@ -28,7 +28,7 @@ set(
         log/include/FailureDetector.h
         log/include/Sequencer.h
         log/include/VirtualLog.h
-        log/server/RunServer.h
+        log/server/LogServer.h
         log/utils/FutureUtils.h
         log/utils/OrderedCompletionQueue.h
         log/utils/tests/FutureUtilsTest.cc

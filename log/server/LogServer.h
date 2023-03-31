@@ -30,9 +30,9 @@ using namespace prometheus;
 
 constexpr std::string_view GRPC_SVC_ADDRESS_FORMAT = {"{}:{}"};
 
-class RunServer {
+class LogServer {
  public:
-  explicit RunServer(::rk::projects::server::ServerConfig serverConfig)
+  explicit LogServer(::rk::projects::server::ServerConfig serverConfig)
       : config_{std::move(serverConfig)},
         mtx_{std::make_unique<std::mutex>()} {}
 
@@ -76,6 +76,10 @@ class RunServer {
     state_->threadPoolExecutor->stop();
 
     co_return;
+  }
+
+  std::shared_ptr<VirtualLog> getVirtualLog() {
+    return state_->virtualLog;
   }
 
  private:

@@ -24,7 +24,7 @@ metadata_config{
   id: "METADATA_01"
   ip_address{
     host: "127.0.0.1"
-    port: 20003
+    port: 60003
   }
 }
 

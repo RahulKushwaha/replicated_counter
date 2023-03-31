@@ -2,8 +2,7 @@
 // Created by Rahul  Kushwaha on 12/29/22.
 //
 
-#ifndef LOGSTORAGE_METADATASTORE_H
-#define LOGSTORAGE_METADATASTORE_H
+#pragma once
 
 #include "Common.h"
 #include "NanoLog.h"
@@ -38,5 +37,3 @@ class MetadataStore {
 };
 
 }
-
-#endif //LOGSTORAGE_METADATASTORE_H

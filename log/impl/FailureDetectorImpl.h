@@ -9,6 +9,7 @@
 #include "log/include/HealthCheck.h"
 #include "log/include/MetadataStore.h"
 #include "log/include/VirtualLog.h"
+#include "log/server/proto/ServerConfig.pb.h"
 
 namespace rk::projects::durable_log {
 
@@ -17,8 +18,7 @@ class FailureDetectorImpl: public FailureDetector {
   explicit FailureDetectorImpl(std::shared_ptr<HealthCheck> healthCheck,
                                std::shared_ptr<VirtualLog> virtualLog,
                                std::shared_ptr<folly::Executor> executor,
-                               EnsembleNodeConfig self,
-                               std::vector<EnsembleNodeConfig> replicaSet);
+                               rk::projects::server::ServerConfig logServerConfig);
 
  public:
   std::optional<MetadataConfig> getLatestMetadataConfig() override;
@@ -44,8 +44,7 @@ class FailureDetectorImpl: public FailureDetector {
   std::shared_ptr<VirtualLog> virtualLog_;
   std::unique_ptr<State> state_;
   std::atomic_bool ensembleAlive_;
-  EnsembleNodeConfig self_;
-  std::vector<EnsembleNodeConfig> replicaSet_;
+  rk::projects::server::ServerConfig logServerConfig_;
 
   std::vector<bool> healthCheckRecords_;
   std::shared_ptr<folly::Executor> executor_;
