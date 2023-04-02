@@ -4,6 +4,7 @@
 
 #include "ReplicaImpl.h"
 #include "VectorBasedNanoLog.h"
+#include "log/utils/UuidGenerator.h"
 #include <folly/executors/InlineExecutor.h>
 
 namespace rk::projects::durable_log {
@@ -48,8 +49,8 @@ ReplicaImpl::append(LogId logId,
   // If there is nanolog for the versionId, we need to create one.
   if (!nanoLog) {
     nanoLog = std::make_shared<VectorBasedNanoLog>
-        ("id",
-         "name",
+        (utils::UuidGenerator::instance().generate(),
+         "VectorBasedNanoLog",
          std::to_string(config->version_id()),
          config->start_index(),
          std::numeric_limits<std::int64_t>::max(),

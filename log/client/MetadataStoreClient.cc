@@ -25,8 +25,9 @@ MetadataStoreClient::getConfig(VersionId versionId) {
     return folly::makeSemiFuture(response);
   }
 
-  return folly::makeSemiFuture<MetadataConfig>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<MetadataConfig>(std::move(err));
 }
 
 folly::SemiFuture<MetadataConfig>
@@ -42,8 +43,9 @@ MetadataStoreClient::getConfigUsingLogId(LogId logId) {
     return folly::makeSemiFuture(response);
   }
 
-  return folly::makeSemiFuture<MetadataConfig>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<MetadataConfig>(std::move(err));
 }
 
 folly::SemiFuture<VersionId> MetadataStoreClient::getCurrentVersionId() {
@@ -58,8 +60,9 @@ folly::SemiFuture<VersionId> MetadataStoreClient::getCurrentVersionId() {
     return folly::makeSemiFuture<VersionId>(response.version_id());
   }
 
-  return folly::makeSemiFuture<VersionId>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<VersionId>(std::move(err));
 }
 
 folly::SemiFuture<folly::Unit> MetadataStoreClient::compareAndAppendRange(
@@ -80,6 +83,22 @@ folly::SemiFuture<folly::Unit> MetadataStoreClient::compareAndAppendRange(
 
   return folly::makeSemiFuture<folly::Unit>
       (folly::make_exception_wrapper<std::exception>());
+}
+
+folly::coro::Task<void> MetadataStoreClient::printConfigChain() {
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
+  google::protobuf::Empty request;
+  google::protobuf::Empty response;
+
+  auto status = stub_->printConfigChain(&context, request, &response);
+
+  if (status.ok()) {
+    co_return;
+  }
+
+  throw
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
 }
 
 }

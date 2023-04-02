@@ -60,13 +60,24 @@ MetadataServer::compareAndAppendRange(::grpc::ServerContext *context,
     metadataStore_->compareAndAppendRange(request->metadata_version_id().id(),
                                           request->metadata_config());
   } catch (const OptimisticConcurrencyException &e) {
-    return grpc::Status{grpc::StatusCode::INTERNAL,
-                        "Optimistic Concurrency Control healthy"};
+    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+  }
+
+  return grpc::Status::OK;
+}
+
+grpc::Status MetadataServer::printConfigChain
+    (::grpc::ServerContext *context,
+     const ::google::protobuf::Empty *request,
+     ::google::protobuf::Empty *response) {
+  try {
+    metadataStore_->printConfigChain();
+  } catch (const std::exception &e) {
+    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
   }
 
   return grpc::Status::OK;
 }
 
 MetadataServer::~MetadataServer() = default;
-
 }

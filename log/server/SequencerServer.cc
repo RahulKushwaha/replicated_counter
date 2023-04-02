@@ -18,8 +18,12 @@ grpc::Status SequencerServer::getId(::grpc::ServerContext *context,
 grpc::Status SequencerServer::append(::grpc::ServerContext *context,
                                      const SequencerAppendRequest *request,
                                      LogIdResponse *response) {
-  auto logId = sequencer_->append(request->payload()).get();
-  response->set_log_id(logId);
+  try {
+    auto logId = sequencer_->append(request->payload()).get();
+    response->set_log_id(logId);
+  } catch (const std::exception &e) {
+    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+  }
 
   return grpc::Status::OK;
 }
@@ -28,7 +32,11 @@ grpc::Status
 SequencerServer::latestAppendPosition(::grpc::ServerContext *context,
                                       const ::google::protobuf::Empty *request,
                                       LogIdResponse *response) {
-  response->set_log_id(sequencer_->latestAppendPosition().get());
+  try {
+    response->set_log_id(sequencer_->latestAppendPosition().get());
+  } catch (const std::exception &e) {
+    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+  }
 
   return grpc::Status::OK;
 }
@@ -36,7 +44,12 @@ SequencerServer::latestAppendPosition(::grpc::ServerContext *context,
 grpc::Status SequencerServer::isAlive(::grpc::ServerContext *context,
                                       const ::google::protobuf::Empty *request,
                                       IsAliveResponse *response) {
-  response->set_is_alive(sequencer_->isAlive());
+  try {
+    response->set_is_alive(sequencer_->isAlive());
+  } catch (const std::exception &e) {
+    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+  }
+
   return grpc::Status::OK;
 }
 

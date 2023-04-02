@@ -27,7 +27,8 @@ folly::SemiFuture<std::string> ReplicaClient::getId() {
 }
 
 folly::SemiFuture<folly::Unit> ReplicaClient::append(LogId logId,
-                                                     std::string logEntryPayload) {
+                                                     std::string logEntryPayload,
+                                                     bool skipSeal) {
   google::protobuf::Empty response;
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
@@ -35,15 +36,17 @@ folly::SemiFuture<folly::Unit> ReplicaClient::append(LogId logId,
   server::ReplicaAppendRequest request;
   request.set_log_id(logId);
   request.set_payload(std::move(logEntryPayload));
+  request.set_skip_seal(skipSeal);
 
   grpc::Status status = stub_->append(&context, request, &response);
 
   if (status.ok()) {
     return folly::makeSemiFuture();
-  } else {
-    return folly::makeSemiFuture<folly::Unit>(folly::make_exception_wrapper<
-        std::exception>());
   }
+
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<folly::Unit>(std::move(err));
 }
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
@@ -81,8 +84,10 @@ ReplicaClient::getLogEntry(LogId logId) {
     return folly::makeSemiFuture(result);
   }
 
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
   return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
-      (folly::make_exception_wrapper<std::exception>());
+      (std::move(err));
 }
 
 folly::SemiFuture<LogId> ReplicaClient::getLocalCommitIndex() {
@@ -99,8 +104,9 @@ folly::SemiFuture<LogId> ReplicaClient::getLocalCommitIndex() {
     return folly::makeSemiFuture<LogId>(response.log_id());
   }
 
-  return folly::makeSemiFuture<LogId>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
 folly::SemiFuture<LogId> ReplicaClient::seal(VersionId versionId) {
@@ -117,8 +123,9 @@ folly::SemiFuture<LogId> ReplicaClient::seal(VersionId versionId) {
     return folly::makeSemiFuture(response.log_id());
   }
 
-  return folly::makeSemiFuture<LogId>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
 }

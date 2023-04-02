@@ -23,6 +23,21 @@ class MultipleExceptions: public std::exception {
     return state_->exceptions_;
   }
 
+  std::string getDebugString() {
+    std::lock_guard lockGuard{state_->mtx};
+    std::stringstream ss;
+    for (auto &[index, ex]: state_->exceptions_) {
+      try {
+        std::rethrow_exception(ex);
+      } catch (const std::exception &e) {
+        ss << "Future Index: " << index << " "
+           << e.what() << std::endl;
+      }
+    }
+
+    return ss.str();
+  }
+
  private:
   struct State {
     std::mutex mtx;

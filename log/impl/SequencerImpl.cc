@@ -60,18 +60,9 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
             .via(&folly::InlineExecutor::instance())
             .then([logId](folly::Try<folly::Unit> &&result) {
               if (result.hasException()) {
-                LOG(ERROR) << result.exception().what();
-                auto *exception =
-                    result.template tryGetExceptionObject<utils::MultipleExceptions>();
-                if (exception) {
-                  for (auto &[index, ex]: exception->exceptions()) {
-                    try {
-                      std::rethrow_exception(ex);
-                    } catch (const std::exception &e) {
-                      LOG(ERROR) << "Future Index: " << index << " "
-                                 << e.what();
-                    }
-                  }
+                if (auto *exception =
+                      result.template tryGetExceptionObject<utils::MultipleExceptions>();exception) {
+                  LOG(ERROR) << exception->getDebugString();
                 }
 
                 std::rethrow_exception(result.exception().to_exception_ptr());

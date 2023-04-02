@@ -146,10 +146,6 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
         folly::collectAnyWithoutException(futures.begin(), futures.end())
             .via(&folly::InlineExecutor::instance())
             .thenValue([](std::pair<std::size_t, LogEntry> &&result) {
-              LOG(INFO) << "Successfully Fetched the LogEntry: "
-                        << "ReplicaId: " << result.first << " LogId: "
-                        << result.second.logId << " Payload: "
-                        << result.second.payload;
               return result.second;
             })
             .get();
@@ -167,8 +163,17 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     utils::anyNSuccessful(std::move(appendFutures),
                           state_->replicaSet.size() / 2 + 1)
         .via(&folly::InlineExecutor::instance())
-        .thenValue([logId](auto &&) {
-          return logId;
+        .then([](folly::Try<folly::Unit> &&result) {
+          if (result.hasException()) {
+            if (auto *exception =
+                  result.template tryGetExceptionObject<utils::MultipleExceptions>();exception) {
+              LOG(ERROR) << exception->getDebugString();
+            }
+
+            std::rethrow_exception(result.exception().to_exception_ptr());
+          }
+
+          return result.value();
         })
         .get();
   }
