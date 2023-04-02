@@ -46,7 +46,7 @@ CounterAppClient::decrementAndGet(std::string key, std::int64_t decrBy) {
   return response.value();
 }
 
-std::int64_t CounterAppClient::getValue(std::string key) {
+folly::coro::Task<std::int64_t> CounterAppClient::getValue(std::string key) {
   GetCounterValueRequest request;
   request.set_key(std::move(key));
 
@@ -59,7 +59,7 @@ std::int64_t CounterAppClient::getValue(std::string key) {
     LOG(INFO) << "Failed: " << status.error_details();
   }
 
-  return response.value();
+  co_return response.value();
 }
 
 }
