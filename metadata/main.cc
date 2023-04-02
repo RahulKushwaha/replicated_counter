@@ -11,6 +11,14 @@ auto main() -> int {
   std::shared_ptr<rk::projects::durable_log::MetadataStore> metadataStore =
       std::make_shared<rk::projects::durable_log::InMemoryMetadataStore>();
 
+  rk::projects::durable_log::MetadataConfig config{};
+  config.set_version_id(0);
+  config.set_previous_version_id(-1);
+  config.set_start_index(1);
+  config.set_end_index(1000);
+
+  metadataStore->compareAndAppendRange(0, config);
+
   std::shared_ptr<rk::projects::durable_log::server::MetadataServer> server =
       std::make_shared<rk::projects::durable_log::server::MetadataServer>(
           std::move(metadataStore));

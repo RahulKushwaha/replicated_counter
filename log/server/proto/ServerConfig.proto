@@ -32,6 +32,11 @@ message MetricServerConfig{
   IpAddress ip_address = 1;
 }
 
+message RemoteSequencerConfig{
+  string id = 1;
+  IpAddress ip_address = 2;
+}
+
 message ServerConfig{
   string id = 1;
 
@@ -43,4 +48,5 @@ message ServerConfig{
   MetricServerConfig metric_server_config = 7;
 
   repeated ReplicaServerConfig replica_set = 8;
+  repeated RemoteSequencerConfig remote_sequencer_set = 9;
 }

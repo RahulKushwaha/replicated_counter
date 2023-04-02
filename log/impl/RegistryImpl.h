@@ -14,6 +14,10 @@ class RegistryImpl: public Registry {
  public:
   void registerReplica(std::shared_ptr<Replica> replica) override;
   void registerSequencer(std::shared_ptr<Sequencer> sequencer) override;
+  void
+  registerReplica(std::string id, std::shared_ptr<Replica> replica) override;
+  void registerSequencer(std::string id,
+                         std::shared_ptr<Sequencer> sequencer) override;
   std::shared_ptr<Replica> replica(std::string replicaId) override;
   std::shared_ptr<Sequencer> sequencer(std::string sequencerId) override;
 

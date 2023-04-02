@@ -211,7 +211,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   auto newVersionId = metadataStore_->getCurrentVersionId();
 
   setState(newVersionId);
-  co_return *metadataStore_->getConfig(newVersionId);
+  co_return * metadataStore_->getConfig(newVersionId);
 }
 
 folly::coro::Task<MetadataConfig> VirtualLogImpl::getCurrentConfig() {
@@ -225,8 +225,7 @@ folly::coro::Task<void> VirtualLogImpl::refreshConfiguration() {
 
   CHECK(currentVersionId <= versionId);
 
-  if (currentVersionId <=
-      versionId) {
+  if (currentVersionId < versionId) {
     LOG(INFO) << "New version of metadata found: " << versionId;
     setState(versionId);
   }
@@ -248,12 +247,12 @@ void VirtualLogImpl::setState(VersionId versionId) {
 
   CHECK(sequencer != nullptr);
 
-  std::vector<std::shared_ptr<Replica>> replicaSet;
-
-  for (const auto &replicaConfig: config->replica_set_config()) {
-    auto replica = registry_->replica(replicaConfig.id());
-    replicaSet.emplace_back(std::move(replica));
-  }
+  std::vector<std::shared_ptr<Replica>> replicaSet = state_->replicaSet;
+  // TODO(FIX): Refresh replica information.
+//  for (const auto &replicaConfig: config->replica_set_config()) {
+//    auto replica = registry_->replica(replicaConfig.id());
+//    replicaSet.emplace_back(std::move(replica));
+//  }
 
   std::unique_ptr<State> state = std::make_unique<State>(
       State{*config, std::move(sequencer), std::move(replicaSet)}

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../include/Sequencer.h"
-#include "../client/SequencerClient.h"
+#include "log/include/Sequencer.h"
+#include "log/client/SequencerClient.h"
 
 namespace rk::projects::durable_log {
 

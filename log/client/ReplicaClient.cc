@@ -6,12 +6,16 @@
 
 namespace rk::projects::durable_log::client {
 
+using namespace std::chrono_literals;
+constexpr auto CLIENT_TIMEOUT = 250ms;
+
 ReplicaClient::ReplicaClient(std::shared_ptr<grpc::Channel> channel) :
     stub_{server::ReplicaService::NewStub(std::move(channel))} {}
 
 folly::SemiFuture<std::string> ReplicaClient::getId() {
   server::IdResponse response;
   grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
   google::protobuf::Empty empty;
 
   grpc::Status status = stub_->getId(&context, empty, &response);
@@ -26,6 +30,8 @@ folly::SemiFuture<folly::Unit> ReplicaClient::append(LogId logId,
                                                      std::string logEntryPayload) {
   google::protobuf::Empty response;
   grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
+
   server::ReplicaAppendRequest request;
   request.set_log_id(logId);
   request.set_payload(std::move(logEntryPayload));
@@ -43,6 +49,8 @@ folly::SemiFuture<folly::Unit> ReplicaClient::append(LogId logId,
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
 ReplicaClient::getLogEntry(LogId logId) {
   grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
+
   server::GetLogEntryResponse response;
   server::GetLogEntryRequest request;
   request.set_log_id(logId);
@@ -79,6 +87,8 @@ ReplicaClient::getLogEntry(LogId logId) {
 
 folly::SemiFuture<LogId> ReplicaClient::getLocalCommitIndex() {
   grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
+
   server::LogIdResponse response;
   google::protobuf::Empty request;
 
@@ -95,6 +105,8 @@ folly::SemiFuture<LogId> ReplicaClient::getLocalCommitIndex() {
 
 folly::SemiFuture<LogId> ReplicaClient::seal(VersionId versionId) {
   grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
+
   server::LogIdResponse response;
   server::SealRequest sealRequest;
   sealRequest.set_version_id(versionId);

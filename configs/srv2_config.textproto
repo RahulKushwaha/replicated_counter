@@ -79,3 +79,41 @@ replica_set[
     }
   }
 ]
+
+remote_sequencer_set[
+    {
+      id: "SEQUENCER_00"
+      ip_address{
+        host: "127.0.0.1"
+        port: 10001
+      }
+    },
+#  {
+  #    id: "SEQUENCER_01"
+  #    ip_address{
+  #      host: "127.0.0.1"
+  #      port: 20001
+  #    }
+  #  },
+  {
+    id: "SEQUENCER_02"
+    ip_address{
+      host: "127.0.0.1"
+      port: 30001
+    }
+  },
+  {
+    id: "SEQUENCER_03"
+    ip_address{
+      host: "127.0.0.1"
+      port: 40001
+    }
+  },
+  {
+    id: "SEQUENCER_04"
+    ip_address{
+      host: "127.0.0.1"
+      port: 50001
+    }
+  }
+]

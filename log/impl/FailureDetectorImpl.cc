@@ -57,7 +57,11 @@ folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
         config.mutable_replica_set_config()->Add()->set_id(replica.id());
       }
 
-      co_await virtualLog_->reconfigure(config);
+      try {
+        co_await virtualLog_->reconfigure(config);
+      } catch (const std::exception &e) {
+        LOG(ERROR) << "failed to reconfigure";
+      }
     }
 
     // Wait for some time to see if the ensemble is back up and alive.
