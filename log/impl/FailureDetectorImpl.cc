@@ -74,7 +74,7 @@ folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
         virtualLog_->reconfigure(config);
         reconfigurationSuccess.Increment();
       } catch (const std::exception &e) {
-        LOG(ERROR) << "failed to reconfigure";
+        LOG(ERROR) << "failed to reconfigure" << e.what();
         reconfigurationFailure.Increment();
       }
     }

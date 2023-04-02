@@ -13,6 +13,8 @@ service MetadataService{
   rpc getCurrentConfig(google.protobuf.Empty) returns(MetadataConfig){}
 
   rpc compareAndAppendRange(CompareAndAppendRangeRequest) returns (google.protobuf.Empty){}
+
+  rpc printConfigChain(google.protobuf.Empty) returns(google.protobuf.Empty){}
 }
 
 message CompareAndAppendRangeRequest{

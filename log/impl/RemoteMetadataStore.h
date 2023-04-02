@@ -32,8 +32,7 @@ class RemoteMetadataStore: public MetadataStore {
   }
 
   void printConfigChain() override {
-    LOG(INFO)
-        << "method need to be implemented that downloads the whole chain and prints it";
+    client_->printConfigChain().semi().get();
   }
 
  private:

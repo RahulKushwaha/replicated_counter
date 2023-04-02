@@ -17,7 +17,8 @@ class ReplicaClient {
 
   folly::SemiFuture<std::string> getId();
   folly::SemiFuture<folly::Unit> append(LogId logId,
-                                        std::string logEntryPayload);
+                                        std::string logEntryPayload,
+                                        bool skipSeal);
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId);
   folly::SemiFuture<LogId> getLocalCommitIndex();

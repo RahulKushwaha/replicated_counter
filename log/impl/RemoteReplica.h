@@ -24,11 +24,7 @@ class RemoteReplica final: public Replica {
 
   folly::SemiFuture<folly::Unit>
   append(LogId logId, std::string logEntryPayload, bool skipSeal) override {
-    LOG(INFO) << "ID: " << getId() << " Append Request: [LogID: " << logId
-              << ", Payload: "
-              << logEntryPayload << "]";
-
-    return replicaClient_->append(logId, std::move(logEntryPayload));
+    return replicaClient_->append(logId, std::move(logEntryPayload), skipSeal);
   }
 
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>

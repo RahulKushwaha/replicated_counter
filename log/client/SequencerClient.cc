@@ -20,8 +20,9 @@ folly::SemiFuture<std::string> SequencerClient::getId() {
     return folly::makeSemiFuture(response.id());
   }
 
-  return folly::makeSemiFuture<std::string>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<std::string>(std::move(err));
 }
 
 folly::SemiFuture<LogId> SequencerClient::append(std::string logEntryPayload) {
@@ -35,8 +36,9 @@ folly::SemiFuture<LogId> SequencerClient::append(std::string logEntryPayload) {
     return folly::makeSemiFuture<LogId>(response.log_id());
   }
 
-  return folly::makeSemiFuture<LogId>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
 folly::SemiFuture<LogId> SequencerClient::latestAppendPosition() {
@@ -49,8 +51,9 @@ folly::SemiFuture<LogId> SequencerClient::latestAppendPosition() {
     return folly::makeSemiFuture<LogId>(response.log_id());
   }
 
-  return folly::makeSemiFuture<LogId>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
 folly::SemiFuture<bool> SequencerClient::isAlive() {
@@ -64,8 +67,9 @@ folly::SemiFuture<bool> SequencerClient::isAlive() {
     return folly::makeSemiFuture<bool>(true);
   }
 
-  return folly::makeSemiFuture<bool>
-      (folly::make_exception_wrapper<std::exception>());
+  auto err =
+      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  return folly::makeSemiFuture<bool>(std::move(err));
 }
 
 }

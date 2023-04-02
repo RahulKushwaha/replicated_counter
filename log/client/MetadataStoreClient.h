@@ -19,6 +19,7 @@ class MetadataStoreClient {
   folly::SemiFuture<VersionId> getCurrentVersionId();
   folly::SemiFuture<folly::Unit>
   compareAndAppendRange(VersionId versionId, MetadataConfig newMetadataConfig);
+  folly::coro::Task<void> printConfigChain();
 
  private:
   std::unique_ptr<server::MetadataService::Stub> stub_;
