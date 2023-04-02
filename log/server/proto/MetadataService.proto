@@ -10,6 +10,8 @@ service MetadataService{
 
   rpc getConfigUsingLogId(LogId) returns (MetadataConfig){}
 
+  rpc getCurrentConfig(google.protobuf.Empty) returns(MetadataConfig){}
+
   rpc compareAndAppendRange(CompareAndAppendRangeRequest) returns (google.protobuf.Empty){}
 }
 

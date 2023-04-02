@@ -16,6 +16,16 @@ void RegistryImpl::registerSequencer(std::shared_ptr<Sequencer> sequencer) {
   sequencers_.emplace(std::move(sequencerId), std::move(sequencer));
 }
 
+void RegistryImpl::registerReplica(std::string id,
+                                   std::shared_ptr<Replica> replica) {
+  replicas_.emplace(std::move(id), std::move(replica));
+}
+
+void RegistryImpl::registerSequencer(std::string id,
+                                     std::shared_ptr<Sequencer> sequencer) {
+  sequencers_.emplace(std::move(id), std::move(sequencer));
+}
+
 std::shared_ptr<Replica> RegistryImpl::replica(std::string replicaId) {
   if (auto itr = replicas_.find(replicaId); itr != replicas_.end()) {
     return itr->second;

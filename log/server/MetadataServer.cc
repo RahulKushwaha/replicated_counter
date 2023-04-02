@@ -16,11 +16,28 @@ grpc::Status MetadataServer::getConfig(::grpc::ServerContext *context,
   if (metadataConfig.has_value()) {
     response->CopyFrom(*metadataConfig);
   } else {
-    return grpc::Status{grpc::StatusCode::INTERNAL, "Config not found"};
+    return grpc::Status{grpc::StatusCode::INTERNAL, "config not found"};
   }
 
   return grpc::Status::OK;
 }
+
+grpc::Status MetadataServer::getCurrentConfig(
+    ::grpc::ServerContext *context,
+    const ::google::protobuf::Empty *request,
+    ::rk::projects::durable_log::MetadataConfig *response) {
+  auto versionId = metadataStore_->getCurrentVersionId();
+  auto metadataConfig = metadataStore_->getConfig(versionId);
+  if (metadataConfig.has_value()) {
+    response->CopyFrom(*metadataConfig);
+  } else {
+    LOG(INFO) << "config not found";
+    return grpc::Status{grpc::StatusCode::INTERNAL, "config not found"};
+  }
+
+  return grpc::Status::OK;
+}
+
 
 grpc::Status MetadataServer::getConfigUsingLogId(::grpc::ServerContext *context,
                                                  const server::LogId *request,
@@ -29,7 +46,7 @@ grpc::Status MetadataServer::getConfigUsingLogId(::grpc::ServerContext *context,
   if (metadataConfig.has_value()) {
     response->CopyFrom(*metadataConfig);
   } else {
-    return grpc::Status{grpc::StatusCode::INTERNAL, "Config not found"};
+    return grpc::Status{grpc::StatusCode::INTERNAL, "config not Round"};
   }
 
   return grpc::Status::OK;

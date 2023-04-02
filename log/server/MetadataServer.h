@@ -21,6 +21,10 @@ class MetadataServer final: public server::MetadataService::Service {
                                    const LogId *request,
                                    MetadataConfig *response) override;
 
+  grpc::Status getCurrentConfig(::grpc::ServerContext *context,
+                                const ::google::protobuf::Empty *request,
+                                MetadataConfig *response) override;
+
   grpc::Status compareAndAppendRange(::grpc::ServerContext *context,
                                      const CompareAndAppendRangeRequest *request,
                                      ::google::protobuf::Empty *response) override;
