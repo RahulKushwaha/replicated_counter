@@ -7,8 +7,20 @@
 #include "folly/executors/thread_factory/NamedThreadFactory.h"
 #include "folly/experimental/coro/Collect.h"
 #include "folly/experimental/coro/Timeout.h"
+#include "metrics/MetricsRegistry.h"
+#include "prometheus/counter.h"
 
 namespace rk::projects::durable_log {
+
+auto &reconfiguration = prometheus::BuildCounter()
+    .Name("reconfiguration")
+    .Help("ensemble reconfiguration")
+    .Register(metrics::MetricsRegistry::instance().registry());
+
+auto &reconfigurationSuccess =
+    reconfiguration.Add({{"result", "success"}});
+auto &reconfigurationFailure =
+    reconfiguration.Add({{"result", "failure"}});
 
 FailureDetectorImpl::FailureDetectorImpl
     (std::shared_ptr<HealthCheck> healthCheck,
@@ -58,9 +70,12 @@ folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
       }
 
       try {
-        co_await virtualLog_->reconfigure(config);
+        co_await
+        virtualLog_->reconfigure(config);
+        reconfigurationSuccess.Increment();
       } catch (const std::exception &e) {
         LOG(ERROR) << "failed to reconfigure";
+        reconfigurationFailure.Increment();
       }
     }
 
@@ -82,13 +97,14 @@ folly::coro::Task<void> FailureDetectorImpl::runHealthCheckLoop() {
     auto timeoutCoro =
         folly::coro::co_invoke([]() -> folly::coro::Task<bool> {
           co_await folly::futures::sleep(std::chrono::milliseconds{200});
-          co_return false;
+          co_return
+          false;
         });
 
     std::pair<std::size_t, folly::Try<bool>>
         coResult =
-        co_await folly::coro::collectAny(healthCheck_->isAlive(),
-                                         std::move(timeoutCoro));
+    co_await folly::coro::collectAny(healthCheck_->isAlive(),
+                                     std::move(timeoutCoro));
 
     auto diff = std::chrono::steady_clock::now() - startTime;
     auto diffInMs = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
@@ -117,10 +133,11 @@ folly::coro::Task<void> FailureDetectorImpl::runHealthCheckLoop() {
     ensembleAlive_.store(alive);
 
     if (!ensembleAlive_.load()) {
-      co_await folly::coro::collectAny(folly::coro::co_invoke([]() -> folly::coro::Task<
-          void> {
-        co_await folly::futures::sleep(std::chrono::milliseconds{1000});
-      }), virtualLog_->refreshConfiguration());
+      co_await folly::coro::collectAny
+          (folly::coro::co_invoke([]() -> folly::coro::Task<
+              void> {
+            co_await folly::futures::sleep(std::chrono::milliseconds{1000});
+          }), virtualLog_->refreshConfiguration());
     }
   }
 }
