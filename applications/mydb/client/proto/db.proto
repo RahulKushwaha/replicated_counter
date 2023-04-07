@@ -1,0 +1,91 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+package rk.projects.mydb.client;
+
+message DatabaseName{
+  string name = 1;
+}
+
+message Database{
+  DatabaseName name = 1;
+}
+
+message TableName {
+  string name = 1;
+}
+
+message Table{
+  TableName name = 1;
+  DatabaseName db = 2;
+  repeated Column columns = 3;
+  PrimaryKey primary_key = 4;
+  SecondaryIndex secondary_index = 5;
+}
+
+message PrimaryKey{
+  repeated ColumnName columns = 1;
+}
+
+message SecondaryIndex{
+  repeated ColumnName columns = 1 ;
+}
+
+message ColumnName{
+  string name = 1;
+}
+
+message Column{
+  enum COLUMN_TYPE{
+    INT64 = 0;
+    STRING = 1;
+  }
+
+  ColumnName name = 1;
+  COLUMN_TYPE column_type = 2;
+}
+
+message TableRows{
+  repeated Column columns = 1;
+  repeated Row rows = 2;
+}
+
+message Row{
+  repeated google.protobuf.Any column_values = 1;
+}
+
+message AddDatabaseRequest{
+  Database database = 1;
+}
+
+message AddTableRequest{
+  Database database = 1;
+  Table table = 2;
+}
+
+message ColumnValue{
+  ColumnName name = 1;
+  optional google.protobuf.Any value = 2;
+}
+
+message AddRowRequest{
+  DatabaseName database_name = 1;
+  TableName table_name = 2;
+
+  repeated ColumnValue column_values = 3;
+
+  repeated ColumnName return_columns = 4;
+}
+
+message AddRowResponse{
+  TableRows table_rows = 1;
+}
+
+service db{
+  rpc addDatabase(Database) returns(google.protobuf.Empty);
+
+  rpc addTable(AddTableRequest) returns(google.protobuf.Empty);
+
+  rpc addRow(AddRowRequest)returns(AddRowResponse);
+}

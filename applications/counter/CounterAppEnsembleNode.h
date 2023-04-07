@@ -6,7 +6,7 @@
 #include <string>
 #include "log/impl/Ensemble.h"
 #include "applications/counter/CounterHealthCheck.h"
-#include "counter/CounterApp.h"
+#include "CounterApp.h"
 #include "folly/executors/CPUThreadPoolExecutor.h"
 #include "folly/executors/ThreadPoolExecutor.h"
 #include "log/impl/FailureDetectorImpl.h"

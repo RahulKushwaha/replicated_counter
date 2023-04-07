@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 
-#include "applications/CounterAppEnsembleNode.h"
+#include "applications/counter/CounterAppEnsembleNode.h"
 #include "applications/counter/CounterApp.h"
 #include "applications/counter/client/CounterAppClient.h"
 #include "applications/counter/server/CounterAppServer.h"

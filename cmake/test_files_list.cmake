@@ -34,5 +34,18 @@ set(
         log/utils/tests/FutureUtilsTest.cc
         log/utils/tests/OrderedCompletionQueueTests.cc
         log/utils/tests/UuidGeneratorTest.cc
+
+        applications/mydb/backend/AddTableRowRequest.h
+        applications/mydb/backend/Common.h
+        applications/mydb/backend/KeySerializer.h
+        applications/mydb/backend/KeySerializer.cc
+        applications/mydb/backend/RowSerializer.h
+        applications/mydb/backend/TableRow.h
+        applications/mydb/backend/TableRow.cc
+        applications/mydb/backend/tests/TestUtils.h
+        applications/mydb/backend/tests/TestUtils.cc
+
+        applications/mydb/backend/tests/KeySerializerTests.cc
+        applications/mydb/backend/tests/RowSerializerTests.cc
 )
 

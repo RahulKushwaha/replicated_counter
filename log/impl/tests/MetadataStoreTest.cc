@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include "../InMemoryMetadataStore.h"
+#include "log/impl/InMemoryMetadataStore.h"
 
 namespace rk::projects::durable_log {
 
