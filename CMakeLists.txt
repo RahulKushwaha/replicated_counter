@@ -26,6 +26,9 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/server/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/server/proto/*.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/db.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/client/proto/db.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/db.proto"
         )
 
 find_package(Protobuf REQUIRED)
@@ -76,7 +79,7 @@ target_link_libraries(LogStorage ${SERVER_LIBS})
 add_executable(LogServer log/main.cc ${SOURCE_FILES_LIST})
 target_link_libraries(LogServer ${SERVER_LIBS})
 
-add_executable(CounterAppServer applications/main.cc ${SOURCE_FILES_LIST})
+add_executable(CounterAppServer applications/counter/main.cc ${SOURCE_FILES_LIST})
 target_link_libraries(CounterAppServer ${SERVER_LIBS})
 
 add_executable(MetadataServer metadata/main.cc ${SOURCE_FILES_LIST})
@@ -94,4 +97,5 @@ target_link_libraries(tests
         gtest_main
         proto-objects
         ${PROTOBUF_LIBRARIES}
+        prometheus-cpp::pull
         )

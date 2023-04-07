@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package rk.projects.mydb.internal;
+
+message Database{
+  uint32  id = 1;
+  string name = 2;
+}
+
+message Table{
+  uint32 id = 1;
+  string name = 2;
+  Database db = 3;
+  repeated Column columns = 4;
+  PrimaryKeyIndex primary_key_index = 5;
+  repeated SecondaryIndex secondary_index = 6;
+}
+
+message PrimaryKeyIndex{
+  uint32 id = 1;
+  string name = 2;
+  repeated uint32 column_ids = 3;
+}
+
+message SecondaryIndex{
+  uint32 id = 1;
+  string name = 2;
+  repeated uint32 column_ids = 3;
+}
+
+message Column{
+  enum COLUMN_TYPE{
+    INT64 = 0;
+    STRING = 1;
+  }
+
+  uint32 id = 1;
+  string name = 2;
+  COLUMN_TYPE column_type = 3;
+}

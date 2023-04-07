@@ -1,8 +1,9 @@
 set(
         SOURCE_FILES_LIST
 
-        applications/CounterAppServer.h
-        applications/CounterAppEnsembleNode.h
+        applications/mydb/backend/tests/TestUtils.h
+        applications/counter/CounterAppServer.h
+        applications/counter/CounterAppEnsembleNode.h
         applications/counter/CounterApp.cc
         applications/counter/CounterApp.h
         applications/counter/CounterHealthCheck.cc

@@ -8,7 +8,7 @@
 #include "glog/logging.h"
 #include "google/protobuf/text_format.h"
 #include "log/server/proto/ServerConfig.pb.h"
-#include "applications/CounterAppServer.h"
+#include "CounterAppServer.h"
 
 using namespace rk::projects::server;
 
