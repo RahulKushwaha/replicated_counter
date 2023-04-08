@@ -20,7 +20,7 @@ class CounterAppService final: public CounterService::Service {
     LOG(INFO) << "Server Request: IncrementAndGet";
 
     response->set_value(counterApp_->incrementAndGet(request->key(),
-                                                     request->incr_by()));
+                                                     request->incr_by()).semi().get());
     return grpc::Status::OK;
   }
 
@@ -30,7 +30,7 @@ class CounterAppService final: public CounterService::Service {
     LOG(INFO) << "Server Request: DecrementAndGet";
 
     response->set_value(counterApp_->decrementAndGet(request->key(),
-                                                     request->decr_by()));
+                                                     request->decr_by()).semi().get());
     return grpc::Status::OK;
   }
 
@@ -39,7 +39,7 @@ class CounterAppService final: public CounterService::Service {
                                CounterValue *response) override {
     LOG(INFO) << "Server Request: GetCounterValue";
 
-    response->set_value(counterApp_->getValue(request->key()));
+    response->set_value(counterApp_->getValue(request->key()).semi().get());
     return grpc::Status::OK;
   }
 

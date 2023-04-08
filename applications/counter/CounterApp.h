@@ -8,6 +8,7 @@
 
 #include "log/include/VirtualLog.h"
 #include "applications/counter/proto/CounterEntry.pb.h"
+#include "folly/experimental/coro/Task.h"
 
 namespace rk::projects::counter_app {
 
@@ -17,9 +18,9 @@ class CounterApp {
  public:
   explicit CounterApp(std::shared_ptr<VirtualLog> virtualLog);
 
-  std::int64_t incrementAndGet(std::string key, std::int64_t incrBy);
-  std::int64_t decrementAndGet(std::string key, std::int64_t decrBy);
-  std::int64_t getValue(std::string key);
+  folly::coro::Task<std::int64_t> incrementAndGet(std::string key, std::int64_t incrBy);
+  folly::coro::Task<std::int64_t> decrementAndGet(std::string key, std::int64_t decrBy);
+  folly::coro::Task<std::int64_t>  getValue(std::string key);
 
  private:
   static std::string

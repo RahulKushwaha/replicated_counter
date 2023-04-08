@@ -25,8 +25,8 @@ CounterHealthCheck::CounterHealthCheck(std::shared_ptr<CounterApp> counterApp)
 folly::coro::Task<bool> CounterHealthCheck::isAlive() {
   try {
     auto key = std::string{KEY_NAME};
-    app_->incrementAndGet(key, 1);
-    app_->decrementAndGet(key, 1);
+    co_await app_->incrementAndGet(key, 1);
+    co_await  app_->decrementAndGet(key, 1);
 
     healthCheckSuccess.Increment();
   } catch (const std::exception &e) {

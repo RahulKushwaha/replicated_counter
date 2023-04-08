@@ -37,15 +37,15 @@ int main() {
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = client.incrementAndGet(key, 1));
+      LOG(INFO) << (val = client.incrementAndGet(key, 1).semi().get());
     }
 
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = client.decrementAndGet(key, 1));
+      LOG(INFO) << (val = client.decrementAndGet(key, 1).semi().get());
     }
 
     assert(val == 0);
-    assert(val == client.getValue(key));
+    assert(val == client.getValue(key).semi().get());
 
     future.value()->Shutdown();
   }
@@ -89,17 +89,17 @@ int main() {
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = app1->incrementAndGet(key, 1));
+      LOG(INFO) << (val = app1->incrementAndGet(key, 1).semi().get());
     }
 
     auto &app2 = counterAppEnsemble.nodes_[0].app;
     for (int i = 1; i <= 50; i++) {
-      LOG(INFO) << (val = app2->decrementAndGet(key, 1));
+      LOG(INFO) << (val = app2->decrementAndGet(key, 1).semi().get());
     }
 
     assert(val == 0);
     for (int i = 0; i < 5; i++) {
-      assert(counterAppEnsemble.nodes_[i].app->getValue(key) == 0);
+      assert(counterAppEnsemble.nodes_[i].app->getValue(key).semi().get() == 0);
     }
 
     LOG(INFO) << "Every Replica has the same value: " << val;
