@@ -26,9 +26,8 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/server/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/server/proto/*.proto"
-        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/db.proto"
-        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/client/proto/db.proto"
-        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/db.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/*.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/client/proto/*.proto"
         )
 
 find_package(Protobuf REQUIRED)
@@ -87,7 +86,7 @@ target_link_libraries(MetadataServer ${SERVER_LIBS})
 
 enable_testing()
 
-add_executable(tests ${TEST_FILES_LIST})
+add_executable(tests ${TEST_FILES_LIST} )
 
 target_link_libraries(tests
         # Sorted lines below.

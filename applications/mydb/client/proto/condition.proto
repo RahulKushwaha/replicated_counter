@@ -1,0 +1,63 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+package rk.projects.mydb.client;
+
+message Condition{
+  oneof condition{
+    UnaryCondition  unary_condition = 1;
+    BinaryCondition binary_condition = 2;
+  }
+  }
+
+message UnaryCondition{
+  oneof condition{
+    IntCondition int_condition = 1;
+    StringCondition string_condition = 2;
+  }
+}
+
+message BinaryCondition{
+  Condition c1 = 1;
+  Condition c2 = 2;
+  LogicalOperator op = 3;
+}
+
+enum LogicalOperator{
+  AND = 0;
+  OR = 1;
+}
+
+message IntCondition{
+  enum Operation{
+    EQ = 0;
+    LEQ = 1;
+    LT = 2;
+    GEQ = 3;
+    GT = 4;
+  }
+
+  string col_name = 1;
+  google.protobuf.Any value = 2;
+  Operation op = 3;
+}
+
+message StringCondition{
+  enum Operation{
+    EQ = 0;
+    HAS_SUBSTR = 2;
+    STARTS_WITH = 3;
+    ENDS_WITH = 4;
+
+    CASE_INSENSITIVE_EQ = 5;
+    CASE_INSENSITIVE_HAS_SUBSTR = 6;
+    CASE_INSENSITIVE_STARTS_WITH = 7;
+    CASE_INSENSITIVE_ENDS_WITH = 8;
+  }
+
+  string name = 1;
+  google.protobuf.Any value = 2;
+  Operation op = 3;
+}
+
