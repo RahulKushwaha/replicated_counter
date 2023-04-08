@@ -13,8 +13,8 @@ class CounterAppClient {
  public:
   explicit CounterAppClient(std::shared_ptr<grpc::Channel> channel);
 
-  std::int64_t incrementAndGet(std::string key, std::int64_t incrBy);
-  std::int64_t decrementAndGet(std::string key, std::int64_t decrBy);
+  folly::coro::Task<std::int64_t> incrementAndGet(std::string key, std::int64_t incrBy);
+  folly::coro::Task<std::int64_t> decrementAndGet(std::string key, std::int64_t decrBy);
   folly::coro::Task<std::int64_t> getValue(std::string key);
 
  private:

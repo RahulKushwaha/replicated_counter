@@ -12,34 +12,35 @@ CounterApp::CounterApp(std::shared_ptr<VirtualLog> virtualLog)
       mtx_{std::make_unique<std::mutex>()},
       lookup_{} {}
 
-std::int64_t CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
+folly::coro::Task<std::int64_t> CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
   std::lock_guard lk{*mtx_};
 
-  LogId logId = virtualLog_->append(
+  LogId logId = co_await virtualLog_->append(
           serialize(key, incrBy,
-                    CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR))
-      .get();
+                    CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR));
+
   sync(logId);
 
-  return lookup_[key];
+   co_return lookup_[key];
 }
 
-std::int64_t CounterApp::decrementAndGet(std::string key, std::int64_t decrBy) {
+folly::coro::Task<std::int64_t>
+CounterApp::decrementAndGet(std::string key, std::int64_t decrBy) {
   std::lock_guard lk{*mtx_};
-  LogId logId = virtualLog_->append(
+  LogId logId = co_await virtualLog_->append(
           serialize(key, decrBy,
-                    CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR))
-      .get();
+                    CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR));
   sync(logId);
 
-  return lookup_[key];
+  co_return lookup_[key];
 }
 
-std::int64_t CounterApp::getValue(std::string key) {
+folly::coro::Task<std::int64_t> CounterApp::getValue(std::string key) {
   std::lock_guard lk{*mtx_};
-  auto latestLogId = virtualLog_->sync().get();
+  auto latestLogId = co_await virtualLog_->sync();
   sync(latestLogId);
-  return lookup_[key];
+
+  co_return lookup_[key];
 }
 
 void CounterApp::sync(LogId to) {
