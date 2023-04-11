@@ -14,74 +14,75 @@ constexpr std::string_view EMPTY_ROW_VALUE;
 
 class RowSerializer {
  public:
-  static RawTableRow serialize(AddTableRowRequest addTableRowRequest) {
-    RawTableRow rawTableRow{};
-    {
-      // add to the primary index
-      std::vector<std::uint32_t> primaryIndexColumnIds;
-      for (auto columnId:
-          addTableRowRequest.table->rawTable().primary_key_index().column_ids()) {
-        primaryIndexColumnIds.emplace_back(columnId);
-      }
 
-      auto rowValues = getRowValues(primaryIndexColumnIds, addTableRowRequest);
-      std::string
-          primaryKey =
-          prefix::primaryKey(addTableRowRequest.table->rawTable(), rowValues);
+  static std::vector<RawTableRow> serialize(InternalTable internalTable) {
+    std::vector<RawTableRow> rows;
 
-      rawTableRow.keyValues.emplace_back(primaryKey, EMPTY_ROW_VALUE);
+    auto &arrowTable = *internalTable.table;
+    for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows();
+         rowIdx++) {
+      LOG(INFO) << "iteration: " << rowIdx;
+      auto totalChunks = arrowTable.columns().front()->num_chunks();
+      for (int chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+        LOG(INFO) << "chunk: " << chunkIdx;
+        std::map<TableSchemaType::ColumnIdType, ColumnValue> colValues;
+        std::vector<ColumnValue> primaryIdxValues;
+        std::unordered_map<TableSchemaType::TableIdType,
+                           std::vector<ColumnValue >> secondaryIdxValues;
 
-      LOG(INFO) << "finished primary key value";
+        for (const auto &col: internalTable.schema->rawTable().columns()) {
+          ColumnValue columnValue;
+          auto arrowCol =
+              arrowTable.GetColumnByName(col.name())->chunk(chunkIdx);
 
-      // add column values
-      for (const auto &col: addTableRowRequest.addRowRequest.column_values()) {
-        auto colKey = prefix::columnKey(primaryKey,
-                                        addTableRowRequest.table->getColumnId(
-                                            col.name().name()));
+          if (col.column_type()
+              == mydb::Column_COLUMN_TYPE::Column_COLUMN_TYPE_INT64) {
+            auto chunk = std::static_pointer_cast<arrow::Int64Array>(arrowCol);
+            auto val = chunk->Value(rowIdx);
+            columnValue = {val};
+          } else if (col.column_type()
+              == mydb::Column_COLUMN_TYPE::Column_COLUMN_TYPE_STRING) {
+            auto chunk = std::static_pointer_cast<arrow::StringArray>(arrowCol);
+            auto val = chunk->Value(rowIdx);
+            columnValue = {std::string{val}};
+          }
 
-        rawTableRow.keyValues.emplace_back(std::move(colKey),
-                                           toString(toColumnValue(col.value())));
+          colValues.emplace(col.id(), columnValue);
+
+          if (internalTable.schema->isPrimaryKeyColumn(col.id())) {
+            primaryIdxValues.emplace_back(columnValue);
+          }
+
+          for (auto idxId: internalTable.schema->indexIds(col.id())) {
+            secondaryIdxValues[idxId].push_back(columnValue);
+          }
+        }
+
+        RawTableRow rawTableRow{};
+        auto primaryKey = prefix::primaryKey(internalTable.schema->rawTable(),
+                                             primaryIdxValues);
+
+        rawTableRow.keyValues.emplace_back(primaryKey, "NULL");
+
+        for (auto &[colId, colValue]: colValues) {
+          std::string colKey = prefix::columnKey(primaryKey, colId);
+          rawTableRow.keyValues.emplace_back(std::move(colKey),
+                                             toString(colValue));
+        }
+
+        for (auto &[idxId, values]: secondaryIdxValues) {
+          std::string idxKey =
+              prefix::secondaryIndexKey(
+                  internalTable.schema->rawTable(), idxId, values);
+
+          rawTableRow.keyValues.emplace_back(std::move(idxKey), "NULL");
+        }
+
+        rows.emplace_back(std::move(rawTableRow));
       }
     }
 
-    // add to secondary index/es
-    for (const auto
-          &index: addTableRowRequest.table->rawTable().secondary_index()) {
-      std::vector<std::uint32_t> secondaryIndexColumnIds;
-      for (const auto columnId: index.column_ids()) {
-        secondaryIndexColumnIds.emplace_back(columnId);
-      }
-
-      auto
-          rowValues = getRowValues(secondaryIndexColumnIds, addTableRowRequest);
-
-      auto secondaryIndexKey =
-          prefix::secondaryIndexKey(addTableRowRequest.table->rawTable(),
-                                    index.id(),
-                                    rowValues);
-
-      rawTableRow.keyValues.emplace_back(std::move(secondaryIndexKey),
-                                         EMPTY_ROW_VALUE);
-    }
-
-    return rawTableRow;
-  }
-
-  static std::vector<ColumnValue>
-  getRowValues(const std::vector<std::uint32_t> &columnIds,
-               const internal::AddTableRowRequest &addRowRequest) {
-    std::vector<ColumnValue> rowValues;
-    for (auto columnId: columnIds) {
-      const auto &columnValue =
-          addRowRequest.columnNameToValueLookup.at(columnId);
-
-      if (columnValue.has_value()) {
-        rowValues.emplace_back(toColumnValue(columnValue.value()));
-      }
-    }
-
-    LOG(INFO) << rowValues.size();
-    return rowValues;
+    return rows;
   }
 
   static ColumnValue toColumnValue(const google::protobuf::Any &columnValue) {

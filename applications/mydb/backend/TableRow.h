@@ -7,6 +7,8 @@
 #include <string>
 #include <cstdint>
 #include "Common.h"
+#include <arrow/table.h>
+#include <arrow/array.h>
 
 namespace rk::projects::mydb {
 
@@ -28,6 +30,20 @@ struct RawTableRow {
   using Value = std::string;
   using KeyValue = std::pair<Key, Value>;
   std::vector<KeyValue> keyValues;
+
+  std::string toString() {
+    std::stringstream ss;
+    for (const auto &[k, v]: keyValues) {
+      ss << k << " " << v << "\n";
+    }
+
+    return ss.str();
+  }
+};
+
+struct InternalTable {
+  std::shared_ptr<TableSchema> schema;
+  std::shared_ptr<arrow::Table> table;
 };
 
 }

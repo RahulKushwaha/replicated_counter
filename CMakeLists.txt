@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(LogStorage)
-set(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_FLAGS "-std=c++20")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
@@ -86,7 +86,28 @@ target_link_libraries(MetadataServer ${SERVER_LIBS})
 
 enable_testing()
 
-add_executable(tests ${TEST_FILES_LIST} )
+add_executable(tests ${TEST_FILES_LIST})
+
+option(MYDB "ENABLE mydb" OFF)
+if (MYDB)
+    find_package(Arrow REQUIRED)
+    find_package(Rocksdb REQUIRED)
+    set(
+            MY_DB_SOURCE_FILES_LIST
+
+            applications/mydb/backend/RocksReaderWriter.cc
+            applications/mydb/backend/RocksReaderWriter.h
+            applications/mydb/backend/SchemaStore.h
+            applications/mydb/backend/RocksDbFactory.h
+    )
+
+    add_executable(mydb applications/mydb/main.cc ${SOURCE_FILES_LIST} ${MY_DB_SOURCE_FILES_LIST})
+
+    target_link_libraries(mydb ${SERVER_LIBS} Arrow::arrow_shared rocksdb)
+    target_link_libraries(tests Arrow::arrow_shared /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
+    message(${ROCKSDB_LIBRARIES}/)
+endif ()
+unset(MYDB CACHE)
 
 target_link_libraries(tests
         # Sorted lines below.

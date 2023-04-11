@@ -29,10 +29,11 @@ primaryKey(const internal::Table &table,
   std::stringstream ss;
   ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER
      << table.id() << DEFAULT_ESCAPE_CHARACTER
-     << table.primary_key_index().id() << DEFAULT_ESCAPE_CHARACTER;
+     << table.primary_key_index().id();
 
   for (std::int32_t index = 0; index < values.size(); index++) {
-    ss << table.primary_key_index().column_ids(index)
+    ss << DEFAULT_ESCAPE_CHARACTER
+       << table.primary_key_index().column_ids(index)
        << DEFAULT_ESCAPE_CHARACTER
        << escapeString(mydb::toString(values[index]));
   }
@@ -57,10 +58,11 @@ secondaryIndexKey(const internal::Table &table,
       std::stringstream ss;
       ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER
          << table.id() << DEFAULT_ESCAPE_CHARACTER
-         << indexId << DEFAULT_ESCAPE_CHARACTER;
+         << indexId;
 
       for (std::int32_t index = 0; index < values.size(); index++) {
-        ss << secondaryIndex.column_ids(index)
+        ss << DEFAULT_ESCAPE_CHARACTER
+           << secondaryIndex.column_ids(index)
            << DEFAULT_ESCAPE_CHARACTER
            << escapeString(mydb::toString(values[index]));
       }
