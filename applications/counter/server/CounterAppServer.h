@@ -43,6 +43,15 @@ class CounterAppService final: public CounterService::Service {
     return grpc::Status::OK;
   }
 
+
+  grpc::Status BatchUpdate(::grpc::ServerContext *context,
+                           const BatchUpdateRequest *request,
+                           BatchUpdateResponse *response) override {
+
+
+  }
+
+
   ~CounterAppService() override = default;
 
  private:

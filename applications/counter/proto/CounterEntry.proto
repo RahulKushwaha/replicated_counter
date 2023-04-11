@@ -13,3 +13,7 @@ message CounterLogEntry{
   CommandType commandType = 3;
   string description = 4;
 }
+
+message CounterLogEnteries {
+  repeated CounterLogEntry enteries = 1;
+}

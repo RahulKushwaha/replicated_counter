@@ -22,6 +22,7 @@ struct LogEntry {
   std::string payload;
 };
 
+
 enum class LogReadError {
   IndexOutOfBounds,
   NotFound,
