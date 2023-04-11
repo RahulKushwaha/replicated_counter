@@ -5,7 +5,12 @@
 #include <cstdint>
 #include <string>
 #include <sstream>
+#include <random>
 #include "folly/Conv.h"
+#include "applications/mydb/backend/TableRow.h"
+#include <arrow/array.h>
+#include <arrow/builder.h>
+#include <arrow/table.h>
 
 namespace rk::projects::mydb::test_utils {
 struct TableSchemaOutput {
@@ -15,4 +20,11 @@ struct TableSchemaOutput {
 };
 
 TableSchemaOutput parse(const std::string &key);
+
+TableSchema createTableSchema(int numIntColumns = 5,
+                              int numStringColumns = 5,
+                              int numSecondaryIndex = 2);
+
+InternalTable getInternalTable(std::int32_t numRows = 10);
+
 }
