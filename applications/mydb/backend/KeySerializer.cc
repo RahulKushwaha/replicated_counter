@@ -6,6 +6,7 @@
 #include "KeySerializer.h"
 #include "TableRow.h"
 #include "applications/mydb/backend/proto/db.pb.h"
+#include "folly/Conv.h"
 
 namespace rk::projects::mydb::prefix {
 
@@ -16,6 +17,97 @@ std::string escapeString(const std::string &input, char escapeCharacter) {
       ss << escapeCharacter << escapeCharacter;
     } else {
       ss << c;
+    }
+  }
+
+  return ss.str();
+}
+
+KeyFragments parseKey(const internal::Table &table, const std::string &key) {
+  enum class TokenType {
+    DB_ID,
+    TBL_ID,
+    INDEX_ID,
+    PRIMARY_KEY_PARTS,
+    COL_ID,
+    SECONDARY_INDEX_KEY_PARTS,
+  };
+
+  TokenType current{TokenType::DB_ID};
+  KeyFragments keyFragments;
+  auto length = key.size();
+  std::size_t i = 0;
+  while (i < length) {
+    auto token = parse(key, i, DEFAULT_ESCAPE_CHARACTER);
+
+    switch (current) {
+      case TokenType::DB_ID: {
+        keyFragments.dbId = folly::to<TableSchemaType::DbIdType>(token);
+        current = TokenType::TBL_ID;
+      }
+        break;
+      case TokenType::TBL_ID: {
+        keyFragments.tableId = folly::to<TableSchemaType::TableIdType>(token);
+        current = TokenType::INDEX_ID;
+      }
+        break;
+      case TokenType::INDEX_ID: {
+        auto indexId =
+            folly::to<TableSchemaType::TableIdType>(token);
+        // primary key index is always 1
+        if (indexId == 1) {
+          keyFragments.primaryIndex = {KeyFragments::Index{indexId}};
+          current = TokenType::PRIMARY_KEY_PARTS;
+        } else {
+          keyFragments.secondaryIndex = {KeyFragments::Index{indexId}};
+          current = TokenType::PRIMARY_KEY_PARTS;
+        }
+      }
+        break;
+      case TokenType::PRIMARY_KEY_PARTS: {
+        keyFragments.primaryIndex->values.emplace_back(std::move(token));
+
+        if (keyFragments.primaryIndex->values.size()
+            == table.primary_key_index().column_ids().size()) {
+          current = TokenType::COL_ID;
+        }
+      }
+        break;
+      case TokenType::COL_ID: {
+        keyFragments.colId = {folly::to<TableSchemaType::ColumnIdType>(token)};
+      }
+        break;
+      case TokenType::SECONDARY_INDEX_KEY_PARTS: {
+        assert(!keyFragments.secondaryIndex.has_value());
+        keyFragments.secondaryIndex->values.emplace_back(std::move(token));
+      }
+        break;
+      default:
+        assert(false);
+        break;
+    }
+  }
+
+  return keyFragments;
+}
+
+std::string
+parse(const std::string &str,
+      std::size_t &startIndex,
+      char escapeCharacter) {
+  std::stringstream ss{};
+  std::size_t length = str.size();
+  for (std::size_t &i = startIndex; i < length; i++) {
+    if (str[i] != escapeCharacter) {
+      ss << str[i];
+    } else if (str[i] == escapeCharacter
+        && (i + 1 < length && str[i + 1] == escapeCharacter)) {
+      ss << escapeCharacter;
+      i++;
+    } else {
+      assert(str[i] == escapeCharacter);
+      i++;
+      break;
     }
   }
 
@@ -73,5 +165,4 @@ secondaryIndexKey(const internal::Table &table,
 
   assert(false);
 }
-
 }

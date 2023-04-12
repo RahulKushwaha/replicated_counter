@@ -90,6 +90,11 @@ class TableSchema {
     return EMPTY;
   }
 
+  inline internal::Column_COLUMN_TYPE
+  getColumnType(TableSchemaType::ColumnIdType colId) {
+    return internal::Column_COLUMN_TYPE_INT64;
+  }
+
  private:
   std::shared_ptr<Table> table_;
   std::unordered_map<TableSchemaType::ColumnIdType, std::string_view>

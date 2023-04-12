@@ -14,7 +14,7 @@ namespace rk::projects::mydb {
 class RocksReaderWriterTests: public ::testing::Test {
  protected:
   RocksDbFactory::RocksDbConfig config{
-      .path = "/tmp/db1",
+      .path = "/tmp/db3",
       .createIfMissing = true
   };
 
@@ -27,13 +27,13 @@ class RocksReaderWriterTests: public ::testing::Test {
   RocksReaderWriterTests() {
     // You can do set-up work for each test here.
     db_ = RocksDbFactory::provide(config);
-
     rocksReaderWriter_ = std::make_unique<RocksReaderWriter>(db_);
   }
 
   ~RocksReaderWriterTests() override {
     db_->Close();
     auto status = rocksdb::DestroyDB(config.path, rocksdb::Options{});
+    LOG(INFO) << status.ToString();
     assert(status.ok());
   }
 
@@ -75,7 +75,24 @@ TEST_F(RocksReaderWriterTests, writeToRockdb) {
 
   ASSERT_FALSE(response.empty());
 
-  LOG(INFO) << response[0].toString();
+  for (const auto &row: response) {
+    for (const auto &[k, v]: row.keyValues) {
+      LOG(INFO) << "key: " << k << " " << "value: " << v;
+      auto rawTable = internalTable.schema->rawTable();
+      auto keyValueFragments = prefix::parseKey(rawTable, k);
+
+      ASSERT_EQ(keyValueFragments.dbId, rawTable.db().id());
+      ASSERT_EQ(keyValueFragments.tableId, rawTable.id());
+
+      if (keyValueFragments.primaryIndex.has_value()) {
+        ASSERT_EQ(keyValueFragments.primaryIndex.value().indexId,
+                  rawTable.primary_key_index().id());
+      }
+
+      if(keyValueFragments.secondaryIndex.has_value()){
+      }
+    }
+  }
 }
 
 }

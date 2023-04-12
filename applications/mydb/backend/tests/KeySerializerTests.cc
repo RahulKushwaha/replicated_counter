@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "folly/Conv.h"
 #include "google/protobuf/text_format.h"
 #include "applications/mydb/backend/KeySerializer.h"
 #include "applications/mydb/backend/proto/db.pb.h"
@@ -69,6 +68,19 @@ TEST_P(PrefixTestsSuite, columnKey) {
     ASSERT_EQ(schema.tableId, table.id());
     ASSERT_EQ(schema.indexId, table.primary_key_index().id());
   }
+}
+
+TEST_P(PrefixTestsSuite, parseKeyString) {
+  auto table = GetParam();
+  auto primary = prefix::primaryKey(table, std::vector<ColumnValue>{5000});
+  auto keyFragments = prefix::parseKey(table, primary);
+
+  ASSERT_EQ(keyFragments.dbId, table.db().id());
+  ASSERT_EQ(keyFragments.tableId, table.id());
+  ASSERT_EQ(keyFragments.primaryIndex->indexId, table.primary_key_index().id());
+  ASSERT_EQ(keyFragments.primaryIndex->values.size(), 1);
+  ASSERT_EQ(std::stoi(keyFragments.primaryIndex->values[0]),
+            table.primary_key_index().column_ids()[0]);
 }
 
 
