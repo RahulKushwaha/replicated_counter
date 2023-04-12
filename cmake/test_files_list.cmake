@@ -51,5 +51,6 @@ set(
         applications/mydb/backend/tests/KeySerializerTests.cc
         applications/mydb/backend/tests/RowSerializerTests.cc
         applications/mydb/backend/tests/RocksReaderWriterTests.cc
+        applications/mydb/backend/tests/KeyParserTests.cc
 )
 

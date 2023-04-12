@@ -92,19 +92,28 @@ option(MYDB "ENABLE mydb" OFF)
 if (MYDB)
     find_package(Arrow REQUIRED)
     find_package(Rocksdb REQUIRED)
+    set(ROCKS_DB_LIB /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
     set(
             MY_DB_SOURCE_FILES_LIST
 
+            applications/mydb/backend/Common.h
+            applications/mydb/backend/KeySerializer.cc
+            applications/mydb/backend/KeySerializer.h
+            applications/mydb/backend/QueryExecutor.cc
+            applications/mydb/backend/QueryExecutor.h
+            applications/mydb/backend/RocksDbFactory.h
             applications/mydb/backend/RocksReaderWriter.cc
             applications/mydb/backend/RocksReaderWriter.h
+            applications/mydb/backend/RowSerializer.h
             applications/mydb/backend/SchemaStore.h
-            applications/mydb/backend/RocksDbFactory.h
+            applications/mydb/backend/TableRow.cc
+            applications/mydb/backend/TableRow.h
     )
 
     add_executable(mydb applications/mydb/main.cc ${SOURCE_FILES_LIST} ${MY_DB_SOURCE_FILES_LIST})
 
-    target_link_libraries(mydb ${SERVER_LIBS} Arrow::arrow_shared rocksdb)
-    target_link_libraries(tests Arrow::arrow_shared /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
+    target_link_libraries(mydb ${SERVER_LIBS} Arrow::arrow_shared ${ROCKS_DB_LIB})
+    target_link_libraries(tests Arrow::arrow_shared ${ROCKS_DB_LIB})
     message(${ROCKSDB_LIBRARIES}/)
 endif ()
 unset(MYDB CACHE)
