@@ -27,6 +27,7 @@ class TableSchema {
       std::string_view columnName = col.name();
       columnIdToName_[col.id()] = columnName;
       columnNameToId_[columnName] = col.id();
+      columnTypes_[col.id()] = col.column_type();
     }
 
     for (auto &col: table_->primary_key_index().column_ids()) {
@@ -90,9 +91,13 @@ class TableSchema {
     return EMPTY;
   }
 
-  inline internal::Column_COLUMN_TYPE
+  inline std::optional<internal::Column_COLUMN_TYPE>
   getColumnType(TableSchemaType::ColumnIdType colId) {
-    return internal::Column_COLUMN_TYPE_INT64;
+    if (auto itr = columnTypes_.find(colId); itr != columnTypes_.end()) {
+      return itr->second;
+    }
+
+    return {};
   }
 
  private:
@@ -101,6 +106,8 @@ class TableSchema {
       columnIdToName_;
   std::unordered_map<std::string_view, TableSchemaType::ColumnIdType>
       columnNameToId_;
+  std::unordered_map<TableSchemaType::ColumnIdType,
+                     internal::Column_COLUMN_TYPE> columnTypes_;
   std::unordered_set<TableSchemaType::ColumnIdType> primaryKeyColumns_;
   std::unordered_map<TableSchemaType::ColumnIdType,
                      std::unordered_set<TableSchemaType::ColumnIdType >>

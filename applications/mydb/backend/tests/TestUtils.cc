@@ -40,7 +40,14 @@ TableSchemaOutput parse(const std::string &key) {
 
 TableSchema createTableSchema(int numIntColumns,
                               int numStringColumns,
-                              int numSecondaryIndex) {
+                              int numColumnsInPrimaryIndex,
+                              int numSecondaryIndex,
+                              int numColumnsInSecondaryIndex) {
+  int totalColumns = numIntColumns + numStringColumns;
+
+  assert(numColumnsInPrimaryIndex < totalColumns);
+  assert(numColumnsInSecondaryIndex < totalColumns);
+
   internal::Database database{};
   database.set_name("test");
   database.set_id(1);
@@ -55,7 +62,9 @@ TableSchema createTableSchema(int numIntColumns,
 
   internal::PrimaryKeyIndex primaryKeyIndex{};
   primaryKeyIndex.set_id(tableId++);
-  primaryKeyIndex.mutable_column_ids()->Add(1);
+  for (int i = 0; i < numColumnsInPrimaryIndex; i++) {
+    primaryKeyIndex.mutable_column_ids()->Add(i);
+  }
 
 
   for (int i = 1; i <= numIntColumns; i++) {
@@ -80,8 +89,10 @@ TableSchema createTableSchema(int numIntColumns,
     idx.set_name("secondary_idx");
     idx.set_id(tableId++);
 
-    idx.add_column_ids(i);
-    idx.add_column_ids(i + 1);
+    for (int j = 0, indexColumnId = i; j <= numColumnsInSecondaryIndex;
+         j++, indexColumnId++) {
+      idx.add_column_ids(indexColumnId);
+    }
 
     table.mutable_secondary_index()->Add(std::move(idx));
   }
@@ -95,13 +106,23 @@ TableSchema createTableSchema(int numIntColumns,
   return tableSchema;
 }
 
-InternalTable getInternalTable(std::int32_t numRows) {
+InternalTable getInternalTable(std::int32_t numRows,
+                               int numIntColumns,
+                               int numStringColumns,
+                               int numColumnsInPrimaryIndex,
+                               int numSecondaryIndex,
+                               int numColumnsInSecondaryIndex) {
 
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> dist(1, 500000);
 
-  auto tableSchema = std::make_shared<TableSchema>(createTableSchema());
+  auto tableSchema =
+      std::make_shared<TableSchema>(createTableSchema(numIntColumns,
+                                                      numStringColumns,
+                                                      numColumnsInPrimaryIndex,
+                                                      numSecondaryIndex,
+                                                      numColumnsInSecondaryIndex));
   std::vector<std::shared_ptr<arrow::Array>> columns;
   std::vector<std::shared_ptr<arrow::Field>> fields;
 
@@ -118,10 +139,10 @@ InternalTable getInternalTable(std::int32_t numRows) {
       }
         break;
       case Column_COLUMN_TYPE_STRING: {
-        fields.emplace_back(arrow::field(col.name(), arrow::binary()));
+        fields.emplace_back(arrow::field(col.name(), arrow::utf8()));
         arrow::StringBuilder builder;
         for (int i = 0; i < numRows; i++) {
-          builder.Append(col.name() + std::to_string(i));
+          builder.Append(col.name() + "/hello/world//" + std::to_string(i));
         }
 
         columns.emplace_back(builder.Finish().ValueOrDie());
