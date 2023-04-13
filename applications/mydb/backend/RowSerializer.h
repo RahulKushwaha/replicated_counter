@@ -148,24 +148,26 @@ class RowSerializer {
     for (auto &row: rows) {
       for (auto &[key, value]: row.keyValues) {
         auto keyFragments = prefix::parseKey(schema->rawTable(), key);
-
         if (keyFragments.colId.has_value()) {
           auto colId =
               folly::to<TableSchemaType::ColumnIdType>(*keyFragments.colId);
           auto builder = colBuilder[colId];
 
-          switch (schema->getColumnType(colId)) {
+          assert(schema->getColumnType(colId).has_value());
+          switch (*schema->getColumnType(colId)) {
             case internal::Column_COLUMN_TYPE_INT64: {
               auto intBuilder =
                   std::static_pointer_cast<arrow::Int64Builder>(builder);
               auto typedValue = folly::to<std::int64_t>(value);
-              intBuilder->Append(typedValue);
+
+              assert(intBuilder->Append(typedValue).ok());
             }
               break;
             case internal::Column_COLUMN_TYPE_STRING: {
               auto stringBuilder =
                   std::static_pointer_cast<arrow::StringBuilder>(builder);
-              stringBuilder->Append(value);
+
+              assert(stringBuilder->Append(value).ok());
             }
               break;
             default:

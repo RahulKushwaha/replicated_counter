@@ -23,8 +23,15 @@ TableSchemaOutput parse(const std::string &key);
 
 TableSchema createTableSchema(int numIntColumns = 5,
                               int numStringColumns = 5,
-                              int numSecondaryIndex = 2);
+                              int numColumnsInPrimaryIndex = 1,
+                              int numSecondaryIndex = 2,
+                              int numColumnsInSecondaryIndex = 1);
 
-InternalTable getInternalTable(std::int32_t numRows = 10);
+InternalTable getInternalTable(std::int32_t numRows = 10,
+                               int numIntColumns = 5,
+                               int numStringColumns = 5,
+                               int numColumnsInPrimaryIndex = 1,
+                               int numSecondaryIndex = 2,
+                               int numColumnsInSecondaryIndex = 1);
 
 }

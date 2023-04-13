@@ -57,11 +57,9 @@ TEST_F(RocksReaderWriterTests, writeToRockdb) {
   auto rawTableRows = RowSerializer::serialize(internalTable);
 
   bool result = rocksReaderWriter_->write(rawTableRows);
-
   ASSERT_TRUE(result);
 
   std::string primaryKey;
-
   for (auto &[k, v]: rawTableRows[0].keyValues) {
     if (v == "NULL") {
       primaryKey = k;
@@ -75,24 +73,37 @@ TEST_F(RocksReaderWriterTests, writeToRockdb) {
 
   ASSERT_FALSE(response.empty());
 
-  for (const auto &row: response) {
-    for (const auto &[k, v]: row.keyValues) {
-      LOG(INFO) << "key: " << k << " " << "value: " << v;
-      auto rawTable = internalTable.schema->rawTable();
-      auto keyValueFragments = prefix::parseKey(rawTable, k);
+  auto responseTable =
+      RowSerializer::deserialize(internalTable.schema, response);
+  ASSERT_TRUE(internalTable.table->Equals(*responseTable.table));
+}
 
-      ASSERT_EQ(keyValueFragments.dbId, rawTable.db().id());
-      ASSERT_EQ(keyValueFragments.tableId, rawTable.id());
+TEST_F(RocksReaderWriterTests, writeToRockdbMultipleRows) {
+  auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
+  auto rawTableRows = RowSerializer::serialize(internalTable);
 
-      if (keyValueFragments.primaryIndex.has_value()) {
-        ASSERT_EQ(keyValueFragments.primaryIndex.value().indexId,
-                  rawTable.primary_key_index().id());
-      }
+  bool result = rocksReaderWriter_->write(rawTableRows);
+  ASSERT_TRUE(result);
 
-      if(keyValueFragments.secondaryIndex.has_value()){
+  std::vector<RawTableRow::Key> keys;
+  for (auto &row: rawTableRows) {
+    for (auto &[k, v]: row.keyValues) {
+      if (v == "NULL") {
+        keys.emplace_back(k);
+        break;
       }
     }
   }
+
+  ASSERT_EQ(keys.size(), internalTable.table->num_rows());
+
+  auto response = rocksReaderWriter_->read(keys);
+
+  ASSERT_FALSE(response.empty());
+
+  auto responseTable =
+      RowSerializer::deserialize(internalTable.schema, response);
+  ASSERT_TRUE(internalTable.table->Equals(*responseTable.table));
 }
 
 }

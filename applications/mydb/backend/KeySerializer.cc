@@ -34,38 +34,46 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
   };
 
   TokenType current{TokenType::DB_ID};
+  bool indexKeyPartsColId = true;
   KeyFragments keyFragments;
+
   auto length = key.size();
   std::size_t i = 0;
   while (i < length) {
     auto token = parse(key, i, DEFAULT_ESCAPE_CHARACTER);
-
     switch (current) {
       case TokenType::DB_ID: {
         keyFragments.dbId = folly::to<TableSchemaType::DbIdType>(token);
         current = TokenType::TBL_ID;
       }
         break;
+
       case TokenType::TBL_ID: {
         keyFragments.tableId = folly::to<TableSchemaType::TableIdType>(token);
         current = TokenType::INDEX_ID;
       }
         break;
+
       case TokenType::INDEX_ID: {
         auto indexId =
             folly::to<TableSchemaType::TableIdType>(token);
-        // primary key index is always 1
-        if (indexId == 1) {
+        // primary key index is always 0
+        if (indexId == 0) {
           keyFragments.primaryIndex = {KeyFragments::Index{indexId}};
           current = TokenType::PRIMARY_KEY_PARTS;
         } else {
           keyFragments.secondaryIndex = {KeyFragments::Index{indexId}};
-          current = TokenType::PRIMARY_KEY_PARTS;
+          current = TokenType::SECONDARY_INDEX_KEY_PARTS;
         }
       }
         break;
+
       case TokenType::PRIMARY_KEY_PARTS: {
-        keyFragments.primaryIndex->values.emplace_back(std::move(token));
+        if (!indexKeyPartsColId) {
+          keyFragments.primaryIndex->values.emplace_back(std::move(token));
+        }
+
+        indexKeyPartsColId = !indexKeyPartsColId;
 
         if (keyFragments.primaryIndex->values.size()
             == table.primary_key_index().column_ids().size()) {
@@ -73,15 +81,21 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
         }
       }
         break;
+
       case TokenType::COL_ID: {
         keyFragments.colId = {folly::to<TableSchemaType::ColumnIdType>(token)};
       }
         break;
+
       case TokenType::SECONDARY_INDEX_KEY_PARTS: {
-        assert(!keyFragments.secondaryIndex.has_value());
-        keyFragments.secondaryIndex->values.emplace_back(std::move(token));
+        if (!indexKeyPartsColId) {
+          keyFragments.secondaryIndex->values.emplace_back(std::move(token));
+        }
+
+        indexKeyPartsColId = !indexKeyPartsColId;
       }
         break;
+
       default:
         assert(false);
         break;
