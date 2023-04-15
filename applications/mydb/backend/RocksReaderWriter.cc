@@ -67,17 +67,22 @@ RocksReaderWriter::scan(std::string prefix,
 
   auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
   itr->Seek(prefix);
-  std::string prevKey = "SOME WEIRD STRING soo";
+  std::string prevKey = "SOME WEIRD STRING";
 
   RawTableRow row;
   while (itr->Valid()) {
     if (itr->key().starts_with(prevKey)) {
+
+    } else if (itr->key().starts_with(prefix)) {
       rows.emplace_back(std::move(row));
       row = RawTableRow{};
       prevKey = itr->key().ToString();
+    } else {
+      break;
     }
 
-    row.keyValues.emplace_back(itr->key().ToString(), itr->value().ToString());
+    row.keyValues.emplace_back(itr->key().ToString(),
+                               itr->value().ToString());
 
     itr->Next();
   }

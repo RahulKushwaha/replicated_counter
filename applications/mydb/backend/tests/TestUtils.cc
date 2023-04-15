@@ -3,6 +3,8 @@
 //
 #pragma once
 #include "TestUtils.h"
+#include "arrow/table.h"
+#include <arrow/compute/api.h>
 
 namespace rk::projects::mydb::test_utils {
 
@@ -112,11 +114,6 @@ InternalTable getInternalTable(std::int32_t numRows,
                                int numColumnsInPrimaryIndex,
                                int numSecondaryIndex,
                                int numColumnsInSecondaryIndex) {
-
-  std::random_device dev;
-  std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> dist(1, 500000);
-
   auto tableSchema =
       std::make_shared<TableSchema>(createTableSchema(numIntColumns,
                                                       numStringColumns,
@@ -125,14 +122,14 @@ InternalTable getInternalTable(std::int32_t numRows,
                                                       numColumnsInSecondaryIndex));
   std::vector<std::shared_ptr<arrow::Array>> columns;
   std::vector<std::shared_ptr<arrow::Field>> fields;
-
+  int key = 0;
   for (auto &col: tableSchema->rawTable().columns()) {
     switch (col.column_type()) {
       case Column_COLUMN_TYPE_INT64: {
         fields.emplace_back(arrow::field(col.name(), arrow::int64()));
         arrow::Int64Builder builder;
         for (int i = 0; i < numRows; i++) {
-          builder.Append(dist(rng));
+          builder.Append(key++);
         }
 
         columns.emplace_back(builder.Finish().ValueOrDie());
