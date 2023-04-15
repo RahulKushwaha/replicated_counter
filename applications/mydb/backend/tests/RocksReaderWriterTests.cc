@@ -106,4 +106,23 @@ TEST_F(RocksReaderWriterTests, writeToRockdbMultipleRows) {
   ASSERT_TRUE(internalTable.table->Equals(*responseTable.table));
 }
 
+TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
+  auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
+  auto rawTableRows = RowSerializer::serialize(internalTable);
+
+  bool result = rocksReaderWriter_->write(rawTableRows);
+  ASSERT_TRUE(result);
+
+  auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
+                                     internalTable.schema->rawTable().primary_key_index().id());
+
+  auto response =
+      rocksReaderWriter_->scan(key, RocksReaderWriter::ScanDirection::Forward);
+
+  auto responseTable =
+      RowSerializer::deserialize(internalTable.schema, response);
+
+  ASSERT_TRUE(internalTable.table->Equals(*responseTable.table));
+}
+
 }

@@ -147,6 +147,16 @@ primaryKey(const internal::Table &table,
   return ss.str();
 }
 
+std::string minimumIndexKey(const internal::Table &table,
+                            TableSchemaType::TableIdType indexId) {
+  std::stringstream ss;
+  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER
+     << table.id() << DEFAULT_ESCAPE_CHARACTER
+     << indexId;
+
+  return ss.str();
+}
+
 std::string
 columnKey(const std::string &primaryKey, std::uint32_t colId) {
   std::stringstream ss;

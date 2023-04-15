@@ -11,6 +11,8 @@
 #include <arrow/array.h>
 #include <arrow/builder.h>
 #include <arrow/table.h>
+#include <arrow/compute/exec/exec_plan.h>
+#include <arrow/dataset/dataset.h>
 
 namespace rk::projects::mydb::test_utils {
 struct TableSchemaOutput {
