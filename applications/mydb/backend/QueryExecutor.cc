@@ -11,9 +11,23 @@ QueryExecutor::QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks)
     : rocks_{std::move(rocks)} {}
 
 void QueryExecutor::insert(const InternalTable &internalTable,
-                           InsertOptions options) {
-  auto kvRows = RowSerializer::serialize(internalTable);
-  rocks_->write(kvRows);
+                           InsertOptions option) {
+  if (option == InsertOptions::REPLACE) {
+    // Delete the row first.
+    auto rawTableRows = RowSerializer::serialize(internalTable);
+    std::vector<RawTableRow::Key> keysToDelete;
+    for (auto &keyValue: rawTableRows) {
+      for (auto &[k, v]: keyValue.keyValues) {
+        keysToDelete.emplace_back(k);
+      }
+    }
+
+    rocks_->del(keysToDelete);
+    // Insert the row.
+    rocks_->write(rawTableRows);
+  }
+
+  assert(option == InsertOptions::MERGE);
 }
 
 InternalTable QueryExecutor::get(const InternalTable &internalTable) {
@@ -22,13 +36,26 @@ InternalTable QueryExecutor::get(const InternalTable &internalTable) {
   return RowSerializer::deserialize(internalTable.schema, kvRows);
 }
 
-InternalTable QueryExecutor::tableScan(InternalTable internalTable) {
-  auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
-                                     internalTable.schema->rawTable().primary_key_index().id());
+InternalTable QueryExecutor::tableScan(InternalTable internalTable,
+                                       IndexQueryOptions indexQueryOptions) {
 
-  auto kvRows = rocks_->scan(key, RocksReaderWriter::ScanDirection::Forward);
+  if (internalTable.schema->rawTable().primary_key_index().id()
+      == indexQueryOptions.indexId) {
 
-  return RowSerializer::deserialize(internalTable.schema, kvRows);
-}
+    auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
+                                       internalTable.schema->rawTable().primary_key_index().id());
+    auto kvRows = rocks_->scan(key, indexQueryOptions.direction);
+    return RowSerializer::deserialize(internalTable.schema, kvRows);
+  } else {
+    auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
+                                       indexQueryOptions.indexId);
+
+    auto kvRows = rocks_->scan(key, indexQueryOptions.direction);
+
+    auto primaryKeys = RowSerializer::deserialize(internalTable.schema, kvRows);
+
+    return primaryKeys;
+  }
+};
 
 }

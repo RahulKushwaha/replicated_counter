@@ -87,7 +87,17 @@ target_link_libraries(MetadataServer ${SERVER_LIBS})
 
 enable_testing()
 
-add_executable(tests ${TEST_FILES_LIST})
+set(
+        TEST_LIBS
+
+        folly
+        gmock
+        gtest
+        gtest_main
+        proto-objects
+        ${PROTOBUF_LIBRARIES}
+        prometheus-cpp::pull
+)
 
 option(MYDB "ENABLE mydb" OFF)
 if (MYDB)
@@ -102,6 +112,7 @@ if (MYDB)
             applications/mydb/backend/KeySerializer.h
             applications/mydb/backend/QueryExecutor.cc
             applications/mydb/backend/QueryExecutor.h
+            applications/mydb/backend/QueryOptions.h
             applications/mydb/backend/RocksDbFactory.h
             applications/mydb/backend/RocksReaderWriter.cc
             applications/mydb/backend/RocksReaderWriter.h
@@ -111,21 +122,41 @@ if (MYDB)
             applications/mydb/backend/TableRow.h
     )
 
-    add_executable(mydb applications/mydb/main.cc ${SOURCE_FILES_LIST} ${MY_DB_SOURCE_FILES_LIST})
+    set(
+            MY_DB_TEST_FILES_LIST
 
+            applications/mydb/backend/Common.h
+            applications/mydb/backend/KeySerializer.cc
+            applications/mydb/backend/KeySerializer.h
+            applications/mydb/backend/QueryExecutor.cc
+            applications/mydb/backend/QueryExecutor.h
+            applications/mydb/backend/QueryOptions.h
+            applications/mydb/backend/RocksDbFactory.h
+            applications/mydb/backend/RocksReaderWriter.cc
+            applications/mydb/backend/RocksReaderWriter.h
+            applications/mydb/backend/RowSerializer.h
+            applications/mydb/backend/SchemaStore.h
+            applications/mydb/backend/TableRow.cc
+            applications/mydb/backend/TableRow.h
+
+            applications/mydb/backend/tests/TestUtils.h
+            applications/mydb/backend/tests/TestUtils.cc
+
+            applications/mydb/backend/tests/KeySerializerTests.cc
+            applications/mydb/backend/tests/RowSerializerTests.cc
+            applications/mydb/backend/tests/RocksReaderWriterTests.cc
+            applications/mydb/backend/tests/KeyParserTests.cc
+            applications/mydb/backend/tests/QueryExecutorTests.cc
+    )
+
+    add_executable(mydb applications/mydb/main.cc ${SOURCE_FILES_LIST} ${MY_DB_SOURCE_FILES_LIST})
     target_link_libraries(mydb ${SERVER_LIBS} Arrow::arrow_shared ${ROCKS_DB_LIB})
-    target_link_libraries(tests Arrow::arrow_shared ${ROCKS_DB_LIB})
-    message(${ROCKSDB_LIBRARIES}/)
+
+    add_executable(mydb_tests ${MY_DB_TEST_FILES_LIST})
+    target_link_libraries(mydb_tests Arrow::arrow_shared ${ROCKS_DB_LIB} ${TEST_LIBS})
 endif ()
 unset(MYDB CACHE)
 
-target_link_libraries(tests
-        # Sorted lines below.
-        folly
-        gmock
-        gtest
-        gtest_main
-        proto-objects
-        ${PROTOBUF_LIBRARIES}
-        prometheus-cpp::pull
-        )
+add_executable(tests ${TEST_FILES_LIST})
+
+target_link_libraries(tests ${TEST_LIBS})

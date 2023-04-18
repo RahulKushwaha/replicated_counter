@@ -5,6 +5,7 @@
 #pragma once
 #include "applications/mydb/backend/TableRow.h"
 #include "rocksdb/db.h"
+#include "QueryOptions.h"
 
 namespace rk::projects::mydb {
 
@@ -13,11 +14,6 @@ class RocksReaderWriter {
 
   explicit RocksReaderWriter(rocksdb::DB *db);
 
-  enum class ScanDirection {
-    Forward,
-    Backward,
-  };
-
   bool write(std::vector<RawTableRow> rows);
 
   std::vector<RawTableRow> read(std::vector<RawTableRow::Key> keys);
@@ -25,7 +21,7 @@ class RocksReaderWriter {
   bool del(std::vector<RawTableRow::Key> keys);
 
   std::vector<RawTableRow>
-  scan(std::string prefix, RocksReaderWriter::ScanDirection direction);
+  scan(std::string prefix, ScanDirection direction);
 
   std::unique_ptr<rocksdb::ManagedSnapshot> createSnapshot();
 

@@ -1,7 +1,7 @@
 //
 // Created by Rahul  Kushwaha on 4/7/23.
 //
-#pragma once
+
 #include "TestUtils.h"
 #include "arrow/table.h"
 #include <arrow/compute/api.h>
