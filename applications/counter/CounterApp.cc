@@ -66,21 +66,12 @@ CounterApp::batchUptate(std::vector<Operation> operations) {
 }
 
 
-
 std::vector<CounterApp::CounterValue> CounterApp::sync(LogId to) {
   LogId logIdToApply = lastAppliedEntry_ + 1;
   std::vector<CounterApp::CounterValue> counterValues;
   while (logIdToApply <= to) {
     if (logIdToApply == to) {
-      CounterLogEnteries logEnteries = applyLogEntries(logIdToApply);
-
-      for (const auto &entry: logEnteries.enteries()) {
-        CounterApp::CounterValue value;
-        value.val = entry.val();
-        value.key = entry.key();
-        counterValues.emplace_back(std::move(value));
-
-      }
+      counterValues = applyLogEntries(logIdToApply);
 
     } else {
       applyLogEntries(logIdToApply);
@@ -92,18 +83,17 @@ std::vector<CounterApp::CounterValue> CounterApp::sync(LogId to) {
 }
 
 
-CounterLogEnteries
+std::vector<CounterApp::CounterValue>
 CounterApp::applyLogEntries(LogId logIdToApply) {
   auto logEntryResponse = virtualLog_->getLogEntry(logIdToApply).get();
-  if (!std::__1::holds_alternative<LogEntry>(logEntryResponse)) {
+  if (!std::holds_alternative<LogEntry>(logEntryResponse)) {
     throw std::runtime_error{
         "Non Recoverable Error[Found unknown entry]. The application must crash."};
   }
 
-  auto logEntrySerialized = std::__1::get<LogEntry>(logEntryResponse);
+  auto logEntrySerialized = std::get<LogEntry>(logEntryResponse);
   auto logEnteries = deserialize(logEntrySerialized.payload);
-  apply(logEnteries);
-  return logEnteries;
+  return apply(logEnteries);
 }
 
 
@@ -124,9 +114,10 @@ CounterApp::serialize(const std::vector<Operation> &operations) {
   CounterLogEnteries enteries;
 
   for (auto op: operations) {
-    CounterLogEntry entry;
+
 
     if (std::holds_alternative<CounterApp::IncrOperation>(op)) {
+      CounterLogEntry entry;
       entry.set_commandtype(CounterLogEntry_CommandType_INCR);
       CounterApp::IncrOperation
           incrOperation = std::get<CounterApp::IncrOperation>(op);
@@ -134,11 +125,12 @@ CounterApp::serialize(const std::vector<Operation> &operations) {
       entry.set_val(incrOperation.incrBy);
       enteries.mutable_enteries()->Add(std::move(entry));
     } else if (std::holds_alternative<CounterApp::DecrOperation>(op)) {
-      entry.set_commandtype(CounterLogEntry_CommandType_INCR);
+      CounterLogEntry entry;
+      entry.set_commandtype(CounterLogEntry_CommandType_DECR);
       CounterApp::DecrOperation
           decrOperation = std::get<CounterApp::DecrOperation>(op);
       entry.set_key(std::move(decrOperation.key));
-      entry.set_val(decrOperation.incrBy);
+      entry.set_val(decrOperation.decrBy);
       enteries.mutable_enteries()->Add(std::move(entry));
     }
 
@@ -154,22 +146,35 @@ CounterApp::deserialize(const std::string &payload) {
   return enteries;
 }
 
-void CounterApp::apply(const CounterLogEnteries &counterLogEnteries) {
+std::vector<CounterApp::CounterValue>
+CounterApp::apply(const CounterLogEnteries &counterLogEnteries) {
 
+
+  std::vector<CounterApp::CounterValue> counterValues;
   for (const auto &counterLogEntry: counterLogEnteries.enteries()) {
     auto &val = lookup_[counterLogEntry.key()];
+
+    CounterValue counterValue;
 
     if (counterLogEntry.commandtype()
         == CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR) {
       val.store(val + counterLogEntry.val());
+      counterValue.key = counterLogEntry.key();
+      counterValue.val = val;
+      counterValues.emplace_back(std::move(counterValue));
+
     } else if (counterLogEntry.commandtype()
         == CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR) {
       val.store(val - counterLogEntry.val());
+      counterValue.key = counterLogEntry.key();
+      counterValue.val = val;
+      counterValues.emplace_back(std::move(counterValue));
     } else {
       throw std::runtime_error{
           "Unknown Command. This is a non-recoverable error."};
     }
   }
+  return counterValues;
 }
 
 }
