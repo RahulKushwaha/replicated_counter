@@ -99,7 +99,7 @@ set(
         prometheus-cpp::pull
 )
 
-option(MYDB "ENABLE mydb" OFF)
+option(MYDB "ENABLE mydb" ON)
 if (MYDB)
     find_package(Arrow REQUIRED)
     find_package(Rocksdb REQUIRED)

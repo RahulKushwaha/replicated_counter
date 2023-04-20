@@ -36,6 +36,7 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
   TokenType current{TokenType::DB_ID};
   bool indexKeyPartsColId = true;
   KeyFragments keyFragments;
+  internal::SecondaryIndex secondaryIndex;
 
   auto length = key.size();
   std::size_t i = 0;
@@ -63,6 +64,13 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
           current = TokenType::PRIMARY_KEY_PARTS;
         } else {
           keyFragments.secondaryIndex = {KeyFragments::Index{indexId}};
+          for (const auto &idx: table.secondary_index()) {
+            if (idx.id() == indexId) {
+              secondaryIndex = idx;
+              break;
+            }
+          }
+
           current = TokenType::SECONDARY_INDEX_KEY_PARTS;
         }
       }
@@ -93,6 +101,11 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
         }
 
         indexKeyPartsColId = !indexKeyPartsColId;
+
+        if (keyFragments.secondaryIndex->values.size()
+            == secondaryIndex.column_ids().size()) {
+          current = TokenType::PRIMARY_KEY_PARTS;
+        }
       }
         break;
 
@@ -155,6 +168,20 @@ std::string minimumIndexKey(const internal::Table &table,
      << indexId;
 
   return ss.str();
+}
+
+std::string maximumIndexKey(const internal::Table &table,
+                            TableSchemaType::TableIdType indexId,
+                            std::vector<ColumnValue> values) {
+  if (table.primary_key_index().id() == indexId) {
+    std::stringstream ss;
+    ss << primaryKey(table, values) << DEFAULT_ESCAPE_CHARACTER
+       << std::numeric_limits<TableSchemaType::ColumnIdType>::max();
+
+    return ss.str();
+  }
+
+  throw std::runtime_error{"i should not be here"};
 }
 
 std::string

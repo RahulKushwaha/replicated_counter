@@ -4,10 +4,11 @@
 #include <gtest/gtest.h>
 #include "rocksdb/db.h"
 #include "applications/mydb/backend/RocksDbFactory.h"
+#include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/RocksReaderWriter.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
-#include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/QueryExecutor.h"
+#include "TestUtils.h"
 
 namespace rk::projects::mydb {
 
@@ -34,7 +35,6 @@ class QueryExecutorTests: public ::testing::Test {
   ~QueryExecutorTests() override {
     db_->Close();
     auto status = rocksdb::DestroyDB(config.path, rocksdb::Options{});
-    LOG(INFO) << status.ToString();
     assert(status.ok());
   }
 
@@ -52,20 +52,94 @@ class QueryExecutorTests: public ::testing::Test {
   }
 };
 
-TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
+TEST_F(QueryExecutorTests, getNonExistingRow) {
+  auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
+  auto response = queryExecutor_->get(internalTable);
+
+  for (const auto &responseColumn: response.table->columns()) {
+    ASSERT_EQ(0, responseColumn->length());
+  }
+}
+
+TEST_F(QueryExecutorTests, insertAndGet) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
 
-  queryExecutor_->insert(internalTable, InsertOptions{});
-
-  auto response =
-      queryExecutor_->tableScan(InternalTable{.schema = internalTable.schema},
-                                IndexQueryOptions{.indexId = internalTable.schema->rawTable().primary_key_index().id(), .direction = ScanDirection::FORWARD});
+  queryExecutor_->insert(internalTable, InsertOptions::REPLACE);
+  auto response = queryExecutor_->get(internalTable);
 
   ASSERT_TRUE(internalTable.table->Equals(*response.table));
 }
 
-TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
+TEST_F(QueryExecutorTests, insertAndReplace) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
+
+  queryExecutor_->insert(internalTable, InsertOptions::REPLACE);
+  auto response = queryExecutor_->get(internalTable);
+
+  ASSERT_TRUE(internalTable.table->Equals(*response.table));
+}
+
+TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
+  auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
+
+  queryExecutor_->insert(internalTable, InsertOptions{});
+  IndexQueryOptions queryOptions
+      {
+          .indexId = internalTable.schema->rawTable().primary_key_index().id(),
+          .direction = ScanDirection::FORWARD,
+          .maxRowsReturnSize = std::numeric_limits<std::int32_t>::max()
+      };
+
+  auto response =
+      queryExecutor_->tableScan(InternalTable{.schema = internalTable.schema},
+                                queryOptions);
+
+  ASSERT_TRUE(internalTable.table->Equals(*response.table));
+}
+
+TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndexWithBatchSize) {
+  auto totalRows = 10;
+  auto batchSize = 2;
+  auto internalTable = test_utils::getInternalTable(totalRows, 5, 5, 3, 2, 3);
+
+  queryExecutor_->insert(internalTable, InsertOptions{});
+
+  std::vector<ColumnValue> primaryKeyValues;
+
+  for (auto i = 0; i < totalRows / batchSize; i++) {
+    LOG(INFO) << "Iteration: " << i << " started";
+    auto startOffset = i * batchSize;
+    IndexQueryOptions queryOptions
+        {
+            .indexId = internalTable.schema->rawTable().primary_key_index().id(),
+            .direction = ScanDirection::FORWARD,
+            .startFromKey = primaryKeyValues,
+            .maxRowsReturnSize = 2,
+        };
+
+    auto response =
+        queryExecutor_->tableScan(InternalTable{.schema = internalTable.schema},
+                                  queryOptions);
+
+    auto slice = internalTable.table->Slice(startOffset, batchSize);
+    LOG(INFO) << slice->ToString();
+    LOG(INFO) << response.table->ToString();
+    ASSERT_TRUE(slice->Equals(*response.table));
+
+    LOG(INFO) << "Iteration: " << i << " completed";
+
+    auto lastRow = response.table->Slice(batchSize - 1, 1);
+    auto keyValues =
+        RowSerializer::serialize(InternalTable{internalTable.schema,
+                                               lastRow});
+    ASSERT_EQ(keyValues.size(), 1);
+    primaryKeyValues =
+        test_utils::parsePrimaryKeyValues({internalTable.schema, lastRow});
+  }
+}
+
+TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
+  auto internalTable = test_utils::getInternalTable(1, 5, 5, 3, 1, 1);
 
   queryExecutor_->insert(internalTable, InsertOptions{});
 
@@ -77,7 +151,7 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
             },
             IndexQueryOptions{
                 .indexId = idx.id(),
-                .direction = ScanDirection::FORWARD
+                .direction = ScanDirection::FORWARD,
             });
 
     LOG(INFO) << response.table->ToString() << std::endl;

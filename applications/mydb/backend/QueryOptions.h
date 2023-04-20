@@ -18,9 +18,16 @@ enum class ScanDirection {
   BACKWARD,
 };
 
+struct ScanOptions {
+  ScanDirection direction;
+  std::int32_t maxRowsReturnSize;
+};
+
 struct IndexQueryOptions {
   TableSchemaType::TableIdType indexId;
   ScanDirection direction;
+  std::vector<ColumnValue> startFromKey;
+  std::int32_t maxRowsReturnSize;
 };
 
 }

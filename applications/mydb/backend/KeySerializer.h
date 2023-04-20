@@ -43,6 +43,10 @@ primaryKey(const internal::Table &table,
 std::string minimumIndexKey(const internal::Table &table,
                             TableSchemaType::TableIdType indexId);
 
+std::string maximumIndexKey(const internal::Table &table,
+                            TableSchemaType::TableIdType indexId,
+                            std::vector<ColumnValue> values);
+
 std::string
 columnKey(const std::string &primaryKey, std::uint32_t colId);
 

@@ -36,4 +36,5 @@ InternalTable getInternalTable(std::int32_t numRows = 10,
                                int numSecondaryIndex = 2,
                                int numColumnsInSecondaryIndex = 1);
 
+std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable);
 }

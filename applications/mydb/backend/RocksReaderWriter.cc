@@ -61,20 +61,28 @@ RocksReaderWriter::read(std::vector<RawTableRow::Key> keys) {
 }
 
 std::vector<RawTableRow>
-RocksReaderWriter::scan(std::string prefix, ScanDirection direction) {
+RocksReaderWriter::scan(std::string prefix, ScanOptions scanOptions) {
+  LOG(INFO) << "PREFIX: " << prefix;
   std::vector<RawTableRow> rows;
-
+  LOG(INFO) << "Total Rows To Return: " << scanOptions.maxRowsReturnSize;
   auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
   itr->Seek(prefix);
   std::string prevKey = "SOME WEIRD STRING";
 
   RawTableRow row;
   while (itr->Valid()) {
-    LOG(INFO) << itr->key().ToString();
     if (itr->key().starts_with(prevKey)) {
 
     } else if (itr->key().starts_with(prefix)) {
-      rows.emplace_back(std::move(row));
+      if (rows.size() == scanOptions.maxRowsReturnSize) {
+        break;
+      }
+
+      // TODO(RAHUL): Fix this hack.
+      if (!row.keyValues.empty()) {
+        rows.emplace_back(std::move(row));
+      }
+
       row = RawTableRow{};
       prevKey = itr->key().ToString();
     } else {
@@ -87,7 +95,9 @@ RocksReaderWriter::scan(std::string prefix, ScanDirection direction) {
     itr->Next();
   }
 
-  rows.emplace_back(std::move(row));
+  if (rows.size() < scanOptions.maxRowsReturnSize && !row.keyValues.empty()) {
+    rows.emplace_back(std::move(row));
+  }
 
   return rows;
 }
