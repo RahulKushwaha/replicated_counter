@@ -15,14 +15,14 @@ class MockReplica: public Replica {
 
   MOCK_METHOD(folly::SemiFuture<folly::Unit>,
               append,
-              (LogId logId, std::string logEntryPayload, bool skipSeal),
+              (VersionId versionId, LogId logId, std::string logEntryPayload, bool skipSeal),
               (override));
 
   MOCK_METHOD((folly::SemiFuture<std::variant<LogEntry, LogReadError>>),
               getLogEntry,
-              (LogId logId), (override));
+              (VersionId versionId, LogId logId), (override));
 
-  MOCK_METHOD(LogId, getLocalCommitIndex, (), (override));
+  MOCK_METHOD(LogId, getLocalCommitIndex, (VersionId versionId), (override));
 
   MOCK_METHOD(LogId, seal, (VersionId versionId), (override));
 };

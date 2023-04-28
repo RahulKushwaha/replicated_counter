@@ -27,7 +27,7 @@ class RemoteSequencer final: public Sequencer {
     return sequencerClient_->latestAppendPosition();
   }
 
-  void start(LogId sequenceNum) override {
+  void start(VersionId versionId, LogId sequenceNum) override {
     throw NotImplementedException{};
   }
 

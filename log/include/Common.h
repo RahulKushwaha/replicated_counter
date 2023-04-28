@@ -10,6 +10,7 @@
 namespace rk::projects::durable_log {
 
 using LogId = std::int64_t;
+using VersionId = std::int64_t;
 
 constexpr LogId
     LowestNonExistingLogId = std::numeric_limits<std::int64_t>::min();
@@ -47,6 +48,13 @@ class NotImplementedException: public std::exception {
  public:
   const char *what() const _NOEXCEPT override {
     return "Method Not Implmented";
+  }
+};
+
+class MetadataBlockNotFound: public std::exception {
+ public:
+  const char *what() const _NOEXCEPT override {
+    return "metadatablock not found";
   }
 };
 

@@ -15,9 +15,10 @@ std::size_t constexpr MAXIMUM_SEQUENCER_RETIRES = 0;
 SequencerImpl::SequencerImpl(
     std::string id,
     std::vector<std::shared_ptr<Replica>> replicaSet, LogId seedSeqNum,
-    bool isAlive) :
+    VersionId versionId, bool isAlive) :
     id_{std::move(id)},
     replicaSet_{std::move(replicaSet)}, sequenceNum_{seedSeqNum},
+    versionId_{versionId},
     quorumSize_{(std::int32_t) replicaSet_.size() / 2 + 1},
     isAlive_{isAlive} {
   LOG(INFO) << "Sequencer Initialized with seed: " << sequenceNum_;
@@ -52,7 +53,7 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
             futures;
         for (auto &replica: replicaSet_) {
           folly::SemiFuture<folly::Unit>
-              future = replica->append(logId, logEntryPayload);
+              future = replica->append(versionId_, logId, logEntryPayload);
           futures.emplace_back(std::move(future));
         }
 
@@ -73,8 +74,9 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
       });
 }
 
-void SequencerImpl::start(LogId sequenceNum) {
+void SequencerImpl::start(VersionId versionId, LogId sequenceNum) {
   sequenceNum_.store(sequenceNum);
+  versionId_ = versionId;
   isAlive_ = true;
 }
 

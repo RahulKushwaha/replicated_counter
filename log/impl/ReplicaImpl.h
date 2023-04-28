@@ -23,14 +23,14 @@ class ReplicaImpl: public Replica {
   std::string getName() override;
 
   folly::SemiFuture<folly::Unit>
-  append(LogId logId,
+  append(VersionId versionId, LogId logId,
          std::string logEntryPayload,
          bool skipSeal = false) override;
 
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(LogId logId) override;
+  getLogEntry(VersionId versionId, LogId logId) override;
 
-  LogId getLocalCommitIndex() override;
+  LogId getLocalCommitIndex(VersionId versionId) override;
 
   LogId seal(VersionId versionId) override;
 

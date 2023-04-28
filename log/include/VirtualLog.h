@@ -15,9 +15,11 @@ class VirtualLog {
  public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
+
   virtual folly::SemiFuture<LogId> append(std::string logEntryPayload) = 0;
   virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) = 0;
+
   virtual folly::coro::Task<MetadataConfig> getCurrentConfig() = 0;
   virtual folly::coro::Task<MetadataConfig>
   reconfigure(MetadataConfig metadataConfig) = 0;

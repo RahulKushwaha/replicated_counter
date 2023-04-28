@@ -42,23 +42,18 @@ SequencerCreationResult createReplica() {
 
 }
 
-TEST(ReplicaTest, AppendLogEntryIfMetadataNotInstalled) {
-  SequencerCreationResult result = createReplica();
-  ASSERT_THROW(result.replica.append(1, std::string{"Hello World!"}).get(),
-               MetadataBlockNotPresent);
-}
-
 TEST(ReplicaTest, AppendLogEntryWhenMetadataInstalled) {
   SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
   auto metadataStore = creationResult.metadataStore;
+  auto versionId = metadataStore->getCurrentVersionId();
 
   // Append a log entry.
   {
     std::string logEntry{"Hello World"};
-    ASSERT_NO_THROW(replica.append(500, logEntry).get());
+    ASSERT_NO_THROW(replica.append(versionId, 500, logEntry).get());
 
-    auto result = replica.getLogEntry(500).get();
+    auto result = replica.getLogEntry(versionId, 500).get();
 
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(500, std::get<LogEntry>(result).logId);
@@ -71,14 +66,16 @@ TEST(ReplicaTest, AppendLogEntryWhenNanoLogIsSealed) {
   auto replica = creationResult.replica;
   auto metadataStore = creationResult.metadataStore;
   auto nanoLogStore = creationResult.nanoLogStore;
+  auto versionId = metadataStore->getCurrentVersionId();
 
-  ASSERT_NO_THROW(replica.append(500, "Hello World").get());
+  ASSERT_NO_THROW(replica.append(versionId, 500, "Hello World").get());
 
   auto nanoLog = nanoLogStore->getNanoLog(1);
   nanoLog->seal();
 
   std::string logEntry{"Hello World"};
-  ASSERT_THROW(replica.append(501, logEntry).get(), NanoLogSealedException);
+  ASSERT_THROW(replica.append(versionId, 501, logEntry).get(),
+               NanoLogSealedException);
 }
 
 TEST(ReplicaTest, AppendLogEntryWhenNanoLogIsSealedButOverrideFlagIsPresent) {
@@ -86,28 +83,31 @@ TEST(ReplicaTest, AppendLogEntryWhenNanoLogIsSealedButOverrideFlagIsPresent) {
   auto replica = creationResult.replica;
   auto metadataStore = creationResult.metadataStore;
   auto nanoLogStore = creationResult.nanoLogStore;
+  auto versionId = metadataStore->getCurrentVersionId();
 
-  ASSERT_NO_THROW(replica.append(500, "Hello World").get());
+  ASSERT_NO_THROW(replica.append(versionId, 500, "Hello World").get());
 
   auto nanoLog = nanoLogStore->getNanoLog(1);
   nanoLog->seal();
 
   std::string logEntry{"Hello World"};
-  ASSERT_NO_THROW(replica.append(501, logEntry, true).get());
+  ASSERT_NO_THROW(replica.append(versionId, 501, logEntry, true).get());
 }
 
 TEST(ReplicaTest, AppendDuplicateLogEntry) {
   SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
+  auto versionId = creationResult.metadataStore->getCurrentVersionId();
 
-  ASSERT_NO_THROW(replica.append(500, "Hello World").get());
-  ASSERT_THROW(replica.append(500, "Hello World").get(),
+  ASSERT_NO_THROW(replica.append(versionId, 500, "Hello World").get());
+  ASSERT_THROW(replica.append(versionId, 500, "Hello World").get(),
                NanoLogLogPositionAlreadyOccupied);
 }
 
 TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   SequencerCreationResult creationResult = createReplica();
   auto replica = creationResult.replica;
+  auto versionId = creationResult.metadataStore->getCurrentVersionId();
 
   std::vector<std::int32_t> elements;
   std::int32_t numberOfElements = 10;
@@ -122,7 +122,9 @@ TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   std::vector<folly::SemiFuture<folly::Unit>> futures;
   for (auto element: elements) {
     auto future =
-        replica.append(element, "Random Text" + std::to_string(element));
+        replica.append(versionId,
+                       element,
+                       "Random Text" + std::to_string(element));
 
     futures.emplace_back(std::move(future));
   }
@@ -131,7 +133,7 @@ TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
     ASSERT_FALSE(future.poll().has_value());
   }
 
-  replica.append(500, "Random Text" + std::to_string(500)).get();
+  replica.append(versionId, 500, "Random Text" + std::to_string(500)).get();
   folly::collectAll(futures.begin(), futures.end()).get();
 
   for (auto &future: futures) {

@@ -13,7 +13,7 @@ class Sequencer {
   virtual std::string getId() = 0;
   virtual folly::SemiFuture<LogId> append(std::string logEntryPayload) = 0;
   virtual folly::SemiFuture<LogId> latestAppendPosition() = 0;
-  virtual void start(LogId sequenceNum) = 0;
+  virtual void start(VersionId versionId, LogId sequenceNum) = 0;
   virtual bool isAlive() = 0;
   virtual void stop() = 0;
   virtual ~Sequencer() = default;

@@ -27,7 +27,8 @@ ReplicaServer::append(::grpc::ServerContext *context,
                       const server::ReplicaAppendRequest *request,
                       ::google::protobuf::Empty *response) {
   try {
-    replica_->append(request->log_id(),
+    replica_->append(request->version_id(),
+                     request->log_id(),
                      request->payload(),
                      request->skip_seal())
         .get();
@@ -43,7 +44,8 @@ ReplicaServer::getLogEntry(::grpc::ServerContext *context,
                            const server::GetLogEntryRequest *request,
                            server::GetLogEntryResponse *response) {
   try {
-    auto logEntryResponse = replica_->getLogEntry(request->log_id()).get();
+    auto logEntryResponse =
+        replica_->getLogEntry(request->version_id(), request->log_id()).get();
 
     if (std::holds_alternative<durable_log::LogEntry>(logEntryResponse)) {
       auto logEntry = std::get<durable_log::LogEntry>(logEntryResponse);
@@ -74,10 +76,10 @@ ReplicaServer::getLogEntry(::grpc::ServerContext *context,
 
 grpc::Status
 ReplicaServer::getLocalCommitIndex(::grpc::ServerContext *context,
-                                   const ::google::protobuf::Empty *request,
+                                   const server::GetLocalCommitIndexRequest *request,
                                    server::LogIdResponse *response) {
   try {
-    response->set_log_id(replica_->getLocalCommitIndex());
+    response->set_log_id(replica_->getLocalCommitIndex(request->version_id()));
   } catch (const std::exception &e) {
     return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
   }

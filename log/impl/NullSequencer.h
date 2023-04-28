@@ -27,7 +27,7 @@ class NullSequencer: public Sequencer {
     throw NullSequencerException{};
   }
 
-  void start(LogId sequenceNum) override {
+  void start(VersionId versionId, LogId sequenceNum) override {
     throw NullSequencerException{};
   }
 

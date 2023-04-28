@@ -11,7 +11,6 @@
 #include <optional>
 
 namespace rk::projects::durable_log {
-using VersionId = std::int64_t;
 
 struct OptimisticConcurrencyException: public std::exception {
   const char *what() const noexcept override {

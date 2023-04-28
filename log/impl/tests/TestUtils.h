@@ -53,14 +53,14 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
           return "MOCK_REPLICA_" + utils::UuidGenerator::instance().generate();
         });
 
-    ON_CALL(*mockReplica, append(_, _, _))
+    ON_CALL(*mockReplica, append(_, _, _, _))
         .WillByDefault([]() {
           return folly::makeSemiFuture<folly::Unit>
               (folly::make_exception_wrapper<NonRecoverableError>(
                   NonRecoverableError{}));
         });
 
-    ON_CALL(*mockReplica, getLogEntry(_))
+    ON_CALL(*mockReplica, getLogEntry(_, _))
         .WillByDefault([]() {
           return folly::SemiFuture<std::variant<LogEntry, LogReadError>>
               (folly::make_exception_wrapper<NonRecoverableError>(
@@ -92,7 +92,8 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
       std::make_shared<SequencerImpl>(
           "SEQUENCER_" + utils::UuidGenerator::instance().generate(),
           replicaSet,
-          sequencerStartNum);
+          sequencerStartNum,
+          config.version_id());
   registry->registerSequencer(sequencer);
 
   config.mutable_sequencer_config()->set_id(sequencer->getId());
