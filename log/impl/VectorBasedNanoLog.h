@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../include/NanoLog.h"
-#include "../utils/OrderedCompletionQueue.h"
+#include "log/include/NanoLog.h"
+#include "log/utils/OrderedCompletionQueue.h"
 #include <map>
 
 namespace rk::projects::durable_log {

@@ -12,22 +12,28 @@ service ReplicaService {
 
   rpc getLogEntry(GetLogEntryRequest)returns(GetLogEntryResponse){}
 
-  rpc getLocalCommitIndex(google.protobuf.Empty) returns (LogIdResponse){}
+  rpc getLocalCommitIndex(GetLocalCommitIndexRequest) returns (LogIdResponse){}
 
   rpc seal(SealRequest) returns (LogIdResponse){}
 }
 
 message GetLogEntryRequest{
-  int64  log_id = 1;
+  int64 version_id = 1;
+  int64  log_id = 2;
 }
 
 message ReplicaAppendRequest{
-  int64 log_id = 1;
-  string payload = 2;
-  bool skip_seal = 3;
+  int64 version_id = 1;
+  int64 log_id = 2;
+  string payload = 3;
+  bool skip_seal = 4;
 }
 
 message SealRequest{
+  int64 version_id = 1;
+}
+
+message GetLocalCommitIndexRequest{
   int64 version_id = 1;
 }
 

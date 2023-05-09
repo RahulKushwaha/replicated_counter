@@ -4,9 +4,9 @@
 
 #include <gtest/gtest.h>
 #include "TestUtils.h"
-#include "../../include/VirtualLog.h"
-#include "../VirtualLogImpl.h"
-#include "../../utils/FutureUtils.h"
+#include "log/include/VirtualLog.h"
+#include "log/impl/VirtualLogImpl.h"
+#include "log/utils/FutureUtils.h"
 
 namespace rk::projects::durable_log {
 
@@ -125,11 +125,13 @@ TEST(VirtualLogTests, Reconfigure) {
   auto sequencerCreationResult = createSequencer(0);
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto metadataStore = sequencerCreationResult.metadataStore;
+  auto currentVersionId = metadataStore->getCurrentVersionId();
 
   int limit = 10;
   for (auto &replica: replicaSet) {
     for (int i = 1; i <= limit; i++) {
-      replica->append(i, "Log_Entry" + std::to_string(i)).get();
+      replica->append(currentVersionId,
+                      i, "Log_Entry" + std::to_string(i)).get();
     }
 
     limit += 10;
@@ -137,7 +139,7 @@ TEST(VirtualLogTests, Reconfigure) {
 
   int i = 10;
   for (auto &replica: replicaSet) {
-    ASSERT_EQ(replica->getLocalCommitIndex(), i + 1);
+    ASSERT_EQ(replica->getLocalCommitIndex(currentVersionId), i + 1);
     i += 10;
   }
 
@@ -166,7 +168,7 @@ TEST(VirtualLogTests, Reconfigure) {
        logId++) {
     std::vector<folly::SemiFuture<LogEntry>> futures;
     for (auto &replica: replicaSet) {
-      auto future = replica->getLogEntry(logId)
+      auto future = replica->getLogEntry(config->version_id(), logId)
           .via(&folly::InlineExecutor::instance())
           .thenValue([](std::variant<LogEntry, LogReadError> &&value) {
             if (std::holds_alternative<LogEntry>(value)) {
@@ -231,6 +233,7 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto metadataStore = sequencerCreationResult.metadataStore;
   auto sequencer = sequencerCreationResult.sequencer;
+  auto versionId = metadataStore->getCurrentVersionId();
 
   std::vector<std::vector<int>> logEntriesOrder{
       {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
@@ -244,19 +247,21 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   for (auto &replica: replicaSet) {
     auto &logEntries = logEntriesOrder[logEntriesIndex];
     for (const auto logEntry: logEntries) {
-      replica->append(logEntry, "Log_Entry" + std::to_string(logEntry));
+      replica->append(versionId,
+                      logEntry,
+                      "Log_Entry" + std::to_string(logEntry));
     }
 
     logEntriesIndex++;
   }
 
-  ASSERT_EQ(replicaSet[0]->getLocalCommitIndex(), 11);
-  ASSERT_EQ(replicaSet[1]->getLocalCommitIndex(), 11);
+  ASSERT_EQ(replicaSet[0]->getLocalCommitIndex(versionId), 11);
+  ASSERT_EQ(replicaSet[1]->getLocalCommitIndex(versionId), 11);
   // Replica 2,3,4 have holes. Therefore, they cannot ack to the entries after
   // the holes.
-  ASSERT_EQ(replicaSet[2]->getLocalCommitIndex(), 5);
-  ASSERT_EQ(replicaSet[3]->getLocalCommitIndex(), 6);
-  ASSERT_EQ(replicaSet[4]->getLocalCommitIndex(), 7);
+  ASSERT_EQ(replicaSet[2]->getLocalCommitIndex(versionId), 5);
+  ASSERT_EQ(replicaSet[3]->getLocalCommitIndex(versionId), 6);
+  ASSERT_EQ(replicaSet[4]->getLocalCommitIndex(versionId), 7);
 
 
   std::shared_ptr<VirtualLog>

@@ -2,9 +2,9 @@
 // Created by Rahul  Kushwaha on 1/2/23.
 //
 
-#ifndef LOGSTORAGE_NANOLOGSTOREIMPL_H
-#define LOGSTORAGE_NANOLOGSTOREIMPL_H
-#include "../include/NanoLogStore.h"
+#pragma once
+
+#include "log/include/NanoLogStore.h"
 #include <unordered_map>
 
 namespace rk::projects::durable_log {
@@ -21,5 +21,3 @@ class NanoLogStoreImpl: public NanoLogStore {
 };
 
 }
-
-#endif //LOGSTORAGE_NANOLOGSTOREIMPL_H

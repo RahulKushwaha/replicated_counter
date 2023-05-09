@@ -88,7 +88,7 @@ void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
       && lastConfig->first + 1 == newMetadataConfig.version_id()) {
     // Now we have an implicit contract that the new index is 1 greater than
     // last config index.
-    state_->configs_[versionId].set_end_index(newMetadataConfig.previous_version_end_index());
+    state_->configs_[versionId].set_end_index(newMetadataConfig.start_index());
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
     state_->logIdToConfig_[newMetadataConfig.start_index()] =
         newMetadataConfig;

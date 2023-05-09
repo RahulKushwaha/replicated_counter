@@ -5,7 +5,7 @@
 #include "ReplicaImpl.h"
 #include "VectorBasedNanoLog.h"
 #include "log/utils/UuidGenerator.h"
-#include <folly/executors/InlineExecutor.h>
+#include "folly/executors/InlineExecutor.h"
 
 namespace rk::projects::durable_log {
 
@@ -31,32 +31,24 @@ std::string ReplicaImpl::getName() {
 }
 
 folly::SemiFuture<folly::Unit>
-ReplicaImpl::append(LogId logId,
+ReplicaImpl::append(VersionId versionId, LogId logId,
                     std::string logEntryPayload, bool skipSeal) {
   std::lock_guard lk{*mtx_};
 
-  std::optional<MetadataConfig>
-      config = metadataStore_->getConfigUsingLogId(logId);
-
-  if (!config.has_value()) {
-    return folly::makeSemiFuture<folly::Unit>(folly::make_exception_wrapper<
-        MetadataBlockNotPresent>());
-  }
-
   std::shared_ptr<NanoLog>
-      nanoLog = nanoLogStore_->getNanoLog(config->version_id());
+      nanoLog = nanoLogStore_->getNanoLog(versionId);
 
   // If there is nanolog for the versionId, we need to create one.
   if (!nanoLog) {
     nanoLog = std::make_shared<VectorBasedNanoLog>
         (utils::UuidGenerator::instance().generate(),
          "VectorBasedNanoLog",
-         std::to_string(config->version_id()),
-         config->start_index(),
+         std::to_string(versionId),
+         logId,
          std::numeric_limits<std::int64_t>::max(),
          false);
 
-    nanoLogStore_->add(config->version_id(), nanoLog);
+    nanoLogStore_->add(versionId, nanoLog);
   }
 
   return nanoLog->append(logId, logEntryPayload, skipSeal)
@@ -71,19 +63,11 @@ ReplicaImpl::append(LogId logId,
 }
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-ReplicaImpl::getLogEntry(LogId logId) {
+ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
   std::lock_guard lk{*mtx_};
 
-  std::optional<MetadataConfig>
-      config = metadataStore_->getConfigUsingLogId(logId);
-
-  if (!config.has_value()) {
-    return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
-        (folly::make_exception_wrapper<MetadataBlockNotPresent>());
-  }
-
   std::shared_ptr<NanoLog>
-      nanoLog = nanoLogStore_->getNanoLog(config->version_id());
+      nanoLog = nanoLogStore_->getNanoLog(versionId);
 
   if (!nanoLog) {
     return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
@@ -93,14 +77,8 @@ ReplicaImpl::getLogEntry(LogId logId) {
   return folly::makeSemiFuture(nanoLog->getLogEntry(logId));
 }
 
-LogId ReplicaImpl::getLocalCommitIndex() {
+LogId ReplicaImpl::getLocalCommitIndex(VersionId versionId) {
   std::lock_guard lk{*mtx_};
-
-  VersionId versionId = metadataStore_->getCurrentVersionId();
-  auto config = metadataStore_->getConfigUsingLogId(versionId);
-  if (!config.has_value()) {
-    throw MetadataBlockNotPresent{};
-  }
 
   auto nanoLog = nanoLogStore_->getNanoLog(versionId);
   return nanoLog->getLocalCommitIndex();
@@ -109,25 +87,25 @@ LogId ReplicaImpl::getLocalCommitIndex() {
 LogId ReplicaImpl::seal(VersionId versionId) {
   std::lock_guard lk{*mtx_};
 
-  std::optional<MetadataConfig> config = metadataStore_->getConfig(versionId);
-  if (!config.has_value()) {
-    throw MetadataBlockNotPresent{};
-  }
-
   std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
+
+  auto config = metadataStore_->getConfig(versionId);
+  if (!config.has_value()) {
+    throw MetadataBlockNotFound{};
+  }
 
   // There might be a case where an empty segment might be sealed
   // due to multiple seal commands one after the another.
   if (!nanoLog) {
     nanoLog = std::make_shared<VectorBasedNanoLog>
-        ("id",
-         "name",
-         std::to_string(config->version_id()),
+        (utils::UuidGenerator::instance().generate(),
+         "VectorBasedNanoLog",
+         std::to_string(versionId),
          config->start_index(),
          std::numeric_limits<std::int64_t>::max(),
          false);
 
-    nanoLogStore_->add(config->version_id(), nanoLog);
+    nanoLogStore_->add(versionId, nanoLog);
 
     nanoLog = nanoLogStore_->getNanoLog(versionId);
   }

@@ -24,7 +24,7 @@ class ReplicaServer final: public server::ReplicaService::Service {
                            const server::GetLogEntryRequest *request,
                            server::GetLogEntryResponse *response) override;
   grpc::Status getLocalCommitIndex(::grpc::ServerContext *context,
-                                   const ::google::protobuf::Empty *request,
+                                   const server::GetLocalCommitIndexRequest *request,
                                    server::LogIdResponse *response) override;
   grpc::Status seal(::grpc::ServerContext *context,
                     const server::SealRequest *request,

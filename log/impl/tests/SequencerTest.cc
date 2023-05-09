@@ -13,12 +13,13 @@ TEST(SequencerTest, appendLogEntry) {
   auto sequencerCreationResult = createSequencer(0);
   auto sequencer = sequencerCreationResult.sequencer;
   auto replicaSet = sequencerCreationResult.replicaSet;
+  auto versionId = sequencerCreationResult.metadataStore->getCurrentVersionId();
 
   std::string logEntry{"Hello World"};
   ASSERT_EQ(sequencer->append(logEntry).get(), 1);
 
   for (auto &replica: replicaSet) {
-    auto result = replica->getLogEntry(1).get();
+    auto result = replica->getLogEntry(versionId, 1).get();
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(std::get<LogEntry>(result).logId, 1);
     ASSERT_EQ(std::get<LogEntry>(result).payload, logEntry);
@@ -30,12 +31,13 @@ TEST(SequencerTest, appendLogEntryWithMajorityFailing) {
   auto sequencer = sequencerCreationResult.sequencer;
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto goodReplicaSet = sequencerCreationResult.goodReplicaSet;
+  auto versionId = sequencerCreationResult.metadataStore->getCurrentVersionId();
 
   std::string logEntry{"Hello World"};
   ASSERT_THROW(sequencer->append(logEntry).get(), std::exception);
 
   for (auto &replica: goodReplicaSet) {
-    auto result = replica->getLogEntry(1).get();
+    auto result = replica->getLogEntry(versionId, 1).get();
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(std::get<LogEntry>(result).logId, 1);
     ASSERT_EQ(std::get<LogEntry>(result).payload, logEntry);

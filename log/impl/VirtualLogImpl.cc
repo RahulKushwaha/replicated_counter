@@ -62,8 +62,16 @@ folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
 VirtualLogImpl::getLogEntry(LogId logId) {
+  auto metadataConfig = metadataStore_->getConfigUsingLogId(logId);
+
+  if (!metadataConfig.has_value()) {
+    throw std::runtime_error{
+        "metadataconfig does not exist for the given log id"};
+  }
+
   return folly::futures::retrying(
-      [maxRetries = state_->replicaSet.size()](
+      [maxRetries = state_->replicaSet.size(),
+          versionId = state_->metadataConfig.version_id()](
           std::size_t count,
           const folly::exception_wrapper &) {
         if (count < maxRetries) {
@@ -71,9 +79,11 @@ VirtualLogImpl::getLogEntry(LogId logId) {
         } else {
           return folly::makeSemiFuture(false);
         }
-      }, [this, logId](std::size_t retryAttempt) {
+      },
+      [this, logId, versionId =
+      metadataConfig.value().version_id()](std::size_t retryAttempt) {
         auto &replica = state_->replicaSet[retryAttempt];
-        return replica->getLogEntry(logId)
+        return replica->getLogEntry(versionId, logId)
             .via(&folly::InlineExecutor::instance())
             .then([logId, retryAttempt](folly::Try<std::variant<LogEntry,
                                                                 LogReadError>>
@@ -128,7 +138,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   for (LogId logId = minLogId; logId < maxLogId; logId++) {
     std::vector<folly::SemiFuture<LogEntry>> futures;
     for (auto &replica: replicaSet) {
-      auto future = replica->getLogEntry(logId)
+      auto future = replica->getLogEntry(versionId, logId)
           .via(&folly::InlineExecutor::instance())
           .then([](folly::Try<std::variant<LogEntry, LogReadError>> &&result) {
             if (result.hasValue()
@@ -154,7 +164,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     for (auto &replica: state_->replicaSet) {
       folly::SemiFuture<folly::Unit>
           appendFuture =
-          replica->append(logEntry.logId, logEntry.payload, true)
+          replica->append(versionId, logEntry.logId, logEntry.payload, true)
               .via(&folly::InlineExecutor::instance());
 
       appendFutures.emplace_back(std::move(appendFuture));
@@ -204,12 +214,12 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
 
     try {
       metadataStore_->compareAndAppendRange(versionId, newConfig);
+      setState(newConfig.version_id());
+      state_->sequencer->start(newConfig.version_id(), newConfig.start_index());
+      co_return newConfig;
     } catch (const OptimisticConcurrencyException &e) {
       LOG(INFO) << "Some other replica was able to install metadata. "
                 << e.what();
-      setState(newConfig.version_id());
-      state_->sequencer->start(newConfig.start_index());
-      co_return newConfig;
     }
   }
 

@@ -26,9 +26,10 @@ folly::SemiFuture<std::string> ReplicaClient::getId() {
   return folly::makeSemiFuture<std::string>(folly::make_exception_wrapper<std::exception>());
 }
 
-folly::SemiFuture<folly::Unit> ReplicaClient::append(LogId logId,
-                                                     std::string logEntryPayload,
-                                                     bool skipSeal) {
+folly::SemiFuture<folly::Unit>
+ReplicaClient::append(VersionId versionId, LogId logId,
+                      std::string logEntryPayload,
+                      bool skipSeal) {
   google::protobuf::Empty response;
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
@@ -50,7 +51,7 @@ folly::SemiFuture<folly::Unit> ReplicaClient::append(LogId logId,
 }
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-ReplicaClient::getLogEntry(LogId logId) {
+ReplicaClient::getLogEntry(VersionId versionId, LogId logId) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
@@ -90,12 +91,14 @@ ReplicaClient::getLogEntry(LogId logId) {
       (std::move(err));
 }
 
-folly::SemiFuture<LogId> ReplicaClient::getLocalCommitIndex() {
+folly::SemiFuture<LogId>
+ReplicaClient::getLocalCommitIndex(VersionId versionId) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
   server::LogIdResponse response;
-  google::protobuf::Empty request;
+  server::GetLocalCommitIndexRequest request;
+  request.set_version_id(versionId);
 
   grpc::Status
       status = stub_->getLocalCommitIndex(&context, request, &response);

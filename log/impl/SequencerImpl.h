@@ -16,13 +16,14 @@ class SequencerImpl: public Sequencer {
   explicit SequencerImpl(std::string id,
                          std::vector<std::shared_ptr<Replica>> replicaSet,
                          LogId seedSeqNum,
+                         VersionId versionId,
                          bool isAlive = false);
 
  public:
   std::string getId() override;
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
   folly::SemiFuture<LogId> latestAppendPosition() override;
-  void start(LogId sequenceNum) override;
+  void start(VersionId versionId, LogId sequenceNum) override;
   bool isAlive() override;
   void stop() override;
   ~SequencerImpl() override = default;
@@ -31,6 +32,7 @@ class SequencerImpl: public Sequencer {
   std::string id_;
   std::vector<std::shared_ptr<Replica>> replicaSet_;
   std::atomic<LogId> sequenceNum_;
+  VersionId versionId_;
   std::int32_t quorumSize_;
   std::atomic_bool isAlive_;
 };

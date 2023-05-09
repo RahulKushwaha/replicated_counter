@@ -73,7 +73,10 @@ makeReplica(std::string id,
 std::unique_ptr<Sequencer>
 makeSequencer(std::string sequencerId,
               std::vector<std::shared_ptr<Replica>> replicaSet) {
-  return std::make_unique<SequencerImpl>(sequencerId, std::move(replicaSet), 1);
+  return std::make_unique<SequencerImpl>(sequencerId,
+                                         std::move(replicaSet),
+                                         1,
+                                         1);
 }
 
 std::unique_ptr<Registry> makeRegistry() {

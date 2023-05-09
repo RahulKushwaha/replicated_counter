@@ -23,17 +23,23 @@ class RemoteReplica final: public Replica {
   }
 
   folly::SemiFuture<folly::Unit>
-  append(LogId logId, std::string logEntryPayload, bool skipSeal) override {
-    return replicaClient_->append(logId, std::move(logEntryPayload), skipSeal);
+  append(VersionId versionId,
+         LogId logId,
+         std::string logEntryPayload,
+         bool skipSeal) override {
+    return replicaClient_->append(versionId,
+                                  logId,
+                                  std::move(logEntryPayload),
+                                  skipSeal);
   }
 
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(LogId logId) override {
-    return replicaClient_->getLogEntry(logId);
+  getLogEntry(VersionId versionId, LogId logId) override {
+    return replicaClient_->getLogEntry(versionId, logId);
   }
 
-  LogId getLocalCommitIndex() override {
-    return replicaClient_->getLocalCommitIndex().get();
+  LogId getLocalCommitIndex(VersionId versionId) override {
+    return replicaClient_->getLocalCommitIndex(versionId).get();
   }
 
   LogId seal(VersionId versionId) override {
