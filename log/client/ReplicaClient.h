@@ -16,7 +16,9 @@ class ReplicaClient {
   explicit ReplicaClient(std::shared_ptr<grpc::Channel> channel);
 
   folly::SemiFuture<std::string> getId();
-  folly::SemiFuture<folly::Unit> append(VersionId versionId, LogId logId,
+  folly::SemiFuture<folly::Unit> append(std::optional<LogId> globalCommitIndex,
+                                        VersionId versionId,
+                                        LogId logId,
                                         std::string logEntryPayload,
                                         bool skipSeal);
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>

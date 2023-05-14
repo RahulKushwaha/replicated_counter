@@ -12,12 +12,12 @@ namespace rk::projects::durable_log {
 TEST(VectorBasedNanoLogTest, AppendWithoutSealDonotFail) {
   VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
 
-  ASSERT_NO_THROW(log.append(4, "").get()) << "No Exception";
+  ASSERT_NO_THROW(log.append({}, 4, "").get()) << "No Exception";
 }
 
 TEST(VectorBasedNanoLogTest, OutOfOrderAppendNeverFinishes) {
   VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
-  auto future = log.append(5, "");
+  auto future = log.append({}, 5, "");
 
   ASSERT_FALSE(future.isReady());
 }
@@ -26,14 +26,14 @@ TEST(VectorBasedNanoLogTest,
      OrderOfOrderAppendSucceedsAfterAllPreviousAreCompleted) {
   VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
 
-  auto future6 = log.append(6, "");
+  auto future6 = log.append({}, 6, "");
   ASSERT_FALSE(future6.isReady());
 
-  auto future5 = log.append(5, "");
+  auto future5 = log.append({}, 5, "");
   ASSERT_FALSE(future6.isReady());
   ASSERT_FALSE(future5.isReady());
 
-  auto future4 = log.append(4, "");
+  auto future4 = log.append({}, 4, "");
   ASSERT_EQ(future4.value(), 4);
   ASSERT_EQ(future5.value(), 5);
   ASSERT_EQ(future6.value(), 6);
@@ -60,7 +60,7 @@ TEST(VectorBasedNanoLogTest, MultipleUnorderedAppends) {
 
   std::map<LogId, folly::SemiFuture<LogId>> futures;
   for (auto logId: logIds) {
-    auto future = log.append(logId, "");
+    auto future = log.append({}, logId, "");
 
     futures.emplace(logId, std::move(future));
   }
@@ -80,7 +80,7 @@ TEST(VectorBasedNanoLogTest, FailedAppendsAfterSeal) {
   VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
   log.seal();
 
-  ASSERT_THROW(log.append(4, "").get(), NanoLogSealedException)
+  ASSERT_THROW(log.append({}, 4, "").get(), NanoLogSealedException)
                 << "Exception Thrown";
 }
 

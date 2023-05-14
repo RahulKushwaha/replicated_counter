@@ -27,7 +27,9 @@ folly::SemiFuture<std::string> ReplicaClient::getId() {
 }
 
 folly::SemiFuture<folly::Unit>
-ReplicaClient::append(VersionId versionId, LogId logId,
+ReplicaClient::append(std::optional<LogId> globalCommitIndex,
+                      VersionId versionId,
+                      LogId logId,
                       std::string logEntryPayload,
                       bool skipSeal) {
   google::protobuf::Empty response;
@@ -35,6 +37,7 @@ ReplicaClient::append(VersionId versionId, LogId logId,
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
   server::ReplicaAppendRequest request;
+  request.set_global_commit_index(globalCommitIndex.value());
   request.set_log_id(logId);
   request.set_payload(std::move(logEntryPayload));
   request.set_skip_seal(skipSeal);

@@ -32,9 +32,10 @@ std::string VectorBasedNanoLog::getMetadataVersionId() {
   return metadataVersionId_;
 }
 
-folly::SemiFuture<LogId> VectorBasedNanoLog::append(LogId logId,
-                                                    std::string logEntryPayload,
-                                                    bool skipSeal) {
+folly::SemiFuture<LogId>
+VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
+                           std::string logEntryPayload,
+                           bool skipSeal) {
   if (!skipSeal && sealed_) {
     return folly::makeSemiFuture<LogId>(
         folly::make_exception_wrapper<NanoLogSealedException>());
@@ -53,7 +54,12 @@ folly::SemiFuture<LogId> VectorBasedNanoLog::append(LogId logId,
   }
 
   auto [promise, future] = folly::makePromiseContract<LogId>();
-  completionQueue_.add(logId, std::move(promise), logId);
+  completionQueue_.add(logId,
+                       std::move(promise),
+                       logId);
+  if (globalCommitIndex.has_value()) {
+    completionQueue_.completeAllBelow(globalCommitIndex.value());
+  }
 
   return std::move(future);
 }

@@ -15,18 +15,15 @@ template<typename T>
 class OrderedCompletionQueue {
  public:
   explicit OrderedCompletionQueue(std::int64_t startIndex = 0)
-      : currentIndex_{startIndex} {}
+      : currentIndex_{startIndex} {
+  }
 
-  void
-  addAndCompleteOld(std::int64_t index, folly::Promise<T> promise, T result) {
-    PromiseState promiseState{std::move(promise), std::move(result)};
-    promises_[index] = std::move(promiseState);
-
+  void completeAllBelow(std::int64_t index) {
     std::vector<std::int64_t> toDelete;
 
     for (auto &[key, value]: promises_) {
       if (key <= index) {
-        value.promise.setValue(value.result);
+        value->promise.setValue(value->result);
         toDelete.push_back(key);
       }
     }
@@ -35,7 +32,11 @@ class OrderedCompletionQueue {
       promises_.erase(key);
     }
 
-    currentIndex_ = index;
+    if (index > currentIndex_) {
+      currentIndex_ = index;
+    }
+
+    checkAndCompleteAfterCurrentIndex();
   }
 
   /*
@@ -53,14 +54,23 @@ class OrderedCompletionQueue {
    * All promises from the currentIndex to the first hole are completed.
    * */
   void add(std::int64_t index, folly::Promise<T> promise, T result) {
-    PromiseState promiseState{std::move(promise), std::move(result)};
-    promises_[index] = std::move(promiseState);
+    promises_[index] =
+        std::make_shared<PromiseState>(PromiseState{std::move(promise),
+                                                    std::move(result)});
+    checkAndCompleteAfterCurrentIndex();
+  }
 
+  std::int64_t getCurrentIndex() {
+    return currentIndex_;
+  }
+
+ private:
+  void checkAndCompleteAfterCurrentIndex() {
     auto startIndex = currentIndex_;
     std::vector<std::int64_t> toDelete;
     for (auto &[key, value]: promises_) {
       if (key == startIndex) {
-        value.promise.setValue(value.result);
+        value->promise.setValue(value->result);
         toDelete.push_back(startIndex);
         startIndex++;
       } else {
@@ -75,10 +85,6 @@ class OrderedCompletionQueue {
     currentIndex_ = startIndex;
   }
 
-  std::int64_t getCurrentIndex() {
-    return currentIndex_;
-  }
-
  private:
   struct PromiseState {
     folly::Promise<T> promise;
@@ -86,7 +92,7 @@ class OrderedCompletionQueue {
   };
 
   std::int64_t currentIndex_;
-  std::map<std::int64_t, PromiseState> promises_;
+  std::map<std::int64_t, std::shared_ptr<PromiseState>> promises_;
 };
 
 }

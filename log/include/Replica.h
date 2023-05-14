@@ -18,7 +18,9 @@ class Replica {
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
   virtual folly::SemiFuture<folly::Unit>
-  append(VersionId versionId, LogId logId,
+  append(std::optional<LogId> globalCommitIndex,
+         VersionId versionId,
+         LogId logId,
          std::string logEntryPayload,
          bool skipSeal = false) = 0;
   virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>

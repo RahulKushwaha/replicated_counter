@@ -27,7 +27,8 @@ ReplicaServer::append(::grpc::ServerContext *context,
                       const server::ReplicaAppendRequest *request,
                       ::google::protobuf::Empty *response) {
   try {
-    replica_->append(request->version_id(),
+    replica_->append({request->global_commit_index()},
+                     request->version_id(),
                      request->log_id(),
                      request->payload(),
                      request->skip_seal())

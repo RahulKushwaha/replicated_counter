@@ -130,7 +130,7 @@ TEST(VirtualLogTests, Reconfigure) {
   int limit = 10;
   for (auto &replica: replicaSet) {
     for (int i = 1; i <= limit; i++) {
-      replica->append(currentVersionId,
+      replica->append({}, currentVersionId,
                       i, "Log_Entry" + std::to_string(i)).get();
     }
 
@@ -200,9 +200,10 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
        sequencerCreationResult.initialMetadataConfig.version_id(),
        sequencerCreationResult.registry);
 
-  constexpr int limit = 100;
+  int limit = 100;
   int totalNumberOfReconfigurations = 0;
   for (int i = 1; i <= limit; i++) {
+    std::cout << std::endl;
     auto logId = log->append("Log_Entry" + std::to_string(i)).get();
     ASSERT_EQ(logId, i);
 
@@ -247,7 +248,7 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   for (auto &replica: replicaSet) {
     auto &logEntries = logEntriesOrder[logEntriesIndex];
     for (const auto logEntry: logEntries) {
-      replica->append(versionId,
+      replica->append({}, versionId,
                       logEntry,
                       "Log_Entry" + std::to_string(logEntry));
     }

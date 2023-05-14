@@ -164,7 +164,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     for (auto &replica: state_->replicaSet) {
       folly::SemiFuture<folly::Unit>
           appendFuture =
-          replica->append(versionId, logEntry.logId, logEntry.payload, true)
+          replica->append({}, versionId, logEntry.logId, logEntry.payload, true)
               .via(&folly::InlineExecutor::instance());
 
       appendFutures.emplace_back(std::move(appendFuture));
@@ -226,7 +226,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   auto newVersionId = metadataStore_->getCurrentVersionId();
 
   setState(newVersionId);
-  co_return * metadataStore_->getConfig(newVersionId);
+  co_return *metadataStore_->getConfig(newVersionId);
 }
 
 folly::coro::Task<MetadataConfig> VirtualLogImpl::getCurrentConfig() {

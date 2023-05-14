@@ -131,7 +131,8 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
         makeReplica(config.replicaId, "", nanoLogStore, metadataStore);
 
     auto localReplicaServer =
-        std::make_shared<server::ReplicaServer>(localReplica);
+        std::make_shared<rk::projects::durable_log::server::ReplicaServer>(
+            localReplica);
 
     durable_log::server::runRPCServer(replicaAddress,
                                       localReplicaServer.get(),
@@ -183,8 +184,9 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
     std::shared_ptr<Sequencer>
         sequencer = makeSequencer(config.sequencerId, ensembleNode.replicaSet);
 
-    std::shared_ptr<server::SequencerServer> localSequencerServer =
-        std::make_shared<server::SequencerServer>(sequencer);
+    auto localSequencerServer =
+        std::make_shared<rk::projects::durable_log::server::SequencerServer>(
+            sequencer);
 
     ensembleNode.sequencer = localSequencerServer;
 
@@ -227,8 +229,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
           std::make_shared<FailureDetectorImpl>(healthCheck,
                                                 log,
                                                 failureDetectorPool,
-                                                config,
-                                                replicaConfigs);
+                                                rk::projects::server::ServerConfig{});
       ensembleNode.failureDetector = failureDetector;
     }
 

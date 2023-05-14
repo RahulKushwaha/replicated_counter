@@ -15,7 +15,7 @@ class MockReplica: public Replica {
 
   MOCK_METHOD(folly::SemiFuture<folly::Unit>,
               append,
-              (VersionId versionId, LogId logId, std::string logEntryPayload, bool skipSeal),
+              (std::optional<LogId> globalCommitIndex, VersionId versionId, LogId logId, std::string logEntryPayload, bool skipSeal),
               (override));
 
   MOCK_METHOD((folly::SemiFuture<std::variant<LogEntry, LogReadError>>),

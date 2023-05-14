@@ -31,8 +31,11 @@ std::string ReplicaImpl::getName() {
 }
 
 folly::SemiFuture<folly::Unit>
-ReplicaImpl::append(VersionId versionId, LogId logId,
-                    std::string logEntryPayload, bool skipSeal) {
+ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
+                    VersionId versionId,
+                    LogId logId,
+                    std::string logEntryPayload,
+                    bool skipSeal) {
   std::lock_guard lk{*mtx_};
 
   std::shared_ptr<NanoLog>
@@ -51,7 +54,7 @@ ReplicaImpl::append(VersionId versionId, LogId logId,
     nanoLogStore_->add(versionId, nanoLog);
   }
 
-  return nanoLog->append(logId, logEntryPayload, skipSeal)
+  return nanoLog->append(globalCommitIndex, logId, logEntryPayload, skipSeal)
       .via(&folly::InlineExecutor::instance())
       .then([](folly::Try<LogId> &&logId) {
         if (logId.hasValue()) {
