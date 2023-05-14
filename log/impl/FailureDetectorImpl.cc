@@ -74,13 +74,13 @@ folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
         virtualLog_->reconfigure(config);
         reconfigurationSuccess.Increment();
       } catch (const std::exception &e) {
-        LOG(ERROR) << "failed to reconfigure" << e.what();
+        LOG(ERROR) << "failed to reconfigure: " << e.what();
         reconfigurationFailure.Increment();
       }
     }
 
     // Wait for some time to see if the ensemble is back up and alive.
-    co_await folly::futures::sleep(std::chrono::milliseconds{2000});
+    co_await folly::futures::sleep(std::chrono::milliseconds{5000});
   }
 }
 

@@ -38,7 +38,7 @@ VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
                            bool skipSeal) {
   if (!skipSeal && sealed_) {
     return folly::makeSemiFuture<LogId>(
-        folly::make_exception_wrapper<NanoLogSealedException>());
+        folly::make_exception_wrapper<NanoLogSealedException>(metadataVersionId_));
   }
 
   auto result = logs_.emplace(logId, std::move(logEntryPayload));

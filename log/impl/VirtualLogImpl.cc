@@ -146,7 +146,16 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
               return std::get<LogEntry>(result.value());
             }
 
-            throw std::exception{};
+            if (result.hasValue()
+                && std::holds_alternative<LogReadError>(result.value())) {
+              std::stringstream ss;
+              ss << std::get<LogReadError>(result.value());
+
+              LOG(INFO) << "log read error: " << ss.str();
+              throw std::runtime_error{ss.str()};
+            }
+
+            throw result.exception().get_exception();
           });
 
       futures.emplace_back(std::move(future));
@@ -159,7 +168,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
               return result.second;
             })
             .get();
-
+    LOG(INFO) << "found log entry";
     std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
     for (auto &replica: state_->replicaSet) {
       folly::SemiFuture<folly::Unit>

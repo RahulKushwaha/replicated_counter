@@ -37,7 +37,11 @@ ReplicaClient::append(std::optional<LogId> globalCommitIndex,
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
   server::ReplicaAppendRequest request;
-  request.set_global_commit_index(globalCommitIndex.value());
+  if (globalCommitIndex.has_value()) {
+    request.set_global_commit_index(globalCommitIndex.value());
+  }
+
+  request.set_version_id(versionId);
   request.set_log_id(logId);
   request.set_payload(std::move(logEntryPayload));
   request.set_skip_seal(skipSeal);
@@ -60,6 +64,7 @@ ReplicaClient::getLogEntry(VersionId versionId, LogId logId) {
 
   server::GetLogEntryResponse response;
   server::GetLogEntryRequest request;
+  request.set_version_id(versionId);
   request.set_log_id(logId);
 
   grpc::Status status = stub_->getLogEntry(&context, request, &response);
