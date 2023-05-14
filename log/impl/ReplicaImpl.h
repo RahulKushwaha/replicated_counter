@@ -7,6 +7,7 @@
 #include "log/include/Replica.h"
 #include "log/include/Sequencer.h"
 #include "log/include/NanoLogStore.h"
+#include "log/utils/OrderedCompletionQueue.h"
 
 namespace rk::projects::durable_log {
 
@@ -23,7 +24,9 @@ class ReplicaImpl: public Replica {
   std::string getName() override;
 
   folly::SemiFuture<folly::Unit>
-  append(VersionId versionId, LogId logId,
+  append(std::optional<LogId> globalCommitIndex,
+         VersionId versionId,
+         LogId logId,
          std::string logEntryPayload,
          bool skipSeal = false) override;
 

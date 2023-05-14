@@ -32,9 +32,11 @@ class SequencerImpl: public Sequencer {
   std::string id_;
   std::vector<std::shared_ptr<Replica>> replicaSet_;
   std::atomic<LogId> sequenceNum_;
+  std::atomic<LogId> globalCommitIndex_;
   VersionId versionId_;
   std::int32_t quorumSize_;
   std::atomic_bool isAlive_;
+  std::unique_ptr<std::mutex> mtx_;
 };
 
 }

@@ -17,10 +17,13 @@ SequencerImpl::SequencerImpl(
     std::vector<std::shared_ptr<Replica>> replicaSet, LogId seedSeqNum,
     VersionId versionId, bool isAlive) :
     id_{std::move(id)},
-    replicaSet_{std::move(replicaSet)}, sequenceNum_{seedSeqNum},
+    replicaSet_{std::move(replicaSet)},
+    sequenceNum_{seedSeqNum},
+    globalCommitIndex_{seedSeqNum},
     versionId_{versionId},
     quorumSize_{(std::int32_t) replicaSet_.size() / 2 + 1},
-    isAlive_{isAlive} {
+    isAlive_{isAlive},
+    mtx_{std::make_unique<std::mutex>()} {
   LOG(INFO) << "Sequencer Initialized with seed: " << sequenceNum_;
 }
 
@@ -53,13 +56,16 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
             futures;
         for (auto &replica: replicaSet_) {
           folly::SemiFuture<folly::Unit>
-              future = replica->append(versionId_, logId, logEntryPayload);
+              future = replica->append({globalCommitIndex_.load()},
+                                       versionId_,
+                                       logId,
+                                       logEntryPayload);
           futures.emplace_back(std::move(future));
         }
 
         return utils::anyNSuccessful(std::move(futures), quorumSize_)
             .via(&folly::InlineExecutor::instance())
-            .then([logId](folly::Try<folly::Unit> &&result) {
+            .then([logId, this](folly::Try<folly::Unit> &&result) {
               if (result.hasException()) {
                 if (auto *exception =
                       result.template tryGetExceptionObject<utils::MultipleExceptions>();exception) {
@@ -69,6 +75,13 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
                 std::rethrow_exception(result.exception().to_exception_ptr());
               }
 
+              {
+                std::lock_guard lg(*mtx_);
+                if (globalCommitIndex_.load() < logId) {
+                  globalCommitIndex_.store(logId);
+                }
+              }
+
               return logId;
             });
       });
@@ -76,6 +89,7 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
 
 void SequencerImpl::start(VersionId versionId, LogId sequenceNum) {
   sequenceNum_.store(sequenceNum);
+  globalCommitIndex_.store(sequenceNum);
   versionId_ = versionId;
   isAlive_ = true;
 }

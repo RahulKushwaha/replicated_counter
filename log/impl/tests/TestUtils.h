@@ -53,7 +53,7 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
           return "MOCK_REPLICA_" + utils::UuidGenerator::instance().generate();
         });
 
-    ON_CALL(*mockReplica, append(_, _, _, _))
+    ON_CALL(*mockReplica, append(_, _, _, _, _))
         .WillByDefault([]() {
           return folly::makeSemiFuture<folly::Unit>
               (folly::make_exception_wrapper<NonRecoverableError>(

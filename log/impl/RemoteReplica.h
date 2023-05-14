@@ -23,11 +23,12 @@ class RemoteReplica final: public Replica {
   }
 
   folly::SemiFuture<folly::Unit>
-  append(VersionId versionId,
+  append(std::optional<LogId> globalCommitIndex,
+         VersionId versionId,
          LogId logId,
          std::string logEntryPayload,
          bool skipSeal) override {
-    return replicaClient_->append(versionId,
+    return replicaClient_->append(globalCommitIndex, versionId,
                                   logId,
                                   std::move(logEntryPayload),
                                   skipSeal);
