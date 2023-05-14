@@ -43,11 +43,16 @@ ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
 
   // If there is nanolog for the versionId, we need to create one.
   if (!nanoLog) {
+    auto config = metadataStore_->getConfig(versionId);
+    if (!config.has_value()) {
+      throw MetadataBlockNotFound{};
+    }
+
     nanoLog = std::make_shared<VectorBasedNanoLog>
         (utils::UuidGenerator::instance().generate(),
          "VectorBasedNanoLog",
          std::to_string(versionId),
-         logId,
+         config->start_index(),
          std::numeric_limits<std::int64_t>::max(),
          false);
 

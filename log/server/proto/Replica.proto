@@ -23,7 +23,7 @@ message GetLogEntryRequest{
 }
 
 message ReplicaAppendRequest{
-  int64 global_commit_index = 1;
+  optional int64 global_commit_index = 1;
   int64 version_id = 2;
   int64 log_id = 3;
   string payload = 4;

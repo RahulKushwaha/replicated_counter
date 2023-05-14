@@ -5,7 +5,8 @@
 #pragma once
 
 #include "Common.h"
-#include <folly/futures/Future.h>
+#include "fmt/format.h"
+#include "folly/futures/Future.h"
 
 namespace rk::projects::durable_log {
 
@@ -15,7 +16,7 @@ class NanoLog {
   virtual std::string getName() = 0;
   virtual std::string getMetadataVersionId() = 0;
 
-  virtual folly::SemiFuture<LogId>
+  virtual folly::SemiFuture <LogId>
   append(std::optional<LogId> globalCommitIndex,
          LogId logId,
          std::string logEntryPayload,
@@ -31,11 +32,11 @@ class NanoLog {
   virtual ~NanoLog() = default;
 };
 
-class NanoLogSealedException: public std::exception {
+class NanoLogSealedException: public std::logic_error {
  public:
-  const char *what() const noexcept override {
-    return "NanoLog is sealed.";
-  }
+  explicit NanoLogSealedException(std::string versionId)
+      : std::logic_error(fmt::format("NanoLog is sealed. versionId: {}",
+                                     versionId)) {}
 };
 
 class NanoLogLogPositionAlreadyOccupied: public std::exception {

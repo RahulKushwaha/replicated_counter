@@ -30,6 +30,22 @@ enum class LogReadError {
   Unknown,
 };
 
+inline std::ostream &operator<<(std::ostream &os, LogReadError &readError) {
+  switch (readError) {
+    case LogReadError::IndexOutOfBounds:
+      os << std::string_view{"LogReadError"};
+      break;
+    case LogReadError::NotFound:
+      os << std::string_view{"NotFound"};
+      break;
+    case LogReadError::Unknown:
+      os << std::string_view{"Unknown"};
+      break;
+  }
+
+  return os;
+}
+
 class NonRecoverableError: public std::exception {
  public:
   const char *what() const _NOEXCEPT override {
