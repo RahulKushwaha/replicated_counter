@@ -27,6 +27,7 @@ struct LogEntry {
 enum class LogReadError {
   IndexOutOfBounds,
   NotFound,
+  ParsingError,
   Unknown,
 };
 

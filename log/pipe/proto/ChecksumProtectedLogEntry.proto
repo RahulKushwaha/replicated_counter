@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package rk.projects.durable_log;
+
+message ChecksumAlgo{
+
+}
+
+message ChecksumProtectedLogEntry{
+  string checksum = 1;
+  ChecksumAlgo checksum_algo = 2;
+  string payload = 3;
+}

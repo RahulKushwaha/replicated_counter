@@ -17,6 +17,12 @@ set(
         log/client/ReplicaClient.h
         log/client/SequencerClient.cc
         log/client/SequencerClient.h
+        log/pipe/LogPipe.h
+        log/pipe/LogReaderWriter.h
+        log/pipe/ShardedLogDecorator.h
+        log/pipe/ShardedLogDecorator.cc
+        log/pipe/ChecksumDecorator.h
+        log/pipe/ChecksumDecorator.cc
         log/impl/Ensemble.h
         log/impl/EnsembleConfig.h
         log/impl/EnsembleNode.h

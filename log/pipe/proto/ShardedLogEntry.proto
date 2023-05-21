@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package rk.projects.durable_log;
+
+message ShardedLogEntry{
+  string shard_id = 1;
+  string payload = 3;
+}
