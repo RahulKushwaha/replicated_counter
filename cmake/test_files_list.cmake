@@ -40,4 +40,6 @@ set(
 
         applications/counter/test/InMemoryFakeVirtualLog.h
         applications/counter/test/CounterAppTest.cc
+
+        wor/tests/InMemoryWriteOnceRegisterTest.cc
 )

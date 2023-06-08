@@ -66,4 +66,9 @@ set(
         log/utils/OrderedCompletionQueue.h
         log/utils/UuidGenerator.h
         metrics/MetricsRegistry.h
+
+        wor/include/WriteOnceRegister.h
+        wor/include/WriteOnceRegisterChain.h
+        wor/inmemory/InMemoryWriteOnceRegister.h
+        wor/inmemory/InMemoryWriteOnceRegisterChain.h
 )
