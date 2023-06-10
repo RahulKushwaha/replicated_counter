@@ -69,6 +69,10 @@ set(
 
         wor/include/WriteOnceRegister.h
         wor/include/WriteOnceRegisterChain.h
+        wor/WriteOnceRegisterChainAppender.h
         wor/inmemory/InMemoryWriteOnceRegister.h
         wor/inmemory/InMemoryWriteOnceRegisterChain.h
+
+        statemachine/include/StateMachine.h
+        statemachine/RocksStateMachine.h
 )

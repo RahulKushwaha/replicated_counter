@@ -42,4 +42,5 @@ set(
         applications/counter/test/CounterAppTest.cc
 
         wor/tests/InMemoryWriteOnceRegisterTest.cc
+        wor/tests/WriteOnceRegisterChainAppenderTest.cc
 )

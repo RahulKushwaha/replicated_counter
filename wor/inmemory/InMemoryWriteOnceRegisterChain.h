@@ -14,6 +14,9 @@ namespace rk::projects::wor {
 
 class InMemoryWriteOnceRegisterChain: public WriteOnceRegisterChain {
  public:
+  explicit InMemoryWriteOnceRegisterChain()
+      : worId_{0}, lookup_{}, mtx_{std::make_unique<std::mutex>()} {}
+
   std::optional<WorId> append() override {
     std::lock_guard lg{*mtx_};
 
@@ -27,7 +30,7 @@ class InMemoryWriteOnceRegisterChain: public WriteOnceRegisterChain {
     std::lock_guard lg{*mtx_};
 
     auto itr = lookup_.find(id);
-    if (itr == lookup_.end()) {
+    if (itr != lookup_.end()) {
       return itr->second;
     }
 
@@ -41,6 +44,15 @@ class InMemoryWriteOnceRegisterChain: public WriteOnceRegisterChain {
     }
 
     return {worId_};
+  }
+
+  std::optional<WorId> front() override {
+    std::lock_guard lg{*mtx_};
+    if (lookup_.empty()) {
+      return {worId_};
+    }
+
+    return {lookup_.begin()->first};
   }
 
  private:
