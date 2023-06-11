@@ -73,6 +73,16 @@ set(
         wor/inmemory/InMemoryWriteOnceRegister.h
         wor/inmemory/InMemoryWriteOnceRegisterChain.h
 
+        wor/paxos/include/Acceptor.h
+        wor/paxos/include/Proposer1.h
+        wor/paxos/LocalAcceptor.h
+        wor/paxos/Common.h
+        wor/paxos/PaxosWriteOnceRegister.h
+        wor/paxos/Proposer.h
+
         statemachine/include/StateMachine.h
         statemachine/RocksStateMachine.h
+        statemachine/ConflictDetector.h
+        statemachine/RocksTxnApplicator.h
+        statemachine/Common.h
 )
