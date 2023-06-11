@@ -1,0 +1,17 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+package rk.projects.state_machine;
+
+message KeyValue{
+  string key = 1;
+  string value = 2;
+}
+
+message RocksTxn_1{
+  string id = 1;
+  repeated string read_set = 2;
+  repeated KeyValue write_set = 3;
+  repeated string delete_set = 4;
+}

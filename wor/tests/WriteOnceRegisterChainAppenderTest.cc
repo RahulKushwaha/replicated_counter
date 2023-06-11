@@ -49,6 +49,8 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
     auto wor = chain->get(worId);
     ASSERT_TRUE(wor.has_value());
     valuesInChain.emplace_back(std::get<std::string>(wor.value()->read()));
+
+    ASSERT_EQ(values, valuesInChain);
   }
 }
 
