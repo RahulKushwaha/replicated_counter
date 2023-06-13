@@ -43,8 +43,8 @@ TEST(VectorBasedNanoLogTest, MultipleUnorderedAppends) {
   LogId startLogId = 4;
   LogId endLogId = 40;
 
-  VectorBasedNanoLog
-      log{"id", "name", "versionId", startLogId, endLogId, false};
+  VectorBasedNanoLog log{"id",       "name",   "versionId",
+                         startLogId, endLogId, false};
 
   std::vector<LogId> logIds;
   for (LogId id = startLogId; id < endLogId; id++) {
@@ -59,13 +59,13 @@ TEST(VectorBasedNanoLogTest, MultipleUnorderedAppends) {
   logIds.pop_back();
 
   std::map<LogId, folly::SemiFuture<LogId>> futures;
-  for (auto logId: logIds) {
+  for (auto logId : logIds) {
     auto future = log.append({}, logId, "");
 
     futures.emplace(logId, std::move(future));
   }
 
-  for (auto &[logId, future]: futures) {
+  for (auto &[logId, future] : futures) {
     if (logId < pivot) {
       ASSERT_EQ(future.value(), logId);
     } else {
@@ -81,7 +81,7 @@ TEST(VectorBasedNanoLogTest, FailedAppendsAfterSeal) {
   log.seal();
 
   ASSERT_THROW(log.append({}, 4, "").get(), NanoLogSealedException)
-                << "Exception Thrown";
+      << "Exception Thrown";
 }
 
-}
+} // namespace rk::projects::durable_log

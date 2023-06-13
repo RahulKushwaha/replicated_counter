@@ -102,7 +102,7 @@ remote_sequencer_set[
       port: 30001
     }
   },
-#  {
+  #  {
   #    id: "SEQUENCER_03"
   #    ip_address{
   #      host: "127.0.0.1"

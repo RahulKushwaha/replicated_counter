@@ -4,29 +4,26 @@
 
 #pragma once
 
-#include "TableRow.h"
 #include "RocksReaderWriter.h"
+#include "TableRow.h"
 
 namespace rk::projects::mydb {
 
 class QueryExecutor {
- public:
+public:
   explicit QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks);
 
- public:
+public:
   void insert(const InternalTable &internalTable, InsertOptions option);
 
   InternalTable get(const InternalTable &internalTable);
 
-  InternalTable
-  tableScan(InternalTable internalTable, IndexQueryOptions queryOptions);
+  InternalTable tableScan(InternalTable internalTable,
+                          IndexQueryOptions queryOptions);
 
- private:
-
-
- private:
+private:
+private:
   std::shared_ptr<RocksReaderWriter> rocks_;
-
 };
 
-}
+} // namespace rk::projects::mydb

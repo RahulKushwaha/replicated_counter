@@ -19,4 +19,4 @@ struct EnsembleNodeConfig {
   std::int32_t metadataStorePort;
 };
 
-}
+} // namespace rk::projects::durable_log

@@ -11,16 +11,14 @@
 namespace rk::projects::durable_log {
 
 class NanoLog {
- public:
+public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
   virtual std::string getMetadataVersionId() = 0;
 
-  virtual folly::SemiFuture <LogId>
-  append(std::optional<LogId> globalCommitIndex,
-         LogId logId,
-         std::string logEntryPayload,
-         bool skipSeal = false) = 0;
+  virtual folly::SemiFuture<LogId>
+  append(std::optional<LogId> globalCommitIndex, LogId logId,
+         std::string logEntryPayload, bool skipSeal = false) = 0;
   virtual std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) = 0;
   virtual LogId seal() = 0;
   virtual LogId getLocalCommitIndex() = 0;
@@ -32,25 +30,25 @@ class NanoLog {
   virtual ~NanoLog() = default;
 };
 
-class NanoLogSealedException: public std::logic_error {
- public:
+class NanoLogSealedException : public std::logic_error {
+public:
   explicit NanoLogSealedException(std::string versionId)
-      : std::logic_error(fmt::format("NanoLog is sealed. versionId: {}",
-                                     versionId)) {}
+      : std::logic_error(
+            fmt::format("NanoLog is sealed. versionId: {}", versionId)) {}
 };
 
-class NanoLogLogPositionAlreadyOccupied: public std::exception {
- public:
+class NanoLogLogPositionAlreadyOccupied : public std::exception {
+public:
   const char *what() const _NOEXCEPT override {
     return "There is already a log entry at that position.";
   }
 };
 
-class NanoLogLogNotAvailable: public std::exception {
- public:
+class NanoLogLogNotAvailable : public std::exception {
+public:
   const char *what() const _NOEXCEPT override {
     return "NanoLog is not available.";
   }
 };
 
-}
+} // namespace rk::projects::durable_log

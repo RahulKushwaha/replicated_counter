@@ -3,12 +3,12 @@
 //
 
 #pragma once
-#include <variant>
-#include <string>
-#include <cstdint>
 #include "Common.h"
-#include <arrow/table.h>
 #include <arrow/array.h>
+#include <arrow/table.h>
+#include <cstdint>
+#include <string>
+#include <variant>
 
 namespace rk::projects::mydb {
 
@@ -33,7 +33,7 @@ struct RawTableRow {
 
   std::string toString() {
     std::stringstream ss;
-    for (const auto &[k, v]: keyValues) {
+    for (const auto &[k, v] : keyValues) {
       ss << k << " " << v << "\n";
     }
 
@@ -46,4 +46,4 @@ struct InternalTable {
   std::shared_ptr<arrow::Table> table;
 };
 
-}
+} // namespace rk::projects::mydb

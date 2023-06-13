@@ -11,26 +11,26 @@ RocksReaderWriter::RocksReaderWriter(rocksdb::DB *db) : rocks_{db} {}
 
 bool RocksReaderWriter::write(std::vector<RawTableRow> rows) {
   rocksdb::WriteBatchWithIndex batch{};
-  for (auto &row: rows) {
-    for (auto &[k, v]: row.keyValues) {
+  for (auto &row : rows) {
+    for (auto &[k, v] : row.keyValues) {
       batch.Put(k, v);
     }
   }
 
-  rocksdb::Status
-      status = rocks_->Write(rocksdb::WriteOptions{}, batch.GetWriteBatch());
+  rocksdb::Status status =
+      rocks_->Write(rocksdb::WriteOptions{}, batch.GetWriteBatch());
 
   return status.ok();
 }
 
 bool RocksReaderWriter::del(std::vector<RawTableRow::Key> keys) {
   rocksdb::WriteBatchWithIndex batch{};
-  for (auto &key: keys) {
+  for (auto &key : keys) {
     batch.Delete(key);
   }
 
-  rocksdb::Status
-      status = rocks_->Write(rocksdb::WriteOptions{}, batch.GetWriteBatch());
+  rocksdb::Status status =
+      rocks_->Write(rocksdb::WriteOptions{}, batch.GetWriteBatch());
 
   return status.ok();
 }
@@ -38,7 +38,7 @@ bool RocksReaderWriter::del(std::vector<RawTableRow::Key> keys) {
 std::vector<RawTableRow>
 RocksReaderWriter::read(std::vector<RawTableRow::Key> keys) {
   std::vector<RawTableRow> rows;
-  for (auto &key: keys) {
+  for (auto &key : keys) {
     RawTableRow row;
 
     auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
@@ -60,8 +60,8 @@ RocksReaderWriter::read(std::vector<RawTableRow::Key> keys) {
   return rows;
 }
 
-std::vector<RawTableRow>
-RocksReaderWriter::scan(std::string prefix, ScanDirection direction) {
+std::vector<RawTableRow> RocksReaderWriter::scan(std::string prefix,
+                                                 ScanDirection direction) {
   std::vector<RawTableRow> rows;
 
   auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
@@ -81,8 +81,7 @@ RocksReaderWriter::scan(std::string prefix, ScanDirection direction) {
       break;
     }
 
-    row.keyValues.emplace_back(itr->key().ToString(),
-                               itr->value().ToString());
+    row.keyValues.emplace_back(itr->key().ToString(), itr->value().ToString());
 
     itr->Next();
   }
@@ -96,4 +95,4 @@ std::unique_ptr<rocksdb::ManagedSnapshot> RocksReaderWriter::createSnapshot() {
   return std::make_unique<rocksdb::ManagedSnapshot>(rocks_);
 }
 
-}
+} // namespace rk::projects::mydb

@@ -8,10 +8,7 @@
 
 namespace rk::projects::mydb {
 
-enum class InsertOptions {
-  REPLACE,
-  MERGE
-};
+enum class InsertOptions { REPLACE, MERGE };
 
 enum class ScanDirection {
   FORWARD,
@@ -23,4 +20,4 @@ struct IndexQueryOptions {
   ScanDirection direction;
 };
 
-}
+} // namespace rk::projects::mydb

@@ -55,4 +55,4 @@ grpc::Status SequencerServer::isAlive(::grpc::ServerContext *context,
 
 SequencerServer::~SequencerServer() = default;
 
-}
+} // namespace rk::projects::durable_log::server

@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include <sstream>
 #include <ostream>
+#include <sstream>
 
 #include "TableRow.h"
 #include "applications/mydb/backend/proto/db.pb.h"
@@ -28,27 +28,22 @@ struct KeyFragments {
 
 KeyFragments parseKey(const internal::Table &table, const std::string &key);
 
-std::string
-parse(const std::string &str,
-      std::size_t &startIndex,
-      char escapeCharacter = DEFAULT_ESCAPE_CHARACTER);
+std::string parse(const std::string &str, std::size_t &startIndex,
+                  char escapeCharacter = DEFAULT_ESCAPE_CHARACTER);
 
 std::string escapeString(const std::string &input,
                          char escapeCharacter = DEFAULT_ESCAPE_CHARACTER);
 
-std::string
-primaryKey(const internal::Table &table,
-           const std::vector<ColumnValue> &values);
+std::string primaryKey(const internal::Table &table,
+                       const std::vector<ColumnValue> &values);
 
 std::string minimumIndexKey(const internal::Table &table,
                             TableSchemaType::TableIdType indexId);
 
-std::string
-columnKey(const std::string &primaryKey, std::uint32_t colId);
+std::string columnKey(const std::string &primaryKey, std::uint32_t colId);
 
-std::string
-secondaryIndexKey(const internal::Table &table,
-                  std::uint32_t indexId,
-                  const std::vector<ColumnValue> &values);
+std::string secondaryIndexKey(const internal::Table &table,
+                              std::uint32_t indexId,
+                              const std::vector<ColumnValue> &values);
 
-}
+} // namespace rk::projects::mydb::prefix

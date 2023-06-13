@@ -1,30 +1,27 @@
 //
 // Created by Rahul  Kushwaha on 12/30/22.
 //
-#include "log/include/VirtualLog.h"
-#include "log/include/Sequencer.h"
-#include "log/include/NanoLog.h"
 #include "log/include/MetadataStore.h"
-#include "log/include/Replica.h"
+#include "log/include/NanoLog.h"
 #include "log/include/Registry.h"
+#include "log/include/Replica.h"
+#include "log/include/Sequencer.h"
+#include "log/include/VirtualLog.h"
 
 #include <vector>
 
 namespace rk::projects::durable_log {
 
-class VirtualLogImpl: public VirtualLog {
- public:
-  explicit VirtualLogImpl(
-      std::string id,
-      std::string name,
-      std::shared_ptr<Sequencer> sequencer,
-      std::vector<std::shared_ptr<Replica>> replicaSet,
-      std::shared_ptr<MetadataStore> metadataStore,
-      VersionId metadataConfigVersionId,
-      std::shared_ptr<Registry> registry);
+class VirtualLogImpl : public VirtualLog {
+public:
+  explicit VirtualLogImpl(std::string id, std::string name,
+                          std::shared_ptr<Sequencer> sequencer,
+                          std::vector<std::shared_ptr<Replica>> replicaSet,
+                          std::shared_ptr<MetadataStore> metadataStore,
+                          VersionId metadataConfigVersionId,
+                          std::shared_ptr<Registry> registry);
 
- public:
-
+public:
   std::string getId() override;
   std::string getName() override;
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
@@ -38,17 +35,17 @@ class VirtualLogImpl: public VirtualLog {
 
   ~VirtualLogImpl() override = default;
 
- private:
+private:
   void setState(VersionId versionId);
 
- private:
+private:
   struct State {
     MetadataConfig metadataConfig;
     std::shared_ptr<Sequencer> sequencer;
     std::vector<std::shared_ptr<Replica>> replicaSet;
   };
 
- private:
+private:
   std::string id_;
   std::string name_;
   std::shared_ptr<MetadataStore> metadataStore_;
@@ -56,4 +53,4 @@ class VirtualLogImpl: public VirtualLog {
   std::shared_ptr<Registry> registry_;
 };
 
-}
+} // namespace rk::projects::durable_log

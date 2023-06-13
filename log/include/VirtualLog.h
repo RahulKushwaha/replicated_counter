@@ -3,16 +3,16 @@
 //
 #pragma once
 
-#include <string>
-#include <folly/futures/Future.h>
 #include "Common.h"
 #include "folly/experimental/coro/Task.h"
 #include "log/proto/MetadataConfig.pb.h"
+#include <folly/futures/Future.h>
+#include <string>
 
 namespace rk::projects::durable_log {
 
 class VirtualLog {
- public:
+public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
 
@@ -29,4 +29,4 @@ class VirtualLog {
   virtual ~VirtualLog() = default;
 };
 
-}
+} // namespace rk::projects::durable_log

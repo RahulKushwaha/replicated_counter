@@ -13,14 +13,15 @@
 
 namespace rk::projects::durable_log {
 
-class FailureDetectorImpl: public FailureDetector {
- public:
-  explicit FailureDetectorImpl(std::shared_ptr<HealthCheck> healthCheck,
-                               std::shared_ptr<VirtualLog> virtualLog,
-                               std::shared_ptr<folly::Executor> executor,
-                               rk::projects::server::ServerConfig logServerConfig);
+class FailureDetectorImpl : public FailureDetector {
+public:
+  explicit FailureDetectorImpl(
+      std::shared_ptr<HealthCheck> healthCheck,
+      std::shared_ptr<VirtualLog> virtualLog,
+      std::shared_ptr<folly::Executor> executor,
+      rk::projects::server::ServerConfig logServerConfig);
 
- public:
+public:
   std::optional<MetadataConfig> getLatestMetadataConfig() override;
   bool healthy() override;
   folly::coro::Task<void> reconcileLoop() override;
@@ -31,11 +32,10 @@ class FailureDetectorImpl: public FailureDetector {
     reconciliationLoopCancellationSource_.requestCancellation();
   }
 
- private:
-
+private:
   folly::coro::Task<void> runHealthCheckLoop();
 
- private:
+private:
   struct State {
     VersionId versionId;
   };
@@ -53,4 +53,4 @@ class FailureDetectorImpl: public FailureDetector {
   folly::CancellationSource reconciliationLoopCancellationSource_;
 };
 
-}
+} // namespace rk::projects::durable_log

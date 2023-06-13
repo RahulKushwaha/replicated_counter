@@ -3,8 +3,8 @@
 //
 
 #include "SequencerImpl.h"
-#include <folly/futures/Retrying.h>
 #include "log/utils/FutureUtils.h"
+#include <folly/futures/Retrying.h>
 
 namespace rk::projects::durable_log {
 
@@ -12,24 +12,19 @@ namespace {
 std::size_t constexpr MAXIMUM_SEQUENCER_RETIRES = 0;
 }
 
-SequencerImpl::SequencerImpl(
-    std::string id,
-    std::vector<std::shared_ptr<Replica>> replicaSet, LogId seedSeqNum,
-    VersionId versionId, bool isAlive) :
-    id_{std::move(id)},
-    replicaSet_{std::move(replicaSet)},
-    sequenceNum_{seedSeqNum},
-    globalCommitIndex_{seedSeqNum},
-    versionId_{versionId},
-    quorumSize_{(std::int32_t) replicaSet_.size() / 2 + 1},
-    isAlive_{isAlive},
-    mtx_{std::make_unique<std::mutex>()} {
+SequencerImpl::SequencerImpl(std::string id,
+                             std::vector<std::shared_ptr<Replica>> replicaSet,
+                             LogId seedSeqNum, VersionId versionId,
+                             bool isAlive)
+    : id_{std::move(id)}, replicaSet_{std::move(replicaSet)},
+      sequenceNum_{seedSeqNum}, globalCommitIndex_{seedSeqNum},
+      versionId_{versionId},
+      quorumSize_{(std::int32_t)replicaSet_.size() / 2 + 1}, isAlive_{isAlive},
+      mtx_{std::make_unique<std::mutex>()} {
   LOG(INFO) << "Sequencer Initialized with seed: " << sequenceNum_;
 }
 
-std::string SequencerImpl::getId() {
-  return id_;
-}
+std::string SequencerImpl::getId() { return id_; }
 
 folly::SemiFuture<LogId> SequencerImpl::latestAppendPosition() {
   // Current sequenceNum_ always points to the next available entry.
@@ -43,8 +38,7 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
   // Forever retrying future.
   return folly::futures::retrying(
       [maxRetries = MAXIMUM_SEQUENCER_RETIRES](
-          std::size_t count,
-          const folly::exception_wrapper &) {
+          std::size_t count, const folly::exception_wrapper &) {
         if (count < maxRetries) {
           return folly::makeSemiFuture(true);
         } else {
@@ -52,14 +46,10 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
         }
       },
       [this, logId, logEntryPayload](std::size_t) {
-        std::vector<folly::SemiFuture<folly::Unit>>
-            futures;
-        for (auto &replica: replicaSet_) {
-          folly::SemiFuture<folly::Unit>
-              future = replica->append({globalCommitIndex_.load()},
-                                       versionId_,
-                                       logId,
-                                       logEntryPayload);
+        std::vector<folly::SemiFuture<folly::Unit>> futures;
+        for (auto &replica : replicaSet_) {
+          folly::SemiFuture<folly::Unit> future = replica->append(
+              {globalCommitIndex_.load()}, versionId_, logId, logEntryPayload);
           futures.emplace_back(std::move(future));
         }
 
@@ -67,8 +57,9 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
             .via(&folly::InlineExecutor::instance())
             .then([logId, this](folly::Try<folly::Unit> &&result) {
               if (result.hasException()) {
-                if (auto *exception =
-                      result.template tryGetExceptionObject<utils::MultipleExceptions>();exception) {
+                if (auto *exception = result.template tryGetExceptionObject<
+                                      utils::MultipleExceptions>();
+                    exception) {
                   LOG(ERROR) << exception->getDebugString();
                 }
 
@@ -94,12 +85,8 @@ void SequencerImpl::start(VersionId versionId, LogId sequenceNum) {
   isAlive_ = true;
 }
 
-bool SequencerImpl::isAlive() {
-  return isAlive_;
-}
+bool SequencerImpl::isAlive() { return isAlive_; }
 
-void SequencerImpl::stop() {
-  isAlive_ = false;
-}
+void SequencerImpl::stop() { isAlive_ = false; }
 
-}
+} // namespace rk::projects::durable_log

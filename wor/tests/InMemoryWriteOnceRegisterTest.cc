@@ -2,10 +2,10 @@
 // Created by Rahul  Kushwaha on 6/7/23.
 //
 
-#include <gtest/gtest.h>
-#include <fmt/format.h>
-#include <vector>
 #include "wor/inmemory/InMemoryWriteOnceRegister.h"
+#include <fmt/format.h>
+#include <gtest/gtest.h>
+#include <vector>
 
 namespace rk::projects::wor {
 
@@ -47,12 +47,13 @@ TEST(InMemoryWriteOnceRegisterTests, WriteWithHigherLockValueSucceeds) {
   ASSERT_TRUE(lockId.has_value());
 
   // All the locks acquired previously should fail.
-  for (auto prevLockId: lockIds) {
+  for (auto prevLockId : lockIds) {
     auto writeResult = wor.write(prevLockId, "Hello World");
     ASSERT_FALSE(writeResult);
 
     auto readResult = wor.read();
-    ASSERT_TRUE(std::holds_alternative<WriteOnceRegister::ReadError>(readResult));
+    ASSERT_TRUE(
+        std::holds_alternative<WriteOnceRegister::ReadError>(readResult));
 
     auto readError = std::get<WriteOnceRegister::ReadError>(readResult);
     ASSERT_EQ(WriteOnceRegister::ReadError::NOT_WRITTEN, readError);
@@ -75,7 +76,8 @@ TEST(InMemoryWriteOnceRegisterTests, WriteIsAllowedOnlyOnce) {
 
   ASSERT_EQ(payload, std::get<std::string>(wor.read()));
 
-  // Try writing it multiple times, and the result should be the same every time.
+  // Try writing it multiple times, and the result should be the same every
+  // time.
   for (int i = 0; i < 100; i++) {
     auto newPayload = fmt::format("Hello World {}", i);
 
@@ -89,4 +91,4 @@ TEST(InMemoryWriteOnceRegisterTests, WriteIsAllowedOnlyOnce) {
   }
 }
 
-}
+} // namespace rk::projects::wor

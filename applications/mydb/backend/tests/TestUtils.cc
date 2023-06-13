@@ -17,31 +17,29 @@ TableSchemaOutput parse(const std::string &key) {
   int index = 0;
   while (std::getline(ss, str, '/') && index < 3) {
     switch (index) {
-      case 0:
-        schema.dbId = folly::to<uint32_t>(str);
-        break;
+    case 0:
+      schema.dbId = folly::to<uint32_t>(str);
+      break;
 
-      case 1:
-        schema.tableId = folly::to<uint32_t>(str);
-        break;
+    case 1:
+      schema.tableId = folly::to<uint32_t>(str);
+      break;
 
-      case 2:
-        schema.indexId = folly::to<uint32_t>(str);
-        break;
+    case 2:
+      schema.indexId = folly::to<uint32_t>(str);
+      break;
 
-      default:
-        throw std::runtime_error{"unknown case"};
+    default:
+      throw std::runtime_error{"unknown case"};
     }
 
     index++;
   }
 
-
   return schema;
 }
 
-TableSchema createTableSchema(int numIntColumns,
-                              int numStringColumns,
+TableSchema createTableSchema(int numIntColumns, int numStringColumns,
                               int numColumnsInPrimaryIndex,
                               int numSecondaryIndex,
                               int numColumnsInSecondaryIndex) {
@@ -67,7 +65,6 @@ TableSchema createTableSchema(int numIntColumns,
   for (int i = 0; i < numColumnsInPrimaryIndex; i++) {
     primaryKeyIndex.mutable_column_ids()->Add(i);
   }
-
 
   for (int i = 1; i <= numIntColumns; i++) {
     Column column{};
@@ -108,45 +105,39 @@ TableSchema createTableSchema(int numIntColumns,
   return tableSchema;
 }
 
-InternalTable getInternalTable(std::int32_t numRows,
-                               int numIntColumns,
+InternalTable getInternalTable(std::int32_t numRows, int numIntColumns,
                                int numStringColumns,
                                int numColumnsInPrimaryIndex,
                                int numSecondaryIndex,
                                int numColumnsInSecondaryIndex) {
-  auto tableSchema =
-      std::make_shared<TableSchema>(createTableSchema(numIntColumns,
-                                                      numStringColumns,
-                                                      numColumnsInPrimaryIndex,
-                                                      numSecondaryIndex,
-                                                      numColumnsInSecondaryIndex));
+  auto tableSchema = std::make_shared<TableSchema>(createTableSchema(
+      numIntColumns, numStringColumns, numColumnsInPrimaryIndex,
+      numSecondaryIndex, numColumnsInSecondaryIndex));
   std::vector<std::shared_ptr<arrow::Array>> columns;
   std::vector<std::shared_ptr<arrow::Field>> fields;
   int key = 0;
-  for (auto &col: tableSchema->rawTable().columns()) {
+  for (auto &col : tableSchema->rawTable().columns()) {
     switch (col.column_type()) {
-      case Column_COLUMN_TYPE_INT64: {
-        fields.emplace_back(arrow::field(col.name(), arrow::int64()));
-        arrow::Int64Builder builder;
-        for (int i = 0; i < numRows; i++) {
-          builder.Append(key++);
-        }
-
-        columns.emplace_back(builder.Finish().ValueOrDie());
+    case Column_COLUMN_TYPE_INT64: {
+      fields.emplace_back(arrow::field(col.name(), arrow::int64()));
+      arrow::Int64Builder builder;
+      for (int i = 0; i < numRows; i++) {
+        builder.Append(key++);
       }
-        break;
-      case Column_COLUMN_TYPE_STRING: {
-        fields.emplace_back(arrow::field(col.name(), arrow::utf8()));
-        arrow::StringBuilder builder;
-        for (int i = 0; i < numRows; i++) {
-          builder.Append(col.name() + "/hello/world//" + std::to_string(i));
-        }
 
-        columns.emplace_back(builder.Finish().ValueOrDie());
+      columns.emplace_back(builder.Finish().ValueOrDie());
+    } break;
+    case Column_COLUMN_TYPE_STRING: {
+      fields.emplace_back(arrow::field(col.name(), arrow::utf8()));
+      arrow::StringBuilder builder;
+      for (int i = 0; i < numRows; i++) {
+        builder.Append(col.name() + "/hello/world//" + std::to_string(i));
       }
-        break;
-      default:
-        throw std::runtime_error{"unknown column type"};
+
+      columns.emplace_back(builder.Finish().ValueOrDie());
+    } break;
+    default:
+      throw std::runtime_error{"unknown column type"};
     }
   }
 
@@ -158,4 +149,4 @@ InternalTable getInternalTable(std::int32_t numRows,
   return {tableSchema, table};
 }
 
-}
+} // namespace rk::projects::mydb::test_utils

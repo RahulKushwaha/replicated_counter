@@ -2,13 +2,13 @@
 // Created by Rahul  Kushwaha on 3/30/23.
 //
 
-#include<fstream>
-#include<sstream>
+#include <fstream>
+#include <sstream>
 
+#include "CounterAppServer.h"
 #include "glog/logging.h"
 #include "google/protobuf/text_format.h"
 #include "log/server/proto/ServerConfig.pb.h"
-#include "CounterAppServer.h"
 
 using namespace rk::projects::server;
 
@@ -45,8 +45,8 @@ auto main(int argc, char *argv[]) -> int {
 
   appServer.start().semi().get();
 
-  std::this_thread::sleep_for(std::chrono::nanoseconds{
-      std::numeric_limits<std::int64_t>::max()});
+  std::this_thread::sleep_for(
+      std::chrono::nanoseconds{std::numeric_limits<std::int64_t>::max()});
 
   return 0;
 }

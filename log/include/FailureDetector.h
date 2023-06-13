@@ -3,14 +3,14 @@
 //
 
 #pragma once
-#include <optional>
-#include "log/proto/MetadataConfig.pb.h"
 #include "folly/experimental/coro/Task.h"
+#include "log/proto/MetadataConfig.pb.h"
+#include <optional>
 
 namespace rk::projects::durable_log {
 
 class FailureDetector {
- public:
+public:
   virtual std::optional<MetadataConfig> getLatestMetadataConfig() = 0;
 
   virtual bool healthy() = 0;
@@ -27,4 +27,4 @@ class FailureDetector {
   virtual ~FailureDetector() = default;
 };
 
-}
+} // namespace rk::projects::durable_log

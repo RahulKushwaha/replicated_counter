@@ -4,31 +4,27 @@
 
 #pragma once
 
+#include "log/include/NanoLogStore.h"
 #include "log/include/Replica.h"
 #include "log/include/Sequencer.h"
-#include "log/include/NanoLogStore.h"
 #include "log/utils/OrderedCompletionQueue.h"
 
 namespace rk::projects::durable_log {
 
-class ReplicaImpl: public Replica {
- public:
-  explicit ReplicaImpl(
-      std::string id,
-      std::string name,
-      std::shared_ptr<NanoLogStore> nanoLogStore,
-      std::shared_ptr<MetadataStore> metadataStore,
-      bool local = false);
+class ReplicaImpl : public Replica {
+public:
+  explicit ReplicaImpl(std::string id, std::string name,
+                       std::shared_ptr<NanoLogStore> nanoLogStore,
+                       std::shared_ptr<MetadataStore> metadataStore,
+                       bool local = false);
 
   std::string getId() override;
   std::string getName() override;
 
-  folly::SemiFuture<folly::Unit>
-  append(std::optional<LogId> globalCommitIndex,
-         VersionId versionId,
-         LogId logId,
-         std::string logEntryPayload,
-         bool skipSeal = false) override;
+  folly::SemiFuture<folly::Unit> append(std::optional<LogId> globalCommitIndex,
+                                        VersionId versionId, LogId logId,
+                                        std::string logEntryPayload,
+                                        bool skipSeal = false) override;
 
   folly::SemiFuture<std::variant<LogEntry, LogReadError>>
   getLogEntry(VersionId versionId, LogId logId) override;
@@ -39,7 +35,7 @@ class ReplicaImpl: public Replica {
 
   ~ReplicaImpl() override = default;
 
- private:
+private:
   std::string id_;
   std::string name_;
   std::shared_ptr<NanoLogStore> nanoLogStore_;
@@ -48,4 +44,4 @@ class ReplicaImpl: public Replica {
   std::shared_ptr<std::mutex> mtx_;
 };
 
-}
+} // namespace rk::projects::durable_log

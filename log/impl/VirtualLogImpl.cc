@@ -21,35 +21,25 @@ getConfigOrFatalFailure(const std::shared_ptr<MetadataStore> &metadataStore,
   return config.value();
 }
 
-}
+} // namespace
 
-VirtualLogImpl::VirtualLogImpl(
-    std::string id,
-    std::string name,
-    std::shared_ptr<Sequencer> sequencer,
-    std::vector<std::shared_ptr<Replica>> replicaSet,
-    std::shared_ptr<MetadataStore> metadataStore,
-    VersionId metadataConfigVersionId,
-    std::shared_ptr<Registry> registry)
-    : id_{std::move(id)},
-      name_{std::move(name)},
+VirtualLogImpl::VirtualLogImpl(std::string id, std::string name,
+                               std::shared_ptr<Sequencer> sequencer,
+                               std::vector<std::shared_ptr<Replica>> replicaSet,
+                               std::shared_ptr<MetadataStore> metadataStore,
+                               VersionId metadataConfigVersionId,
+                               std::shared_ptr<Registry> registry)
+    : id_{std::move(id)}, name_{std::move(name)},
       metadataStore_{std::move(metadataStore)},
-      state_{std::make_unique<State>(
-          State{
-//              getConfigOrFatalFailure(metadataStore_, metadataConfigVersionId),
-              MetadataConfig{},
-              std::move(sequencer),
-              std::move(replicaSet)}
-      )},
+      state_{std::make_unique<State>(State{
+          //              getConfigOrFatalFailure(metadataStore_,
+          //              metadataConfigVersionId),
+          MetadataConfig{}, std::move(sequencer), std::move(replicaSet)})},
       registry_{std::move(registry)} {}
 
-std::string VirtualLogImpl::getId() {
-  return id_;
-}
+std::string VirtualLogImpl::getId() { return id_; }
 
-std::string VirtualLogImpl::getName() {
-  return name_;
-}
+std::string VirtualLogImpl::getName() { return name_; }
 
 folly::SemiFuture<LogId> VirtualLogImpl::sync() {
   return state_->sequencer->latestAppendPosition();
@@ -71,23 +61,22 @@ VirtualLogImpl::getLogEntry(LogId logId) {
 
   return folly::futures::retrying(
       [maxRetries = state_->replicaSet.size(),
-          versionId = state_->metadataConfig.version_id()](
-          std::size_t count,
-          const folly::exception_wrapper &) {
+       versionId = state_->metadataConfig.version_id()](
+          std::size_t count, const folly::exception_wrapper &) {
         if (count < maxRetries) {
           return folly::makeSemiFuture(true);
         } else {
           return folly::makeSemiFuture(false);
         }
       },
-      [this, logId, versionId =
-      metadataConfig.value().version_id()](std::size_t retryAttempt) {
+      [this, logId, versionId = metadataConfig.value().version_id()](
+          std::size_t retryAttempt) {
         auto &replica = state_->replicaSet[retryAttempt];
         return replica->getLogEntry(versionId, logId)
             .via(&folly::InlineExecutor::instance())
-            .then([logId, retryAttempt](folly::Try<std::variant<LogEntry,
-                                                                LogReadError>>
-                                        &&logEntryResult) {
+            .then([logId, retryAttempt](
+                      folly::Try<std::variant<LogEntry, LogReadError>>
+                          &&logEntryResult) {
               if (logEntryResult.hasException()) {
                 LOG(ERROR) << logEntryResult.exception().what();
                 LOG(INFO) << "Failed to find the logId: [" << logId
@@ -126,7 +115,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   replicaSet.resize(majorityCount);
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
-  for (auto &replica: replicaSet) {
+  for (auto &replica : replicaSet) {
     auto endLogId = replica->seal(versionId);
 
     minLogId = std::min(minLogId, endLogId);
@@ -137,26 +126,28 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   // Re-replicate all the entries from minLogId to MaxLogId
   for (LogId logId = minLogId; logId < maxLogId; logId++) {
     std::vector<folly::SemiFuture<LogEntry>> futures;
-    for (auto &replica: replicaSet) {
-      auto future = replica->getLogEntry(versionId, logId)
-          .via(&folly::InlineExecutor::instance())
-          .then([](folly::Try<std::variant<LogEntry, LogReadError>> &&result) {
-            if (result.hasValue()
-                && std::holds_alternative<LogEntry>(result.value())) {
-              return std::get<LogEntry>(result.value());
-            }
+    for (auto &replica : replicaSet) {
+      auto future =
+          replica->getLogEntry(versionId, logId)
+              .via(&folly::InlineExecutor::instance())
+              .then([](folly::Try<std::variant<LogEntry, LogReadError>>
+                           &&result) {
+                if (result.hasValue() &&
+                    std::holds_alternative<LogEntry>(result.value())) {
+                  return std::get<LogEntry>(result.value());
+                }
 
-            if (result.hasValue()
-                && std::holds_alternative<LogReadError>(result.value())) {
-              std::stringstream ss;
-              ss << std::get<LogReadError>(result.value());
+                if (result.hasValue() &&
+                    std::holds_alternative<LogReadError>(result.value())) {
+                  std::stringstream ss;
+                  ss << std::get<LogReadError>(result.value());
 
-              LOG(INFO) << "log read error: " << ss.str();
-              throw std::runtime_error{ss.str()};
-            }
+                  LOG(INFO) << "log read error: " << ss.str();
+                  throw std::runtime_error{ss.str()};
+                }
 
-            throw result.exception().get_exception();
-          });
+                throw result.exception().get_exception();
+              });
 
       futures.emplace_back(std::move(future));
     }
@@ -170,9 +161,8 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
             .get();
     LOG(INFO) << "found log entry";
     std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
-    for (auto &replica: state_->replicaSet) {
-      folly::SemiFuture<folly::Unit>
-          appendFuture =
+    for (auto &replica : state_->replicaSet) {
+      folly::SemiFuture<folly::Unit> appendFuture =
           replica->append({}, versionId, logEntry.logId, logEntry.payload, true)
               .via(&folly::InlineExecutor::instance());
 
@@ -184,8 +174,9 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
         .via(&folly::InlineExecutor::instance())
         .then([](folly::Try<folly::Unit> &&result) {
           if (result.hasException()) {
-            if (auto *exception =
-                  result.template tryGetExceptionObject<utils::MultipleExceptions>();exception) {
+            if (auto *exception = result.template tryGetExceptionObject<
+                                  utils::MultipleExceptions>();
+                exception) {
               LOG(ERROR) << exception->getDebugString();
             }
 
@@ -266,21 +257,20 @@ void VirtualLogImpl::setState(VersionId versionId) {
   }
 
   LOG(INFO) << "New Sequencer: " << config->sequencer_config().id();
-  std::shared_ptr<Sequencer>
-      sequencer = registry_->sequencer(config->sequencer_config().id());
+  std::shared_ptr<Sequencer> sequencer =
+      registry_->sequencer(config->sequencer_config().id());
 
   CHECK(sequencer != nullptr);
 
   std::vector<std::shared_ptr<Replica>> replicaSet = state_->replicaSet;
   // TODO(FIX): Refresh replica information.
-//  for (const auto &replicaConfig: config->replica_set_config()) {
-//    auto replica = registry_->replica(replicaConfig.id());
-//    replicaSet.emplace_back(std::move(replica));
-//  }
+  //  for (const auto &replicaConfig: config->replica_set_config()) {
+  //    auto replica = registry_->replica(replicaConfig.id());
+  //    replicaSet.emplace_back(std::move(replica));
+  //  }
 
   std::unique_ptr<State> state = std::make_unique<State>(
-      State{*config, std::move(sequencer), std::move(replicaSet)}
-  );
+      State{*config, std::move(sequencer), std::move(replicaSet)});
 
   state_ = std::move(state);
 
@@ -289,4 +279,4 @@ void VirtualLogImpl::setState(VersionId versionId) {
   metadataStore_->printConfigChain();
 }
 
-}
+} // namespace rk::projects::durable_log

@@ -25,8 +25,8 @@ MetadataStoreClient::getConfig(VersionId versionId) {
     return folly::makeSemiFuture(response);
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<MetadataConfig>(std::move(err));
 }
 
@@ -43,8 +43,8 @@ MetadataStoreClient::getConfigUsingLogId(LogId logId) {
     return folly::makeSemiFuture(response);
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<MetadataConfig>(std::move(err));
 }
 
@@ -60,14 +60,14 @@ folly::SemiFuture<VersionId> MetadataStoreClient::getCurrentVersionId() {
     return folly::makeSemiFuture<VersionId>(response.version_id());
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<VersionId>(std::move(err));
 }
 
-folly::SemiFuture<folly::Unit> MetadataStoreClient::compareAndAppendRange(
-    VersionId versionId,
-    MetadataConfig newMetadataConfig) {
+folly::SemiFuture<folly::Unit>
+MetadataStoreClient::compareAndAppendRange(VersionId versionId,
+                                           MetadataConfig newMetadataConfig) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
   server::CompareAndAppendRangeRequest request;
@@ -81,8 +81,8 @@ folly::SemiFuture<folly::Unit> MetadataStoreClient::compareAndAppendRange(
     return folly::makeSemiFuture();
   }
 
-  return folly::makeSemiFuture<folly::Unit>
-      (folly::make_exception_wrapper<std::exception>());
+  return folly::makeSemiFuture<folly::Unit>(
+      folly::make_exception_wrapper<std::exception>());
 }
 
 folly::coro::Task<void> MetadataStoreClient::printConfigChain() {
@@ -97,8 +97,8 @@ folly::coro::Task<void> MetadataStoreClient::printConfigChain() {
     co_return;
   }
 
-  throw
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  throw folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
 }
 
-}
+} // namespace rk::projects::durable_log::client

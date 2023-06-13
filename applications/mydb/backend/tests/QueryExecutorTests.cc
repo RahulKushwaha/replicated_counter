@@ -1,22 +1,20 @@
 //
 // Created by Rahul  Kushwaha on 4/15/23.
 //
-#include <gtest/gtest.h>
-#include "rocksdb/db.h"
+#include "applications/mydb/backend/QueryExecutor.h"
 #include "applications/mydb/backend/RocksDbFactory.h"
 #include "applications/mydb/backend/RocksReaderWriter.h"
-#include "applications/mydb/backend/tests/TestUtils.h"
 #include "applications/mydb/backend/RowSerializer.h"
-#include "applications/mydb/backend/QueryExecutor.h"
+#include "applications/mydb/backend/tests/TestUtils.h"
+#include "rocksdb/db.h"
+#include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
-class QueryExecutorTests: public ::testing::Test {
- protected:
-  RocksDbFactory::RocksDbConfig config{
-      .path = "/tmp/db3",
-      .createIfMissing = true
-  };
+class QueryExecutorTests : public ::testing::Test {
+protected:
+  RocksDbFactory::RocksDbConfig config{.path = "/tmp/db3",
+                                       .createIfMissing = true};
 
   rocksdb::DB *db_;
   std::unique_ptr<QueryExecutor> queryExecutor_;
@@ -27,8 +25,8 @@ class QueryExecutorTests: public ::testing::Test {
   QueryExecutorTests() {
     // You can do set-up work for each test here.
     db_ = RocksDbFactory::provide(config);
-    queryExecutor_ =
-        std::make_unique<QueryExecutor>(std::make_unique<RocksReaderWriter>(db_));
+    queryExecutor_ = std::make_unique<QueryExecutor>(
+        std::make_unique<RocksReaderWriter>(db_));
   }
 
   ~QueryExecutorTests() override {
@@ -57,9 +55,11 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
 
   queryExecutor_->insert(internalTable, InsertOptions{});
 
-  auto response =
-      queryExecutor_->tableScan(InternalTable{.schema = internalTable.schema},
-                                IndexQueryOptions{.indexId = internalTable.schema->rawTable().primary_key_index().id(), .direction = ScanDirection::FORWARD});
+  auto response = queryExecutor_->tableScan(
+      InternalTable{.schema = internalTable.schema},
+      IndexQueryOptions{
+          .indexId = internalTable.schema->rawTable().primary_key_index().id(),
+          .direction = ScanDirection::FORWARD});
 
   ASSERT_TRUE(internalTable.table->Equals(*response.table));
 }
@@ -69,16 +69,11 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
 
   queryExecutor_->insert(internalTable, InsertOptions{});
 
-  for (const auto &idx: internalTable.schema->rawTable().secondary_index()) {
-    auto response =
-        queryExecutor_->tableScan(
-            InternalTable{
-                .schema = internalTable.schema
-            },
-            IndexQueryOptions{
-                .indexId = idx.id(),
-                .direction = ScanDirection::FORWARD
-            });
+  for (const auto &idx : internalTable.schema->rawTable().secondary_index()) {
+    auto response = queryExecutor_->tableScan(
+        InternalTable{.schema = internalTable.schema},
+        IndexQueryOptions{.indexId = idx.id(),
+                          .direction = ScanDirection::FORWARD});
 
     LOG(INFO) << response.table->ToString() << std::endl;
 
@@ -86,4 +81,4 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
   }
 }
 
-}
+} // namespace rk::projects::mydb

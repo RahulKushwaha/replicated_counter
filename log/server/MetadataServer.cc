@@ -23,8 +23,7 @@ grpc::Status MetadataServer::getConfig(::grpc::ServerContext *context,
 }
 
 grpc::Status MetadataServer::getCurrentConfig(
-    ::grpc::ServerContext *context,
-    const ::google::protobuf::Empty *request,
+    ::grpc::ServerContext *context, const ::google::protobuf::Empty *request,
     ::rk::projects::durable_log::MetadataConfig *response) {
   auto versionId = metadataStore_->getCurrentVersionId();
   auto metadataConfig = metadataStore_->getConfig(versionId);
@@ -37,7 +36,6 @@ grpc::Status MetadataServer::getCurrentConfig(
 
   return grpc::Status::OK;
 }
-
 
 grpc::Status MetadataServer::getConfigUsingLogId(::grpc::ServerContext *context,
                                                  const server::LogId *request,
@@ -52,10 +50,10 @@ grpc::Status MetadataServer::getConfigUsingLogId(::grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-grpc::Status
-MetadataServer::compareAndAppendRange(::grpc::ServerContext *context,
-                                      const server::CompareAndAppendRangeRequest *request,
-                                      ::google::protobuf::Empty *response) {
+grpc::Status MetadataServer::compareAndAppendRange(
+    ::grpc::ServerContext *context,
+    const server::CompareAndAppendRangeRequest *request,
+    ::google::protobuf::Empty *response) {
   try {
     metadataStore_->compareAndAppendRange(request->metadata_version_id().id(),
                                           request->metadata_config());
@@ -66,10 +64,10 @@ MetadataServer::compareAndAppendRange(::grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-grpc::Status MetadataServer::printConfigChain
-    (::grpc::ServerContext *context,
-     const ::google::protobuf::Empty *request,
-     ::google::protobuf::Empty *response) {
+grpc::Status
+MetadataServer::printConfigChain(::grpc::ServerContext *context,
+                                 const ::google::protobuf::Empty *request,
+                                 ::google::protobuf::Empty *response) {
   try {
     metadataStore_->printConfigChain();
   } catch (const std::exception &e) {
@@ -80,4 +78,4 @@ grpc::Status MetadataServer::printConfigChain
 }
 
 MetadataServer::~MetadataServer() = default;
-}
+} // namespace rk::projects::durable_log::server

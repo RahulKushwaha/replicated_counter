@@ -9,7 +9,7 @@ message Condition{
     UnaryCondition  unary_condition = 1;
     BinaryCondition binary_condition = 2;
   }
-  }
+}
 
 message UnaryCondition{
   oneof condition{

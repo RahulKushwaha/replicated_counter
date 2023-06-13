@@ -3,15 +3,15 @@
 //
 #include <memory>
 
-#include "log/server/LogServer.h"
 #include "applications/counter/CounterApp.h"
 #include "applications/counter/CounterHealthCheck.h"
 #include "log/impl/FailureDetectorImpl.h"
+#include "log/server/LogServer.h"
 
 namespace rk::projects::counter_app {
 
 class CounterAppServer {
- public:
+public:
   explicit CounterAppServer(rk::projects::server::ServerConfig logServerConfig)
       : logServerConfig_{std::move(logServerConfig)} {}
 
@@ -19,38 +19,32 @@ class CounterAppServer {
     State state{.logServerConfig = logServerConfig_};
 
     state.logServer =
-        std::make_shared<rk::projects::durable_log::server::LogServer>(state.logServerConfig);
+        std::make_shared<rk::projects::durable_log::server::LogServer>(
+            state.logServerConfig);
 
     co_await state.logServer->start();
     LOG(INFO) << "Starting App";
     state.counterApp =
         std::make_shared<CounterApp>(state.logServer->getVirtualLog());
 
-
     state.failureDetectorPool =
         std::make_shared<folly::CPUThreadPoolExecutor>(4);
 
-    std::shared_ptr<HealthCheck>
-        healthCheck =
+    std::shared_ptr<HealthCheck> healthCheck =
         std::make_shared<CounterHealthCheck>(state.counterApp);
 
-
-    state.failureDetector =
-        std::make_shared<FailureDetectorImpl>(std::move(healthCheck),
-                                              state.logServer->getVirtualLog(),
-                                              state.failureDetectorPool,
-                                              state.logServerConfig);
+    state.failureDetector = std::make_shared<FailureDetectorImpl>(
+        std::move(healthCheck), state.logServer->getVirtualLog(),
+        state.failureDetectorPool, state.logServerConfig);
 
     state_ = std::make_shared<State>(std::move(state));
     co_return;
   }
 
-  folly::coro::Task<void> stop() {
-  }
+  folly::coro::Task<void> stop() {}
 
- private:
-
- private:
+private:
+private:
   struct State {
     rk::projects::server::ServerConfig logServerConfig;
     std::shared_ptr<rk::projects::durable_log::server::LogServer> logServer;
@@ -64,4 +58,4 @@ class CounterAppServer {
   std::shared_ptr<State> state_;
 };
 
-}
+} // namespace rk::projects::counter_app

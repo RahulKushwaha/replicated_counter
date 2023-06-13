@@ -8,23 +8,22 @@
 
 namespace rk::projects::durable_log {
 
-class MockReplica: public Replica {
- public:
+class MockReplica : public Replica {
+public:
   MOCK_METHOD(std::string, getId, (), (override));
   MOCK_METHOD(std::string, getName, (), (override));
 
-  MOCK_METHOD(folly::SemiFuture<folly::Unit>,
-              append,
-              (std::optional<LogId> globalCommitIndex, VersionId versionId, LogId logId, std::string logEntryPayload, bool skipSeal),
+  MOCK_METHOD(folly::SemiFuture<folly::Unit>, append,
+              (std::optional<LogId> globalCommitIndex, VersionId versionId,
+               LogId logId, std::string logEntryPayload, bool skipSeal),
               (override));
 
   MOCK_METHOD((folly::SemiFuture<std::variant<LogEntry, LogReadError>>),
-              getLogEntry,
-              (VersionId versionId, LogId logId), (override));
+              getLogEntry, (VersionId versionId, LogId logId), (override));
 
   MOCK_METHOD(LogId, getLocalCommitIndex, (VersionId versionId), (override));
 
   MOCK_METHOD(LogId, seal, (VersionId versionId), (override));
 };
 
-}
+} // namespace rk::projects::durable_log

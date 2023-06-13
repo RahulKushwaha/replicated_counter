@@ -16,8 +16,8 @@ void QueryExecutor::insert(const InternalTable &internalTable,
     // Delete the row first.
     auto rawTableRows = RowSerializer::serialize(internalTable);
     std::vector<RawTableRow::Key> keysToDelete;
-    for (auto &keyValue: rawTableRows) {
-      for (auto &[k, v]: keyValue.keyValues) {
+    for (auto &keyValue : rawTableRows) {
+      for (auto &[k, v] : keyValue.keyValues) {
         keysToDelete.emplace_back(k);
       }
     }
@@ -39,11 +39,12 @@ InternalTable QueryExecutor::get(const InternalTable &internalTable) {
 InternalTable QueryExecutor::tableScan(InternalTable internalTable,
                                        IndexQueryOptions indexQueryOptions) {
 
-  if (internalTable.schema->rawTable().primary_key_index().id()
-      == indexQueryOptions.indexId) {
+  if (internalTable.schema->rawTable().primary_key_index().id() ==
+      indexQueryOptions.indexId) {
 
-    auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
-                                       internalTable.schema->rawTable().primary_key_index().id());
+    auto key = prefix::minimumIndexKey(
+        internalTable.schema->rawTable(),
+        internalTable.schema->rawTable().primary_key_index().id());
     auto kvRows = rocks_->scan(key, indexQueryOptions.direction);
     return RowSerializer::deserialize(internalTable.schema, kvRows);
   } else {
@@ -58,4 +59,4 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
   }
 };
 
-}
+} // namespace rk::projects::mydb

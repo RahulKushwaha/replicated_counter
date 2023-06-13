@@ -7,11 +7,10 @@
 #include <mutex>
 
 namespace rk::projects::wor {
-class InMemoryWriteOnceRegister: public WriteOnceRegister {
- public:
+class InMemoryWriteOnceRegister : public WriteOnceRegister {
+public:
   explicit InMemoryWriteOnceRegister()
-      : lockId_{0}, committed_{false},
-        payload_{},
+      : lockId_{0}, committed_{false}, payload_{},
         mtx_{std::make_unique<std::mutex>()} {}
 
   std::optional<LockId> lock() override {
@@ -39,11 +38,11 @@ class InMemoryWriteOnceRegister: public WriteOnceRegister {
     return {ReadError::NOT_WRITTEN};
   }
 
- private:
+private:
   LockId lockId_;
   bool committed_;
   std::string payload_;
   std::unique_ptr<std::mutex> mtx_;
 };
 
-}
+} // namespace rk::projects::wor

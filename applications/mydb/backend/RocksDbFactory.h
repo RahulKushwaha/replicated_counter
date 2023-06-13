@@ -8,7 +8,7 @@
 namespace rk::projects::mydb {
 
 class RocksDbFactory {
- public:
+public:
   struct RocksDbConfig {
     std::string path;
     bool createIfMissing;
@@ -20,8 +20,7 @@ class RocksDbFactory {
     rocksdb::Options options;
     options.create_if_missing = true;
 
-    rocksdb::Status status =
-        rocksdb::DB::Open(options, config.path, &db);
+    rocksdb::Status status = rocksdb::DB::Open(options, config.path, &db);
 
     if (status.ok()) {
       return db;
@@ -31,4 +30,4 @@ class RocksDbFactory {
   }
 };
 
-}
+} // namespace rk::projects::mydb

@@ -6,13 +6,13 @@
 
 #include "log/include/MetadataStore.h"
 
-#include <mutex>
 #include <map>
+#include <mutex>
 
 namespace rk::projects::durable_log {
 
-class InMemoryMetadataStore: public MetadataStore {
- public:
+class InMemoryMetadataStore : public MetadataStore {
+public:
   explicit InMemoryMetadataStore();
 
   std::optional<MetadataConfig> getConfig(VersionId versionId) override;
@@ -20,15 +20,14 @@ class InMemoryMetadataStore: public MetadataStore {
 
   VersionId getCurrentVersionId() override;
 
-  void
-  compareAndAppendRange(VersionId versionId,
-                        MetadataConfig newMetadataConfig) override;
+  void compareAndAppendRange(VersionId versionId,
+                             MetadataConfig newMetadataConfig) override;
 
   void printConfigChain() override;
 
   ~InMemoryMetadataStore() override = default;
 
- private:
+private:
   struct State {
     std::mutex mtx;
     std::map<VersionId, MetadataConfig> configs_;
@@ -38,4 +37,4 @@ class InMemoryMetadataStore: public MetadataStore {
   std::unique_ptr<State> state_;
 };
 
-}
+} // namespace rk::projects::durable_log

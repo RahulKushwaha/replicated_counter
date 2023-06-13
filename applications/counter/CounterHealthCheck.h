@@ -9,17 +9,17 @@
 
 namespace rk::projects::counter_app {
 
-class CounterHealthCheck: public durable_log::HealthCheck {
- public:
+class CounterHealthCheck : public durable_log::HealthCheck {
+public:
   explicit CounterHealthCheck(std::shared_ptr<CounterApp> counterApp);
 
- public:
+public:
   folly::coro::Task<bool> isAlive() override;
 
- private:
+private:
   std::shared_ptr<CounterApp> app_;
-  std::string
-      KEY_NAME{"HEALTH_CHECK_" + utils::UuidGenerator::instance().generate()};
+  std::string KEY_NAME{"HEALTH_CHECK_" +
+                       utils::UuidGenerator::instance().generate()};
 };
 
-}
+} // namespace rk::projects::counter_app

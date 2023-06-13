@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include <optional>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace rk::projects::wor {
@@ -12,7 +12,7 @@ namespace rk::projects::wor {
 using LockId = std::int64_t;
 
 class WriteOnceRegister {
- public:
+public:
   enum class ReadError {
     UNKNOWN,
     NOT_WRITTEN,
@@ -23,4 +23,4 @@ class WriteOnceRegister {
   virtual std::variant<std::string, ReadError> read() = 0;
 };
 
-}
+} // namespace rk::projects::wor

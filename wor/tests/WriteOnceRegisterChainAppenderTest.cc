@@ -1,11 +1,11 @@
 //
 // Created by Rahul  Kushwaha on 6/9/23.
 //
-#include <gtest/gtest.h>
-#include <fmt/format.h>
-#include <vector>
 #include "wor/WriteOnceRegisterChainAppender.h"
 #include "wor/inmemory/InMemoryWriteOnceRegisterChain.h"
+#include <fmt/format.h>
+#include <gtest/gtest.h>
+#include <vector>
 
 namespace rk::projects::wor {
 
@@ -52,4 +52,4 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
   }
 }
 
-}
+} // namespace rk::projects::wor
