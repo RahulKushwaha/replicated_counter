@@ -237,4 +237,4 @@ TEST(MetadataStoreTest, getUsingLogIdWhenEmptyConfigsArePresent) {
   }
 }
 
-}
+} // namespace rk::projects::durable_log

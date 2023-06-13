@@ -3,15 +3,14 @@
 //
 
 #pragma once
+#include "QueryOptions.h"
 #include "applications/mydb/backend/TableRow.h"
 #include "rocksdb/db.h"
-#include "QueryOptions.h"
 
 namespace rk::projects::mydb {
 
 class RocksReaderWriter {
- public:
-
+public:
   explicit RocksReaderWriter(rocksdb::DB *db);
 
   bool write(std::vector<RawTableRow> rows);
@@ -20,13 +19,12 @@ class RocksReaderWriter {
 
   bool del(std::vector<RawTableRow::Key> keys);
 
-  std::vector<RawTableRow>
-  scan(std::string prefix, ScanDirection direction);
+  std::vector<RawTableRow> scan(std::string prefix, ScanDirection direction);
 
   std::unique_ptr<rocksdb::ManagedSnapshot> createSnapshot();
 
- private:
+private:
   rocksdb::DB *rocks_;
 };
 
-}
+} // namespace rk::projects::mydb

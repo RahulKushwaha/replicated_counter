@@ -12,25 +12,20 @@ namespace rk::projects::durable_log {
 
 using namespace rk::projects::utils;
 
-class VectorBasedNanoLog: public NanoLog {
- public:
-  explicit VectorBasedNanoLog(
-      std::string id,
-      std::string name,
-      std::string metadataVersionId,
-      LogId startIndex,
-      LogId endIndex,
-      bool sealed);
+class VectorBasedNanoLog : public NanoLog {
+public:
+  explicit VectorBasedNanoLog(std::string id, std::string name,
+                              std::string metadataVersionId, LogId startIndex,
+                              LogId endIndex, bool sealed);
 
- public:
+public:
   std::string getId() override;
   std::string getName() override;
   std::string getMetadataVersionId() override;
 
-  folly::SemiFuture<LogId>
-  append(std::optional<LogId> globalCommitIndex, LogId logId,
-         std::string logEntryPayload,
-         bool skipSeal = false) override;
+  folly::SemiFuture<LogId> append(std::optional<LogId> globalCommitIndex,
+                                  LogId logId, std::string logEntryPayload,
+                                  bool skipSeal = false) override;
   std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) override;
 
   LogId seal() override;
@@ -40,7 +35,7 @@ class VectorBasedNanoLog: public NanoLog {
   LogId getEndIndex() override;
   bool isSealed() override;
 
- private:
+private:
   std::string id_;
   std::string name_;
   std::string metadataVersionId_;
@@ -50,4 +45,4 @@ class VectorBasedNanoLog: public NanoLog {
   std::map<LogId, std::string> logs_;
   OrderedCompletionQueue<LogId> completionQueue_;
 };
-}
+} // namespace rk::projects::durable_log

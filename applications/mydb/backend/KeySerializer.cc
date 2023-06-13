@@ -12,7 +12,7 @@ namespace rk::projects::mydb::prefix {
 
 std::string escapeString(const std::string &input, char escapeCharacter) {
   std::stringstream ss;
-  for (const auto c: input) {
+  for (const auto c : input) {
     if (c == escapeCharacter) {
       ss << escapeCharacter << escapeCharacter;
     } else {
@@ -42,80 +42,71 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
   while (i < length) {
     auto token = parse(key, i, DEFAULT_ESCAPE_CHARACTER);
     switch (current) {
-      case TokenType::DB_ID: {
-        keyFragments.dbId = folly::to<TableSchemaType::DbIdType>(token);
-        current = TokenType::TBL_ID;
+    case TokenType::DB_ID: {
+      keyFragments.dbId = folly::to<TableSchemaType::DbIdType>(token);
+      current = TokenType::TBL_ID;
+    } break;
+
+    case TokenType::TBL_ID: {
+      keyFragments.tableId = folly::to<TableSchemaType::TableIdType>(token);
+      current = TokenType::INDEX_ID;
+    } break;
+
+    case TokenType::INDEX_ID: {
+      auto indexId = folly::to<TableSchemaType::TableIdType>(token);
+      // primary key index is always 0
+      if (indexId == 0) {
+        keyFragments.primaryIndex = {KeyFragments::Index{indexId}};
+        current = TokenType::PRIMARY_KEY_PARTS;
+      } else {
+        keyFragments.secondaryIndex = {KeyFragments::Index{indexId}};
+        current = TokenType::SECONDARY_INDEX_KEY_PARTS;
       }
-        break;
+    } break;
 
-      case TokenType::TBL_ID: {
-        keyFragments.tableId = folly::to<TableSchemaType::TableIdType>(token);
-        current = TokenType::INDEX_ID;
+    case TokenType::PRIMARY_KEY_PARTS: {
+      if (!indexKeyPartsColId) {
+        keyFragments.primaryIndex->values.emplace_back(std::move(token));
       }
-        break;
 
-      case TokenType::INDEX_ID: {
-        auto indexId =
-            folly::to<TableSchemaType::TableIdType>(token);
-        // primary key index is always 0
-        if (indexId == 0) {
-          keyFragments.primaryIndex = {KeyFragments::Index{indexId}};
-          current = TokenType::PRIMARY_KEY_PARTS;
-        } else {
-          keyFragments.secondaryIndex = {KeyFragments::Index{indexId}};
-          current = TokenType::SECONDARY_INDEX_KEY_PARTS;
-        }
+      indexKeyPartsColId = !indexKeyPartsColId;
+
+      if (keyFragments.primaryIndex->values.size() ==
+          table.primary_key_index().column_ids().size()) {
+        current = TokenType::COL_ID;
       }
-        break;
+    } break;
 
-      case TokenType::PRIMARY_KEY_PARTS: {
-        if (!indexKeyPartsColId) {
-          keyFragments.primaryIndex->values.emplace_back(std::move(token));
-        }
+    case TokenType::COL_ID: {
+      keyFragments.colId = {folly::to<TableSchemaType::ColumnIdType>(token)};
+    } break;
 
-        indexKeyPartsColId = !indexKeyPartsColId;
-
-        if (keyFragments.primaryIndex->values.size()
-            == table.primary_key_index().column_ids().size()) {
-          current = TokenType::COL_ID;
-        }
+    case TokenType::SECONDARY_INDEX_KEY_PARTS: {
+      if (!indexKeyPartsColId) {
+        keyFragments.secondaryIndex->values.emplace_back(std::move(token));
       }
-        break;
 
-      case TokenType::COL_ID: {
-        keyFragments.colId = {folly::to<TableSchemaType::ColumnIdType>(token)};
-      }
-        break;
+      indexKeyPartsColId = !indexKeyPartsColId;
+    } break;
 
-      case TokenType::SECONDARY_INDEX_KEY_PARTS: {
-        if (!indexKeyPartsColId) {
-          keyFragments.secondaryIndex->values.emplace_back(std::move(token));
-        }
-
-        indexKeyPartsColId = !indexKeyPartsColId;
-      }
-        break;
-
-      default:
-        assert(false);
-        break;
+    default:
+      assert(false);
+      break;
     }
   }
 
   return keyFragments;
 }
 
-std::string
-parse(const std::string &str,
-      std::size_t &startIndex,
-      char escapeCharacter) {
+std::string parse(const std::string &str, std::size_t &startIndex,
+                  char escapeCharacter) {
   std::stringstream ss{};
   std::size_t length = str.size();
   for (std::size_t &i = startIndex; i < length; i++) {
     if (str[i] != escapeCharacter) {
       ss << str[i];
-    } else if (str[i] == escapeCharacter
-        && (i + 1 < length && str[i + 1] == escapeCharacter)) {
+    } else if (str[i] == escapeCharacter &&
+               (i + 1 < length && str[i + 1] == escapeCharacter)) {
       ss << escapeCharacter;
       i++;
     } else {
@@ -128,14 +119,12 @@ parse(const std::string &str,
   return ss.str();
 }
 
-std::string
-primaryKey(const internal::Table &table,
-           const std::vector<ColumnValue> &values) {
+std::string primaryKey(const internal::Table &table,
+                       const std::vector<ColumnValue> &values) {
   assert(table.primary_key_index().column_ids().size() == values.size());
   std::stringstream ss;
-  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER
-     << table.id() << DEFAULT_ESCAPE_CHARACTER
-     << table.primary_key_index().id();
+  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
+     << DEFAULT_ESCAPE_CHARACTER << table.primary_key_index().id();
 
   for (std::int32_t index = 0; index < values.size(); index++) {
     ss << DEFAULT_ESCAPE_CHARACTER
@@ -150,35 +139,30 @@ primaryKey(const internal::Table &table,
 std::string minimumIndexKey(const internal::Table &table,
                             TableSchemaType::TableIdType indexId) {
   std::stringstream ss;
-  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER
-     << table.id() << DEFAULT_ESCAPE_CHARACTER
-     << indexId;
+  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
+     << DEFAULT_ESCAPE_CHARACTER << indexId;
 
   return ss.str();
 }
 
-std::string
-columnKey(const std::string &primaryKey, std::uint32_t colId) {
+std::string columnKey(const std::string &primaryKey, std::uint32_t colId) {
   std::stringstream ss;
   ss << primaryKey << DEFAULT_ESCAPE_CHARACTER << colId;
   return ss.str();
 }
 
-std::string
-secondaryIndexKey(const internal::Table &table,
-                  std::uint32_t indexId,
-                  const std::vector<ColumnValue> &values) {
-  for (const auto &secondaryIndex: table.secondary_index()) {
+std::string secondaryIndexKey(const internal::Table &table,
+                              std::uint32_t indexId,
+                              const std::vector<ColumnValue> &values) {
+  for (const auto &secondaryIndex : table.secondary_index()) {
     if (secondaryIndex.id() == indexId) {
       assert(secondaryIndex.column_ids().size() == values.size());
       std::stringstream ss;
-      ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER
-         << table.id() << DEFAULT_ESCAPE_CHARACTER
-         << indexId;
+      ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
+         << DEFAULT_ESCAPE_CHARACTER << indexId;
 
       for (std::int32_t index = 0; index < values.size(); index++) {
-        ss << DEFAULT_ESCAPE_CHARACTER
-           << secondaryIndex.column_ids(index)
+        ss << DEFAULT_ESCAPE_CHARACTER << secondaryIndex.column_ids(index)
            << DEFAULT_ESCAPE_CHARACTER
            << escapeString(mydb::toString(values[index]));
       }
@@ -189,4 +173,4 @@ secondaryIndexKey(const internal::Table &table,
 
   assert(false);
 }
-}
+} // namespace rk::projects::mydb::prefix

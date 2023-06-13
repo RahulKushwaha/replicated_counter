@@ -6,12 +6,12 @@
 
 #include "../include/MetadataStore.h"
 #include "../include/NanoLogStore.h"
+#include "../include/Registry.h"
+#include "../include/Replica.h"
 #include "../include/VirtualLog.h"
 #include "InMemoryMetadataStore.h"
 #include "NanoLogStoreImpl.h"
-#include "../include/Replica.h"
 #include "ReplicaImpl.h"
-#include "../include/Registry.h"
 
 namespace rk::projects::durable_log {
 
@@ -20,8 +20,7 @@ std::unique_ptr<NanoLogStore> makeNanoLogStore();
 std::unique_ptr<MetadataStore> makeMetadataStore();
 
 std::unique_ptr<Replica>
-makeReplica(std::string id,
-            std::string name,
+makeReplica(std::string id, std::string name,
             std::shared_ptr<NanoLogStore> nanoLogStore,
             std::shared_ptr<MetadataStore> metadataStore);
 
@@ -31,4 +30,4 @@ makeSequencer(std::string sequencerId,
 
 std::unique_ptr<Registry> makeRegistry();
 
-}
+} // namespace rk::projects::durable_log

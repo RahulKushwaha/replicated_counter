@@ -33,11 +33,10 @@ using namespace prometheus;
 constexpr std::string_view GRPC_SVC_ADDRESS_FORMAT = {"{}:{}"};
 
 class LogServer {
- public:
+public:
   explicit LogServer(::rk::projects::server::ServerConfig serverConfig,
                      ::rk::projects::durable_log::Options options = {})
-      : config_{std::move(serverConfig)},
-        options_{std::move(options)},
+      : config_{std::move(serverConfig)}, options_{std::move(options)},
         mtx_{std::make_unique<std::mutex>()} {}
 
   folly::coro::Task<void> start() {
@@ -64,7 +63,8 @@ class LogServer {
     state_ = std::make_shared<State>(std::move(state));
 
     // ask the exposer to scrape the registry on incoming HTTP requests
-    state_->exposer->RegisterCollectable(metrics::MetricsRegistry::instance().registryWeakRef());
+    state_->exposer->RegisterCollectable(
+        metrics::MetricsRegistry::instance().registryWeakRef());
 
     co_return;
   }
@@ -83,12 +83,9 @@ class LogServer {
     co_return;
   }
 
-  std::shared_ptr<VirtualLog> getVirtualLog() {
-    return state_->virtualLog;
-  }
+  std::shared_ptr<VirtualLog> getVirtualLog() { return state_->virtualLog; }
 
- private:
-
+private:
   struct State {
     rk::projects::server::ServerConfig config;
 
@@ -115,60 +112,55 @@ class LogServer {
     std::shared_ptr<VirtualLog> virtualLog;
 
     void makeMetricExposer() {
-      const auto address = fmt::format(GRPC_SVC_ADDRESS_FORMAT,
-                                       config.metric_server_config().ip_address().host(),
-                                       config.metric_server_config().ip_address().port());
+      const auto address =
+          fmt::format(GRPC_SVC_ADDRESS_FORMAT,
+                      config.metric_server_config().ip_address().host(),
+                      config.metric_server_config().ip_address().port());
 
       exposer = std::make_shared<Exposer>(address);
     }
 
     void makeRemoteMetadataStore() {
-      const auto address = fmt::format(GRPC_SVC_ADDRESS_FORMAT,
-                                       config.metadata_config().ip_address().host(),
-                                       config.metadata_config().ip_address().port());
+      const auto address = fmt::format(
+          GRPC_SVC_ADDRESS_FORMAT, config.metadata_config().ip_address().host(),
+          config.metadata_config().ip_address().port());
 
-      std::shared_ptr<client::MetadataStoreClient>
-          metadataStoreClient =
-          std::make_shared<client::MetadataStoreClient>(grpc::CreateChannel(
-              address, grpc::InsecureChannelCredentials()));
+      std::shared_ptr<client::MetadataStoreClient> metadataStoreClient =
+          std::make_shared<client::MetadataStoreClient>(
+              grpc::CreateChannel(address, grpc::InsecureChannelCredentials()));
 
       metadataStore =
           std::make_shared<RemoteMetadataStore>(metadataStoreClient);
     }
 
     void makeReplicaServer() {
-      const auto address = fmt::format(GRPC_SVC_ADDRESS_FORMAT,
-                                       config.replica_config().ip_address().host(),
-                                       config.replica_config().ip_address().port());
-      replica = makeReplica(config.replica_config().id(),
-                            "ReplicaName",
-                            nanoLogStore,
-                            metadataStore);
+      const auto address = fmt::format(
+          GRPC_SVC_ADDRESS_FORMAT, config.replica_config().ip_address().host(),
+          config.replica_config().ip_address().port());
+      replica = makeReplica(config.replica_config().id(), "ReplicaName",
+                            nanoLogStore, metadataStore);
 
       registry->registerReplica(config.replica_config().id(), replica);
 
       replicaServer = std::make_shared<server::ReplicaServer>(replica);
 
-      replicaGRPCServer = durable_log::server::runRPCServer(address,
-                                                            replicaServer.get(),
-                                                            threadPoolExecutor.get(),
-                                                            "Replica")
-          .get();
+      replicaGRPCServer =
+          durable_log::server::runRPCServer(address, replicaServer.get(),
+                                            threadPoolExecutor.get(), "Replica")
+              .get();
     }
 
     void makeReplicaSet() {
-      for (const auto &remoteReplicaConfig: config.replica_set()) {
-        const auto
-            remoteReplicaClientAddress = fmt::format(GRPC_SVC_ADDRESS_FORMAT,
-                                                     remoteReplicaConfig.ip_address().host(),
-                                                     remoteReplicaConfig.ip_address().port());
+      for (const auto &remoteReplicaConfig : config.replica_set()) {
+        const auto remoteReplicaClientAddress = fmt::format(
+            GRPC_SVC_ADDRESS_FORMAT, remoteReplicaConfig.ip_address().host(),
+            remoteReplicaConfig.ip_address().port());
         std::shared_ptr<client::ReplicaClient> replicaClient =
-            std::make_shared<client::ReplicaClient>(grpc::CreateChannel(
-                remoteReplicaClientAddress,
-                grpc::InsecureChannelCredentials()));
+            std::make_shared<client::ReplicaClient>(
+                grpc::CreateChannel(remoteReplicaClientAddress,
+                                    grpc::InsecureChannelCredentials()));
 
-        std::shared_ptr<Replica>
-            remoteReplica =
+        std::shared_ptr<Replica> remoteReplica =
             std::make_shared<RemoteReplica>(std::move(replicaClient));
 
         replicaSet.emplace_back(std::move(remoteReplica));
@@ -182,29 +174,25 @@ class LogServer {
     }
 
     void makeSequencerServer() {
-      const auto sequencerAddress = fmt::format(GRPC_SVC_ADDRESS_FORMAT,
-                                                config.sequencer_config().ip_address().host(),
-                                                config.sequencer_config().ip_address().port());
+      const auto sequencerAddress =
+          fmt::format(GRPC_SVC_ADDRESS_FORMAT,
+                      config.sequencer_config().ip_address().host(),
+                      config.sequencer_config().ip_address().port());
       sequencer = makeSequencer(config.sequencer_config().id(), replicaSet);
 
       sequencerServer = std::make_shared<server::SequencerServer>(sequencer);
 
-      sequencerGRPCServer = durable_log::server::runRPCServer(sequencerAddress,
-                                                              sequencerServer.get(),
-                                                              threadPoolExecutor.get(),
-                                                              "Sequencer").get();
+      sequencerGRPCServer = durable_log::server::runRPCServer(
+                                sequencerAddress, sequencerServer.get(),
+                                threadPoolExecutor.get(), "Sequencer")
+                                .get();
     }
 
     void makeVirtualLog() {
       virtualLog = std::make_shared<VirtualLogImpl>(
-          "VIRTUAL_LOG_"
-              + utils::UuidGenerator::instance().generate(),
-          "appName",
-          std::make_shared<NullSequencer>(),
-          replicaSet,
-          metadataStore,
-          1,
-          registry);
+          "VIRTUAL_LOG_" + utils::UuidGenerator::instance().generate(),
+          "appName", std::make_shared<NullSequencer>(), replicaSet,
+          metadataStore, 1, registry);
     }
 
     void registerSequencers() {
@@ -212,18 +200,16 @@ class LogServer {
       registry->registerSequencer(config.sequencer_config().id(), sequencer);
 
       // register remote sequencers
-      for (const auto &remoteSequencerConfig: config.remote_sequencer_set()) {
-        const auto
-            remoteSequencerClientAddress = fmt::format(GRPC_SVC_ADDRESS_FORMAT,
-                                                       remoteSequencerConfig.ip_address().host(),
-                                                       remoteSequencerConfig.ip_address().port());
+      for (const auto &remoteSequencerConfig : config.remote_sequencer_set()) {
+        const auto remoteSequencerClientAddress = fmt::format(
+            GRPC_SVC_ADDRESS_FORMAT, remoteSequencerConfig.ip_address().host(),
+            remoteSequencerConfig.ip_address().port());
         std::shared_ptr<client::SequencerClient> sequencerClient =
-            std::make_shared<client::SequencerClient>(grpc::CreateChannel(
-                remoteSequencerClientAddress,
-                grpc::InsecureChannelCredentials()));
+            std::make_shared<client::SequencerClient>(
+                grpc::CreateChannel(remoteSequencerClientAddress,
+                                    grpc::InsecureChannelCredentials()));
 
-        std::shared_ptr<Sequencer>
-            remoteSequencer =
+        std::shared_ptr<Sequencer> remoteSequencer =
             std::make_shared<RemoteSequencer>(std::move(sequencerClient));
 
         registry->registerSequencer(remoteSequencerConfig.id(),
@@ -238,4 +224,4 @@ class LogServer {
   std::shared_ptr<State> state_;
 };
 
-}
+} // namespace rk::projects::durable_log::server

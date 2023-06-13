@@ -2,9 +2,9 @@
 // Created by Rahul  Kushwaha on 3/5/23.
 //
 
+#include "../UuidGenerator.h"
 #include <gtest/gtest.h>
 #include <unordered_set>
-#include "../UuidGenerator.h"
 
 namespace rk::projects::utils {
 
@@ -24,4 +24,4 @@ TEST(UuidGeneratorTests, createUuidMultipleAndAreUnique) {
   ASSERT_EQ(uuids.size(), limit);
 }
 
-}
+} // namespace rk::projects::utils

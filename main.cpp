@@ -1,8 +1,8 @@
 #include <iostream>
 #include <utility>
 
-#include "applications/counter/CounterAppEnsembleNode.h"
 #include "applications/counter/CounterApp.h"
+#include "applications/counter/CounterAppEnsembleNode.h"
 #include "applications/counter/client/CounterAppClient.h"
 #include "applications/counter/server/CounterAppServer.h"
 #include "log/impl/VirtualLogFactory.h"
@@ -32,8 +32,7 @@ int main() {
     auto future = runServer(serverAddress, counterApp);
 
     CounterAppClient client{
-        grpc::CreateChannel(serverAddress,
-                            grpc::InsecureChannelCredentials())};
+        grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials())};
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
@@ -49,7 +48,6 @@ int main() {
 
     future.value()->Shutdown();
   }
-
 
   {
     std::string key{"TEST_KEY"};
@@ -72,7 +70,7 @@ int main() {
 
       std::int32_t index = 0;
 
-      for (auto &ensemble: counterAppEnsemble.nodes_) {
+      for (auto &ensemble : counterAppEnsemble.nodes_) {
         auto ensembleAlive = ensemble.failureDetector->healthy();
         LOG(INFO) << "Ensemble Node: " << index << " "
                   << (ensembleAlive ? "T" : "F");
@@ -85,7 +83,6 @@ int main() {
     }
 
     auto &app1 = counterAppEnsemble.nodes_[0].app;
-
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
@@ -104,10 +101,10 @@ int main() {
 
     LOG(INFO) << "Every Replica has the same value: " << val;
 
-//    while (true) {
-//      LOG(INFO) << "Sleeping for 2 seconds";
-//      folly::futures::sleep(std::chrono::milliseconds{20000}).get();
-//    }
+    //    while (true) {
+    //      LOG(INFO) << "Sleeping for 2 seconds";
+    //      folly::futures::sleep(std::chrono::milliseconds{20000}).get();
+    //    }
   }
 
   return 0;

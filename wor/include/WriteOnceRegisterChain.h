@@ -9,11 +9,11 @@ namespace rk::projects::wor {
 using WorId = std::int64_t;
 
 class WriteOnceRegisterChain {
- public:
+public:
   virtual std::optional<WorId> append() = 0;
   virtual std::optional<std::shared_ptr<WriteOnceRegister>> get(WorId id) = 0;
   virtual std::optional<WorId> tail() = 0;
   virtual std::optional<WorId> front() = 0;
 };
 
-}
+} // namespace rk::projects::wor

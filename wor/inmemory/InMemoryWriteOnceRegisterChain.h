@@ -12,8 +12,8 @@
 
 namespace rk::projects::wor {
 
-class InMemoryWriteOnceRegisterChain: public WriteOnceRegisterChain {
- public:
+class InMemoryWriteOnceRegisterChain : public WriteOnceRegisterChain {
+public:
   explicit InMemoryWriteOnceRegisterChain()
       : worId_{0}, lookup_{}, mtx_{std::make_unique<std::mutex>()} {}
 
@@ -55,10 +55,10 @@ class InMemoryWriteOnceRegisterChain: public WriteOnceRegisterChain {
     return {lookup_.begin()->first};
   }
 
- private:
+private:
   WorId worId_;
   std::map<WorId, std::shared_ptr<WriteOnceRegister>> lookup_;
   std::unique_ptr<std::mutex> mtx_;
 };
 
-}
+} // namespace rk::projects::wor

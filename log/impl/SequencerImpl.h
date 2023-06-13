@@ -4,22 +4,21 @@
 
 #pragma once
 
-#include "log/include/Sequencer.h"
 #include "log/include/Replica.h"
+#include "log/include/Sequencer.h"
 
 #include <vector>
 
 namespace rk::projects::durable_log {
 
-class SequencerImpl: public Sequencer {
- public:
+class SequencerImpl : public Sequencer {
+public:
   explicit SequencerImpl(std::string id,
                          std::vector<std::shared_ptr<Replica>> replicaSet,
-                         LogId seedSeqNum,
-                         VersionId versionId,
+                         LogId seedSeqNum, VersionId versionId,
                          bool isAlive = false);
 
- public:
+public:
   std::string getId() override;
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
   folly::SemiFuture<LogId> latestAppendPosition() override;
@@ -28,7 +27,7 @@ class SequencerImpl: public Sequencer {
   void stop() override;
   ~SequencerImpl() override = default;
 
- private:
+private:
   std::string id_;
   std::vector<std::shared_ptr<Replica>> replicaSet_;
   std::atomic<LogId> sequenceNum_;
@@ -39,4 +38,4 @@ class SequencerImpl: public Sequencer {
   std::unique_ptr<std::mutex> mtx_;
 };
 
-}
+} // namespace rk::projects::durable_log

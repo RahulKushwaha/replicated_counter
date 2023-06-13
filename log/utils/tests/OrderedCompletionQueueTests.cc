@@ -2,11 +2,11 @@
 // Created by Rahul  Kushwaha on 1/2/23.
 //
 
-#include <gtest/gtest.h>
-#include <folly/futures/Future.h>
-#include <random>
-#include <map>
 #include <chrono>
+#include <folly/futures/Future.h>
+#include <gtest/gtest.h>
+#include <map>
+#include <random>
 
 #include "../OrderedCompletionQueue.h"
 
@@ -65,8 +65,8 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomlyAndCompleteOld) {
   OrderedCompletionQueue<std::int32_t> queue;
   std::vector<std::int32_t> elements{1, 3, 5, 7, 8, 56};
 
-  std::vector<folly::Future<std::int32_t >> futures;
-  for (auto element: elements) {
+  std::vector<folly::Future<std::int32_t>> futures;
+  for (auto element : elements) {
     folly::Promise<std::int32_t> promise;
     folly::Future<std::int32_t> future = promise.getFuture();
 
@@ -80,12 +80,12 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomlyAndCompleteOld) {
     folly::Promise<std::int32_t> promise;
     folly::Future<std::int32_t> future = promise.getFuture();
 
-//    queue.addAndCompleteOld(57, std::move(promise), 57);
+    //    queue.addAndCompleteOld(57, std::move(promise), 57);
   }
 
   folly::collectAll(futures.begin(), futures.end()).get();
 
-  for (auto &future: futures) {
+  for (auto &future : futures) {
     ASSERT_TRUE(future.hasValue());
   }
 }
@@ -100,8 +100,8 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomly) {
   auto rng = std::default_random_engine{};
   std::shuffle(std::begin(elements), std::end(elements), rng);
 
-  std::vector<folly::Future<std::int32_t >> futures;
-  for (auto element: elements) {
+  std::vector<folly::Future<std::int32_t>> futures;
+  for (auto element : elements) {
     folly::Promise<std::int32_t> promise;
     folly::Future<std::int32_t> future = promise.getFuture();
 
@@ -112,7 +112,7 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomly) {
 
   folly::collectAll(futures.begin(), futures.end()).get();
 
-  for (auto &future: futures) {
+  for (auto &future : futures) {
     ASSERT_TRUE(future.hasValue());
   }
 }
@@ -136,8 +136,8 @@ TEST(OrderedCompletionQueueTests,
     // Now all the futures before the pivot should be completed.
     // And all the future after the pivot should be pending.
 
-    std::map<std::int32_t, folly::Future<std::int32_t >> futures;
-    for (auto element: elements) {
+    std::map<std::int32_t, folly::Future<std::int32_t>> futures;
+    for (auto element : elements) {
       folly::Promise<std::int32_t> promise;
       folly::Future<std::int32_t> future = promise.getFuture();
 
@@ -147,7 +147,7 @@ TEST(OrderedCompletionQueueTests,
     }
 
     std::int32_t complete = 0, incomplete = 0;
-    for (auto &[index, future]: futures) {
+    for (auto &[index, future] : futures) {
       if (index < pivot) {
         ASSERT_EQ(future.value(), index);
         complete++;
@@ -160,9 +160,10 @@ TEST(OrderedCompletionQueueTests,
     ASSERT_EQ(complete, pivot);
     ASSERT_EQ(incomplete, futures.size() - pivot);
     ASSERT_EQ(queue.getCurrentIndex(), pivot);
-    LOG(INFO) << "Total: " << futures.size() << " " << "Complete: " << complete
-              << " " << "Incomplete: " << incomplete;
+    LOG(INFO) << "Total: " << futures.size() << " "
+              << "Complete: " << complete << " "
+              << "Incomplete: " << incomplete;
   }
 }
 
-}
+} // namespace rk::projects::utils

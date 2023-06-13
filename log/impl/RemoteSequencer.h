@@ -4,20 +4,18 @@
 
 #pragma once
 
-#include "log/include/Sequencer.h"
 #include "log/client/SequencerClient.h"
+#include "log/include/Sequencer.h"
 
 namespace rk::projects::durable_log {
 
-class RemoteSequencer final: public Sequencer {
- public:
-  explicit RemoteSequencer
-      (std::shared_ptr<client::SequencerClient> sequencerClient)
+class RemoteSequencer final : public Sequencer {
+public:
+  explicit RemoteSequencer(
+      std::shared_ptr<client::SequencerClient> sequencerClient)
       : sequencerClient_{std::move(sequencerClient)} {}
 
-  std::string getId() override {
-    return sequencerClient_->getId().get();
-  }
+  std::string getId() override { return sequencerClient_->getId().get(); }
 
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override {
     return sequencerClient_->append(std::move(logEntryPayload));
@@ -31,18 +29,14 @@ class RemoteSequencer final: public Sequencer {
     throw NotImplementedException{};
   }
 
-  bool isAlive() override {
-    return sequencerClient_->isAlive().get();
-  }
+  bool isAlive() override { return sequencerClient_->isAlive().get(); }
 
-  void stop() override {
-    throw NotImplementedException{};
-  }
+  void stop() override { throw NotImplementedException{}; }
 
   ~RemoteSequencer() override = default;
 
- private:
+private:
   std::shared_ptr<client::SequencerClient> sequencerClient_;
 };
 
-}
+} // namespace rk::projects::durable_log

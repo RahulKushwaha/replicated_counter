@@ -4,42 +4,30 @@
 
 #include "ReplicaImpl.h"
 #include "VectorBasedNanoLog.h"
-#include "log/utils/UuidGenerator.h"
 #include "folly/executors/InlineExecutor.h"
+#include "log/utils/UuidGenerator.h"
 
 namespace rk::projects::durable_log {
 
-ReplicaImpl::ReplicaImpl(
-    std::string id,
-    std::string name,
-    std::shared_ptr<NanoLogStore> nanoLogStore,
-    std::shared_ptr<MetadataStore> metadataStore,
-    bool local)
+ReplicaImpl::ReplicaImpl(std::string id, std::string name,
+                         std::shared_ptr<NanoLogStore> nanoLogStore,
+                         std::shared_ptr<MetadataStore> metadataStore,
+                         bool local)
     : id_{std::move(id)}, name_{std::move(name)},
       nanoLogStore_{std::move(nanoLogStore)},
-      metadataStore_{std::move(metadataStore)},
-      local_{local},
-      mtx_{std::make_shared<std::mutex>()} {
-}
+      metadataStore_{std::move(metadataStore)}, local_{local},
+      mtx_{std::make_shared<std::mutex>()} {}
 
-std::string ReplicaImpl::getId() {
-  return id_;
-}
+std::string ReplicaImpl::getId() { return id_; }
 
-std::string ReplicaImpl::getName() {
-  return name_;
-}
+std::string ReplicaImpl::getName() { return name_; }
 
 folly::SemiFuture<folly::Unit>
-ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
-                    VersionId versionId,
-                    LogId logId,
-                    std::string logEntryPayload,
-                    bool skipSeal) {
+ReplicaImpl::append(std::optional<LogId> globalCommitIndex, VersionId versionId,
+                    LogId logId, std::string logEntryPayload, bool skipSeal) {
   std::lock_guard lk{*mtx_};
 
-  std::shared_ptr<NanoLog>
-      nanoLog = nanoLogStore_->getNanoLog(versionId);
+  std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
 
   // If there is nanolog for the versionId, we need to create one.
   if (!nanoLog) {
@@ -48,13 +36,10 @@ ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
       throw MetadataBlockNotFound{};
     }
 
-    nanoLog = std::make_shared<VectorBasedNanoLog>
-        (utils::UuidGenerator::instance().generate(),
-         "VectorBasedNanoLog",
-         std::to_string(versionId),
-         config->start_index(),
-         std::numeric_limits<std::int64_t>::max(),
-         false);
+    nanoLog = std::make_shared<VectorBasedNanoLog>(
+        utils::UuidGenerator::instance().generate(), "VectorBasedNanoLog",
+        std::to_string(versionId), config->start_index(),
+        std::numeric_limits<std::int64_t>::max(), false);
 
     nanoLogStore_->add(versionId, nanoLog);
   }
@@ -74,12 +59,11 @@ folly::SemiFuture<std::variant<LogEntry, LogReadError>>
 ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
   std::lock_guard lk{*mtx_};
 
-  std::shared_ptr<NanoLog>
-      nanoLog = nanoLogStore_->getNanoLog(versionId);
+  std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
 
   if (!nanoLog) {
-    return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>
-        (std::variant<LogEntry, LogReadError>{LogReadError::NotFound});
+    return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>(
+        std::variant<LogEntry, LogReadError>{LogReadError::NotFound});
   }
 
   return folly::makeSemiFuture(nanoLog->getLogEntry(logId));
@@ -105,13 +89,10 @@ LogId ReplicaImpl::seal(VersionId versionId) {
   // There might be a case where an empty segment might be sealed
   // due to multiple seal commands one after the another.
   if (!nanoLog) {
-    nanoLog = std::make_shared<VectorBasedNanoLog>
-        (utils::UuidGenerator::instance().generate(),
-         "VectorBasedNanoLog",
-         std::to_string(versionId),
-         config->start_index(),
-         std::numeric_limits<std::int64_t>::max(),
-         false);
+    nanoLog = std::make_shared<VectorBasedNanoLog>(
+        utils::UuidGenerator::instance().generate(), "VectorBasedNanoLog",
+        std::to_string(versionId), config->start_index(),
+        std::numeric_limits<std::int64_t>::max(), false);
 
     nanoLogStore_->add(versionId, nanoLog);
 
@@ -125,4 +106,4 @@ LogId ReplicaImpl::seal(VersionId versionId) {
   throw NanoLogLogNotAvailable{};
 }
 
-}
+} // namespace rk::projects::durable_log

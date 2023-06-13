@@ -3,15 +3,15 @@
 //
 #pragma once
 
-#include <grpc++/grpc++.h>
-#include "log/server/proto/Replica.grpc.pb.h"
-#include "log/server/proto/Common.pb.h"
 #include "../include/Replica.h"
+#include "log/server/proto/Common.pb.h"
+#include "log/server/proto/Replica.grpc.pb.h"
+#include <grpc++/grpc++.h>
 
 namespace rk::projects::durable_log::server {
 
-class ReplicaServer final: public server::ReplicaService::Service {
- public:
+class ReplicaServer final : public server::ReplicaService::Service {
+public:
   explicit ReplicaServer(std::shared_ptr<Replica> replica);
 
   grpc::Status getId(::grpc::ServerContext *context,
@@ -23,17 +23,18 @@ class ReplicaServer final: public server::ReplicaService::Service {
   grpc::Status getLogEntry(::grpc::ServerContext *context,
                            const server::GetLogEntryRequest *request,
                            server::GetLogEntryResponse *response) override;
-  grpc::Status getLocalCommitIndex(::grpc::ServerContext *context,
-                                   const server::GetLocalCommitIndexRequest *request,
-                                   server::LogIdResponse *response) override;
+  grpc::Status
+  getLocalCommitIndex(::grpc::ServerContext *context,
+                      const server::GetLocalCommitIndexRequest *request,
+                      server::LogIdResponse *response) override;
   grpc::Status seal(::grpc::ServerContext *context,
                     const server::SealRequest *request,
                     server::LogIdResponse *response) override;
 
   ~ReplicaServer() override;
 
- private:
+private:
   std::shared_ptr<Replica> replica_;
 };
 
-}
+} // namespace rk::projects::durable_log::server

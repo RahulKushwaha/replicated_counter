@@ -2,21 +2,19 @@
 // Created by Rahul  Kushwaha on 4/10/23.
 //
 
-#include <gtest/gtest.h>
-#include "rocksdb/db.h"
 #include "applications/mydb/backend/RocksDbFactory.h"
 #include "applications/mydb/backend/RocksReaderWriter.h"
-#include "applications/mydb/backend/tests/TestUtils.h"
 #include "applications/mydb/backend/RowSerializer.h"
+#include "applications/mydb/backend/tests/TestUtils.h"
+#include "rocksdb/db.h"
+#include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
-class RocksReaderWriterTests: public ::testing::Test {
- protected:
-  RocksDbFactory::RocksDbConfig config{
-      .path = "/tmp/db3",
-      .createIfMissing = true
-  };
+class RocksReaderWriterTests : public ::testing::Test {
+protected:
+  RocksDbFactory::RocksDbConfig config{.path = "/tmp/db3",
+                                       .createIfMissing = true};
 
   rocksdb::DB *db_;
   std::unique_ptr<RocksReaderWriter> rocksReaderWriter_;
@@ -51,7 +49,6 @@ class RocksReaderWriterTests: public ::testing::Test {
   }
 };
 
-
 TEST_F(RocksReaderWriterTests, writeToRockdb) {
   auto internalTable = test_utils::getInternalTable(1);
   auto rawTableRows = RowSerializer::serialize(internalTable);
@@ -60,7 +57,7 @@ TEST_F(RocksReaderWriterTests, writeToRockdb) {
   ASSERT_TRUE(result);
 
   std::string primaryKey;
-  for (auto &[k, v]: rawTableRows[0].keyValues) {
+  for (auto &[k, v] : rawTableRows[0].keyValues) {
     if (v == "NULL") {
       primaryKey = k;
       break;
@@ -86,8 +83,8 @@ TEST_F(RocksReaderWriterTests, writeToRockdbMultipleRows) {
   ASSERT_TRUE(result);
 
   std::vector<RawTableRow::Key> keys;
-  for (auto &row: rawTableRows) {
-    for (auto &[k, v]: row.keyValues) {
+  for (auto &row : rawTableRows) {
+    for (auto &[k, v] : row.keyValues) {
       if (v == "NULL") {
         keys.emplace_back(k);
         break;
@@ -113,11 +110,11 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
   bool result = rocksReaderWriter_->write(rawTableRows);
   ASSERT_TRUE(result);
 
-  auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
-                                     internalTable.schema->rawTable().primary_key_index().id());
+  auto key = prefix::minimumIndexKey(
+      internalTable.schema->rawTable(),
+      internalTable.schema->rawTable().primary_key_index().id());
 
-  auto response =
-      rocksReaderWriter_->scan(key, ScanDirection::FORWARD);
+  auto response = rocksReaderWriter_->scan(key, ScanDirection::FORWARD);
 
   auto responseTable =
       RowSerializer::deserialize(internalTable.schema, response);
@@ -125,4 +122,4 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
   ASSERT_TRUE(internalTable.table->Equals(*responseTable.table));
 }
 
-}
+} // namespace rk::projects::mydb

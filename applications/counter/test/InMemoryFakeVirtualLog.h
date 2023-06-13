@@ -8,10 +8,9 @@ namespace rk::projects::counter_app {
 
 using namespace rk::projects::durable_log;
 
-class InMemoryFakeVirtualLog: public durable_log::VirtualLog {
- public:
-  explicit InMemoryFakeVirtualLog() : logEntries_{}, logId_{1} {
-  }
+class InMemoryFakeVirtualLog : public durable_log::VirtualLog {
+public:
+  explicit InMemoryFakeVirtualLog() : logEntries_{}, logId_{1} {}
 
   std::string getId() override { throw std::runtime_error{"NOT_IMPLEMENTED"}; }
 
@@ -56,9 +55,9 @@ class InMemoryFakeVirtualLog: public durable_log::VirtualLog {
     throw std::runtime_error{"NOT_IMPLEMENTED"};
   }
 
- private:
+private:
   std::map<durable_log::LogId, std::string> logEntries_;
   durable_log::LogId logId_;
 };
 
-}
+} // namespace rk::projects::counter_app

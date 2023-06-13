@@ -2,25 +2,21 @@
 // Created by Rahul  Kushwaha on 1/16/23.
 //
 
-#include <gtest/gtest.h>
-#include "TestUtils.h"
 #include "log/include/VirtualLog.h"
+#include "TestUtils.h"
 #include "log/impl/VirtualLogImpl.h"
 #include "log/utils/FutureUtils.h"
+#include <gtest/gtest.h>
 
 namespace rk::projects::durable_log {
 
 TEST(VirtualLogTests, AppendOneLogEntry) {
   auto sequencerCreationResult = createSequencer(0);
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
   ASSERT_EQ(log->append("hello_world").get(), 1);
 }
@@ -28,15 +24,11 @@ TEST(VirtualLogTests, AppendOneLogEntry) {
 TEST(VirtualLogTests, GetOneLogEntry) {
   std::string logEntryPayload{"hello_world"};
   auto sequencerCreationResult = createSequencer(0);
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
   ASSERT_EQ(log->append(logEntryPayload).get(), 1);
 
@@ -51,15 +43,11 @@ TEST(VirtualLogTests, GetOneLogEntry) {
 TEST(VirtualLogTests, GetNonExistentLogEntry) {
   std::string logEntryPayload{"hello_world"};
   auto sequencerCreationResult = createSequencer(0);
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
   // Fetch the appended log entry.
   ASSERT_THROW(log->getLogEntry(1).get(), std::exception);
@@ -68,15 +56,11 @@ TEST(VirtualLogTests, GetNonExistentLogEntry) {
 TEST(VirtualLogTests, GetOneLogEntryWithMinorityFailing) {
   std::string logEntryPayload{"hello_world"};
   auto sequencerCreationResult = createSequencer(2);
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
   ASSERT_EQ(log->append(logEntryPayload).get(), 1);
 
@@ -90,36 +74,33 @@ TEST(VirtualLogTests, GetOneLogEntryWithMinorityFailing) {
 
 TEST(VirtualLogTests, ReconfigureOnEmptySegment) {
   auto sequencerCreationResult = createSequencer(0);
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
-  ASSERT_NO_THROW(log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get());
+  ASSERT_NO_THROW(
+      log->reconfigure(sequencerCreationResult.initialMetadataConfig)
+          .semi()
+          .get());
 }
 
 TEST(VirtualLogTests, ReconfigureOnEmptySegmentMultipleTimes) {
   auto sequencerCreationResult = createSequencer(0);
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
   for (int i = 0; i < 10; i++) {
-    ASSERT_NO_THROW(log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get());
+    ASSERT_NO_THROW(
+        log->reconfigure(sequencerCreationResult.initialMetadataConfig)
+            .semi()
+            .get());
   }
 }
-
 
 TEST(VirtualLogTests, Reconfigure) {
   auto sequencerCreationResult = createSequencer(0);
@@ -128,32 +109,31 @@ TEST(VirtualLogTests, Reconfigure) {
   auto currentVersionId = metadataStore->getCurrentVersionId();
 
   int limit = 10;
-  for (auto &replica: replicaSet) {
+  for (auto &replica : replicaSet) {
     for (int i = 1; i <= limit; i++) {
-      replica->append({}, currentVersionId,
-                      i, "Log_Entry" + std::to_string(i)).get();
+      replica->append({}, currentVersionId, i, "Log_Entry" + std::to_string(i))
+          .get();
     }
 
     limit += 10;
   }
 
   int i = 10;
-  for (auto &replica: replicaSet) {
+  for (auto &replica : replicaSet) {
     ASSERT_EQ(replica->getLocalCommitIndex(currentVersionId), i + 1);
     i += 10;
   }
 
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
-  ASSERT_NO_THROW(log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get());
+  ASSERT_NO_THROW(
+      log->reconfigure(sequencerCreationResult.initialMetadataConfig)
+          .semi()
+          .get());
 
   // Successfully installed a new metadata block.
   auto versionId = metadataStore->getCurrentVersionId();
@@ -162,21 +142,21 @@ TEST(VirtualLogTests, Reconfigure) {
   auto config = metadataStore->getConfig(1);
   ASSERT_TRUE(config.has_value());
 
-
   LOG(INFO) << "Last Entry: " << config->end_index();
   for (auto logId = config->start_index(); logId < config->end_index();
        logId++) {
     std::vector<folly::SemiFuture<LogEntry>> futures;
-    for (auto &replica: replicaSet) {
-      auto future = replica->getLogEntry(config->version_id(), logId)
-          .via(&folly::InlineExecutor::instance())
-          .thenValue([](std::variant<LogEntry, LogReadError> &&value) {
-            if (std::holds_alternative<LogEntry>(value)) {
-              return std::get<LogEntry>(value);
-            }
+    for (auto &replica : replicaSet) {
+      auto future =
+          replica->getLogEntry(config->version_id(), logId)
+              .via(&folly::InlineExecutor::instance())
+              .thenValue([](std::variant<LogEntry, LogReadError> &&value) {
+                if (std::holds_alternative<LogEntry>(value)) {
+                  return std::get<LogEntry>(value);
+                }
 
-            throw std::exception{};
-          });
+                throw std::exception{};
+              });
 
       futures.emplace_back(std::move(future));
     }
@@ -190,15 +170,11 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto metadataStore = sequencerCreationResult.metadataStore;
 
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
   int limit = 100;
   int totalNumberOfReconfigurations = 0;
@@ -208,11 +184,15 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
     ASSERT_EQ(logId, i);
 
     if (i % 2 == 0) {
-      log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get();
+      log->reconfigure(sequencerCreationResult.initialMetadataConfig)
+          .semi()
+          .get();
       totalNumberOfReconfigurations++;
 
       if (i % 6 == 0 || i % 8 == 0) {
-        log->reconfigure(sequencerCreationResult.initialMetadataConfig).semi().get();
+        log->reconfigure(sequencerCreationResult.initialMetadataConfig)
+            .semi()
+            .get();
         totalNumberOfReconfigurations++;
       }
     }
@@ -245,11 +225,10 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   };
 
   int logEntriesIndex = 0;
-  for (auto &replica: replicaSet) {
+  for (auto &replica : replicaSet) {
     auto &logEntries = logEntriesOrder[logEntriesIndex];
-    for (const auto logEntry: logEntries) {
-      replica->append({}, versionId,
-                      logEntry,
+    for (const auto logEntry : logEntries) {
+      replica->append({}, versionId, logEntry,
                       "Log_Entry" + std::to_string(logEntry));
     }
 
@@ -264,18 +243,13 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   ASSERT_EQ(replicaSet[3]->getLocalCommitIndex(versionId), 6);
   ASSERT_EQ(replicaSet[4]->getLocalCommitIndex(versionId), 7);
 
+  std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
+      "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
+      sequencerCreationResult.replicaSet, sequencerCreationResult.metadataStore,
+      sequencerCreationResult.initialMetadataConfig.version_id(),
+      sequencerCreationResult.registry);
 
-  std::shared_ptr<VirtualLog>
-      log = std::make_shared<VirtualLogImpl>
-      ("virtual_log_id",
-       "virtual_log_name",
-       sequencerCreationResult.sequencer,
-       sequencerCreationResult.replicaSet,
-       sequencerCreationResult.metadataStore,
-       sequencerCreationResult.initialMetadataConfig.version_id(),
-       sequencerCreationResult.registry);
-
-
-  ASSERT_NO_THROW(log->append("Hello World").get(std::chrono::milliseconds(1000)));
+  ASSERT_NO_THROW(
+      log->append("Hello World").get(std::chrono::milliseconds(1000)));
 }
-}
+} // namespace rk::projects::durable_log

@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
-#include "log/impl/SequencerImpl.h"
-#include "log/impl/ReplicaImpl.h"
+#include "MockReplica.h"
 #include "log/impl/InMemoryMetadataStore.h"
 #include "log/impl/NanoLogStoreImpl.h"
-#include "MockReplica.h"
-#include "log/utils/UuidGenerator.h"
-#include "log/include/Registry.h"
 #include "log/impl/RegistryImpl.h"
+#include "log/impl/ReplicaImpl.h"
+#include "log/impl/SequencerImpl.h"
+#include "log/include/Registry.h"
+#include "log/utils/UuidGenerator.h"
+#include <gtest/gtest.h>
 
 namespace rk::projects::durable_log {
 using namespace testing;
@@ -31,8 +31,8 @@ inline SequencerCreationResult
 createSequencer(std::int32_t numberOfBadReplicas = 0,
                 std::int64_t sequencerStartNum = 1) {
   std::shared_ptr<Registry> registry = std::make_shared<RegistryImpl>();
-  std::shared_ptr<MetadataStore>
-      metadataStore = std::make_shared<InMemoryMetadataStore>();
+  std::shared_ptr<MetadataStore> metadataStore =
+      std::make_shared<InMemoryMetadataStore>();
 
   // Add metadata block.
   MetadataConfig config;
@@ -48,24 +48,21 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
 
   for (std::int32_t i = 0; i < numberOfBadReplicas; i++) {
     std::shared_ptr<MockReplica> mockReplica = std::make_shared<MockReplica>();
-    ON_CALL(*mockReplica, getId())
-        .WillByDefault([]() {
-          return "MOCK_REPLICA_" + utils::UuidGenerator::instance().generate();
-        });
+    ON_CALL(*mockReplica, getId()).WillByDefault([]() {
+      return "MOCK_REPLICA_" + utils::UuidGenerator::instance().generate();
+    });
 
-    ON_CALL(*mockReplica, append(_, _, _, _, _))
-        .WillByDefault([]() {
-          return folly::makeSemiFuture<folly::Unit>
-              (folly::make_exception_wrapper<NonRecoverableError>(
-                  NonRecoverableError{}));
-        });
+    ON_CALL(*mockReplica, append(_, _, _, _, _)).WillByDefault([]() {
+      return folly::makeSemiFuture<folly::Unit>(
+          folly::make_exception_wrapper<NonRecoverableError>(
+              NonRecoverableError{}));
+    });
 
-    ON_CALL(*mockReplica, getLogEntry(_, _))
-        .WillByDefault([]() {
-          return folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-              (folly::make_exception_wrapper<NonRecoverableError>(
-                  NonRecoverableError{}));
-        });
+    ON_CALL(*mockReplica, getLogEntry(_, _)).WillByDefault([]() {
+      return folly::SemiFuture<std::variant<LogEntry, LogReadError>>(
+          folly::make_exception_wrapper<NonRecoverableError>(
+              NonRecoverableError{}));
+    });
 
     config.mutable_replica_set_config()->Add()->set_id(mockReplica->getId());
     registry->registerReplica(mockReplica);
@@ -75,12 +72,9 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
 
   for (std::int32_t i = 0; i < totalNumberOfReplicas - numberOfBadReplicas;
        i++) {
-    std::shared_ptr<Replica>
-        replica = std::make_shared<ReplicaImpl>
-        ("REPLICA_" + utils::UuidGenerator::instance().generate(),
-         "random_name",
-         std::make_shared<NanoLogStoreImpl>(),
-         metadataStore);
+    std::shared_ptr<Replica> replica = std::make_shared<ReplicaImpl>(
+        "REPLICA_" + utils::UuidGenerator::instance().generate(), "random_name",
+        std::make_shared<NanoLogStoreImpl>(), metadataStore);
 
     config.mutable_replica_set_config()->Add()->set_id(replica->getId());
     registry->registerReplica(replica);
@@ -88,20 +82,17 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
     replicaSet.emplace_back(std::move(replica));
   }
 
-  std::shared_ptr<Sequencer> sequencer =
-      std::make_shared<SequencerImpl>(
-          "SEQUENCER_" + utils::UuidGenerator::instance().generate(),
-          replicaSet,
-          sequencerStartNum,
-          config.version_id());
+  std::shared_ptr<Sequencer> sequencer = std::make_shared<SequencerImpl>(
+      "SEQUENCER_" + utils::UuidGenerator::instance().generate(), replicaSet,
+      sequencerStartNum, config.version_id());
   registry->registerSequencer(sequencer);
 
   config.mutable_sequencer_config()->set_id(sequencer->getId());
 
   metadataStore->compareAndAppendRange(0, config);
 
-  return {sequencer, replicaSet, badReplicaSet, goodReplicaSet, metadataStore,
-          config, registry};
+  return {sequencer,     replicaSet, badReplicaSet, goodReplicaSet,
+          metadataStore, config,     registry};
 }
 
-}
+} // namespace rk::projects::durable_log

@@ -4,8 +4,8 @@
 
 #include "../include/Common.h"
 
-#include "log/server/proto/Sequencer.grpc.pb.h"
 #include "../include/MetadataStore.h"
+#include "log/server/proto/Sequencer.grpc.pb.h"
 #include <folly/futures/Future.h>
 #include <glog/logging.h>
 #include <grpc++/grpc++.h>
@@ -13,7 +13,7 @@
 namespace rk::projects::durable_log::client {
 
 class SequencerClient {
- public:
+public:
   explicit SequencerClient(std::shared_ptr<grpc::Channel> channel);
 
   folly::SemiFuture<std::string> getId();
@@ -21,8 +21,8 @@ class SequencerClient {
   folly::SemiFuture<LogId> latestAppendPosition();
   folly::SemiFuture<bool> isAlive();
 
- private:
+private:
   std::unique_ptr<server::SequencerService::Stub> stub_;
 };
 
-}
+} // namespace rk::projects::durable_log::client

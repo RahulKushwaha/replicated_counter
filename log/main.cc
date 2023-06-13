@@ -1,8 +1,8 @@
 //
 // Created by Rahul  Kushwaha on 3/26/23.
 //
-#include<fstream>
-#include<sstream>
+#include <fstream>
+#include <sstream>
 
 #include "glog/logging.h"
 #include "google/protobuf/text_format.h"
@@ -44,8 +44,8 @@ auto main(int argc, char *argv[]) -> int {
 
   runServer.start().semi().get();
 
-  std::this_thread::sleep_for(std::chrono::nanoseconds{
-      std::numeric_limits<std::int64_t>::max()});
+  std::this_thread::sleep_for(
+      std::chrono::nanoseconds{std::numeric_limits<std::int64_t>::max()});
 
   return 0;
 }

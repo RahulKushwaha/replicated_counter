@@ -13,11 +13,9 @@ constexpr std::string_view NULL_SEQUENCER_ID = "NULL_SEQUENCER";
 /* NullSequencer is a special kind of Sequencer that throws exception
  * for any kind of action.
  * */
-class NullSequencer: public Sequencer {
- public:
-  std::string getId() override {
-    return std::string{NULL_SEQUENCER_ID};
-  }
+class NullSequencer : public Sequencer {
+public:
+  std::string getId() override { return std::string{NULL_SEQUENCER_ID}; }
 
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override {
     throw NullSequencerException{};
@@ -31,15 +29,11 @@ class NullSequencer: public Sequencer {
     throw NullSequencerException{};
   }
 
-  bool isAlive() override {
-    return false;
-  }
+  bool isAlive() override { return false; }
 
-  void stop() override {
-    throw NullSequencerException{};
-  }
+  void stop() override { throw NullSequencerException{}; }
 
   ~NullSequencer() override = default;
 };
 
-}
+} // namespace rk::projects::durable_log

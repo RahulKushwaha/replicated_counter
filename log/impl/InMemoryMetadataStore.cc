@@ -6,8 +6,8 @@
 
 namespace rk::projects::durable_log {
 
-InMemoryMetadataStore::InMemoryMetadataStore() : state_{
-    std::make_unique<State>()} {}
+InMemoryMetadataStore::InMemoryMetadataStore()
+    : state_{std::make_unique<State>()} {}
 
 std::optional<MetadataConfig>
 InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
@@ -63,13 +63,13 @@ VersionId InMemoryMetadataStore::getCurrentVersionId() {
 
 void InMemoryMetadataStore::printConfigChain() {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
-  for (auto &[key, config]: state_->configs_) {
+  for (auto &[key, config] : state_->configs_) {
     LOG(INFO) << config.DebugString();
   }
 }
 
-void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
-                                                  MetadataConfig newMetadataConfig) {
+void InMemoryMetadataStore::compareAndAppendRange(
+    VersionId versionId, MetadataConfig newMetadataConfig) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   if (state_->configs_.empty()) {
@@ -78,24 +78,22 @@ void InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
     }
 
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
-    state_->logIdToConfig_[newMetadataConfig.start_index()] =
-        newMetadataConfig;
+    state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
     return;
   }
 
   auto lastConfig = state_->configs_.rbegin();
-  if (lastConfig->first == versionId
-      && lastConfig->first + 1 == newMetadataConfig.version_id()) {
+  if (lastConfig->first == versionId &&
+      lastConfig->first + 1 == newMetadataConfig.version_id()) {
     // Now we have an implicit contract that the new index is 1 greater than
     // last config index.
     state_->configs_[versionId].set_end_index(newMetadataConfig.start_index());
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
-    state_->logIdToConfig_[newMetadataConfig.start_index()] =
-        newMetadataConfig;
+    state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
     return;
   }
 
   throw OptimisticConcurrencyException{};
 }
 
-}
+} // namespace rk::projects::durable_log

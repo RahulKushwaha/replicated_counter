@@ -81,14 +81,14 @@ replica_set[
 ]
 
 remote_sequencer_set[
-    {
-      id: "SEQUENCER_00"
-      ip_address{
-        host: "127.0.0.1"
-        port: 10001
-      }
-    },
-#  {
+  {
+    id: "SEQUENCER_00"
+    ip_address{
+      host: "127.0.0.1"
+      port: 10001
+    }
+  },
+  #  {
   #    id: "SEQUENCER_01"
   #    ip_address{
   #      host: "127.0.0.1"

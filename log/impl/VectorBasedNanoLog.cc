@@ -6,27 +6,18 @@
 
 namespace rk::projects::durable_log {
 
-VectorBasedNanoLog::VectorBasedNanoLog(
-    std::string id,
-    std::string name,
-    std::string metadataVersionId,
-    LogId startIndex,
-    LogId endIndex,
-    bool sealed)
+VectorBasedNanoLog::VectorBasedNanoLog(std::string id, std::string name,
+                                       std::string metadataVersionId,
+                                       LogId startIndex, LogId endIndex,
+                                       bool sealed)
     : id_(std::move(id)), name_(std::move(name)),
-      metadataVersionId_{std::move(metadataVersionId)},
-      startIndex_(startIndex),
-      endIndex_(endIndex),
-      sealed_(sealed), logs_{},
+      metadataVersionId_{std::move(metadataVersionId)}, startIndex_(startIndex),
+      endIndex_(endIndex), sealed_(sealed), logs_{},
       completionQueue_{startIndex_} {}
 
-std::string VectorBasedNanoLog::getId() {
-  return id_;
-}
+std::string VectorBasedNanoLog::getId() { return id_; }
 
-std::string VectorBasedNanoLog::getName() {
-  return name_;
-}
+std::string VectorBasedNanoLog::getName() { return name_; }
 
 std::string VectorBasedNanoLog::getMetadataVersionId() {
   return metadataVersionId_;
@@ -34,11 +25,11 @@ std::string VectorBasedNanoLog::getMetadataVersionId() {
 
 folly::SemiFuture<LogId>
 VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
-                           std::string logEntryPayload,
-                           bool skipSeal) {
+                           std::string logEntryPayload, bool skipSeal) {
   if (!skipSeal && sealed_) {
     return folly::makeSemiFuture<LogId>(
-        folly::make_exception_wrapper<NanoLogSealedException>(metadataVersionId_));
+        folly::make_exception_wrapper<NanoLogSealedException>(
+            metadataVersionId_));
   }
 
   auto result = logs_.emplace(logId, std::move(logEntryPayload));
@@ -48,15 +39,13 @@ VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
       // TODO: Check if the logEntry is the same as provided in the call.
       return folly::makeSemiFuture(logId);
     } else {
-      return folly::makeSemiFuture<LogId>(folly::make_exception_wrapper<
-          NanoLogLogPositionAlreadyOccupied>());
+      return folly::makeSemiFuture<LogId>(
+          folly::make_exception_wrapper<NanoLogLogPositionAlreadyOccupied>());
     }
   }
 
   auto [promise, future] = folly::makePromiseContract<LogId>();
-  completionQueue_.add(logId,
-                       std::move(promise),
-                       logId);
+  completionQueue_.add(logId, std::move(promise), logId);
   if (globalCommitIndex.has_value()) {
     completionQueue_.completeAllBelow(globalCommitIndex.value());
   }
@@ -78,20 +67,14 @@ LogId VectorBasedNanoLog::seal() {
   return completionQueue_.getCurrentIndex();
 }
 
-LogId VectorBasedNanoLog::getStartIndex() {
-  return startIndex_;
-}
+LogId VectorBasedNanoLog::getStartIndex() { return startIndex_; }
 
-LogId VectorBasedNanoLog::getEndIndex() {
-  return endIndex_;
-}
+LogId VectorBasedNanoLog::getEndIndex() { return endIndex_; }
 
-bool VectorBasedNanoLog::isSealed() {
-  return sealed_;
-}
+bool VectorBasedNanoLog::isSealed() { return sealed_; }
 
 LogId VectorBasedNanoLog::getLocalCommitIndex() {
   return completionQueue_.getCurrentIndex();
 }
 
-}
+} // namespace rk::projects::durable_log

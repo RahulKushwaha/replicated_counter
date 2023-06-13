@@ -2,15 +2,15 @@
 // Created by Rahul  Kushwaha on 6/9/23.
 //
 #pragma once
-#include "wor/include/WriteOnceRegisterChain.h"
 #include "folly/experimental/coro/Task.h"
+#include "wor/include/WriteOnceRegisterChain.h"
 
 namespace rk::projects::wor {
 
-template<typename T>
-class WriteOnceRegisterChainAppender {
- public:
-  explicit WriteOnceRegisterChainAppender(std::shared_ptr<WriteOnceRegisterChain> chain)
+template <typename T> class WriteOnceRegisterChainAppender {
+public:
+  explicit WriteOnceRegisterChainAppender(
+      std::shared_ptr<WriteOnceRegisterChain> chain)
       : chain_{std::move(chain)} {}
 
   folly::coro::Task<WorId> append(T t) {
@@ -58,8 +58,8 @@ class WriteOnceRegisterChainAppender {
     co_return successfullyWrittenWorId;
   }
 
- private:
+private:
   std::shared_ptr<WriteOnceRegisterChain> chain_;
 };
 
-}
+} // namespace rk::projects::wor

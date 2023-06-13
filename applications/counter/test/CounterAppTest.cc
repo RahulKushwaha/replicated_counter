@@ -2,9 +2,9 @@
 // Created by Aman Mahajan on 4/13/23.
 //
 
-#include <gtest/gtest.h>
 #include "applications/counter/CounterApp.h"
 #include "applications/counter/test/InMemoryFakeVirtualLog.h"
+#include <gtest/gtest.h>
 
 namespace rk::projects::counter_app {
 using namespace testing;
@@ -27,11 +27,11 @@ TEST(BatchUpdateTest, successWithSingleKey) {
   operations.emplace_back(op2);
   operations.emplace_back(op3);
 
-  std::shared_ptr<InMemoryFakeVirtualLog>
-      mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
+  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
+      std::make_shared<InMemoryFakeVirtualLog>();
 
-  std::shared_ptr<CounterApp>
-      counterApp = std::make_shared<CounterApp>(mockVirtualLog);
+  std::shared_ptr<CounterApp> counterApp =
+      std::make_shared<CounterApp>(mockVirtualLog);
   auto res = counterApp->batchUptate(operations).semi().get();
 
   ASSERT_EQ(res[0].key, "testKey");
@@ -75,11 +75,11 @@ TEST(BatchUpdateTest, successWithMultipleKey) {
   operations.emplace_back(op5);
   operations.emplace_back(op6);
 
-  std::shared_ptr<InMemoryFakeVirtualLog>
-      mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
+  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
+      std::make_shared<InMemoryFakeVirtualLog>();
 
-  std::shared_ptr<CounterApp>
-      counterApp = std::make_shared<CounterApp>(mockVirtualLog);
+  std::shared_ptr<CounterApp> counterApp =
+      std::make_shared<CounterApp>(mockVirtualLog);
   auto res = counterApp->batchUptate(operations).semi().get();
 
   ASSERT_EQ(res[0].key, "testKey");
@@ -98,10 +98,10 @@ TEST(BatchUpdateTest, successWithMultipleKey) {
 
 TEST(BatchUpdateTest, successWithNoOps) {
   std::vector<CounterApp::Operation> operations;
-  std::shared_ptr<InMemoryFakeVirtualLog>
-      mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
-  std::shared_ptr<CounterApp>
-      counterApp = std::make_shared<CounterApp>(mockVirtualLog);
+  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
+      std::make_shared<InMemoryFakeVirtualLog>();
+  std::shared_ptr<CounterApp> counterApp =
+      std::make_shared<CounterApp>(mockVirtualLog);
   auto res = counterApp->batchUptate(operations).semi().get();
 
   ASSERT_EQ(res.size(), 0);
@@ -114,24 +114,23 @@ TEST(BatchUpdateTest, successWithSingleKeyAndSingleIncrOperation) {
   std::vector<CounterApp::Operation> operations;
   operations.emplace_back(op1);
 
-  std::shared_ptr<InMemoryFakeVirtualLog>
-      mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
+  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
+      std::make_shared<InMemoryFakeVirtualLog>();
 
-  std::shared_ptr<CounterApp>
-      counterApp = std::make_shared<CounterApp>(mockVirtualLog);
+  std::shared_ptr<CounterApp> counterApp =
+      std::make_shared<CounterApp>(mockVirtualLog);
   auto res = counterApp->batchUptate(operations).semi().get();
   ASSERT_EQ(res[0].key, "testKey");
   ASSERT_EQ(res[0].val, 5);
 }
 
-
 TEST(BatchUpdateTest, successWithSingleKeyAndHundredOperations) {
   std::vector<CounterApp::Operation> operations;
   CounterApp::IncrOperation op1;
-  std::shared_ptr<InMemoryFakeVirtualLog>
-      mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
-  std::shared_ptr<CounterApp>
-      counterApp = std::make_shared<CounterApp>(mockVirtualLog);
+  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
+      std::make_shared<InMemoryFakeVirtualLog>();
+  std::shared_ptr<CounterApp> counterApp =
+      std::make_shared<CounterApp>(mockVirtualLog);
   op1.key = "testKey";
   op1.incrBy = 1;
   operations.emplace_back(op1);
@@ -143,8 +142,4 @@ TEST(BatchUpdateTest, successWithSingleKeyAndHundredOperations) {
   ASSERT_EQ(res[0].key, "testKey");
   ASSERT_EQ(res[0].val, 101);
 }
-}
-
-
-
-
+} // namespace rk::projects::counter_app

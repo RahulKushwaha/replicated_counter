@@ -1,14 +1,14 @@
 //
 // Created by Rahul  Kushwaha on 1/8/23.
 //
-#include <gtest/gtest.h>
-#include <random>
-#include <mutex>
 #include <folly/executors/InlineExecutor.h>
+#include <gtest/gtest.h>
+#include <mutex>
+#include <random>
 
-#include "../ReplicaImpl.h"
-#include "../NanoLogStoreImpl.h"
 #include "../InMemoryMetadataStore.h"
+#include "../NanoLogStoreImpl.h"
+#include "../ReplicaImpl.h"
 
 namespace rk::projects::durable_log {
 
@@ -20,10 +20,10 @@ struct SequencerCreationResult {
 };
 
 SequencerCreationResult createReplica() {
-  std::shared_ptr<NanoLogStore>
-      nanoLogStore = std::make_shared<NanoLogStoreImpl>();
-  std::shared_ptr<MetadataStore>
-      metadataStore = std::make_shared<InMemoryMetadataStore>();
+  std::shared_ptr<NanoLogStore> nanoLogStore =
+      std::make_shared<NanoLogStoreImpl>();
+  std::shared_ptr<MetadataStore> metadataStore =
+      std::make_shared<InMemoryMetadataStore>();
 
   // Add metadata block.
   {
@@ -40,7 +40,7 @@ SequencerCreationResult createReplica() {
           nanoLogStore, metadataStore};
 }
 
-}
+} // namespace
 
 TEST(ReplicaTest, AppendLogEntryWhenMetadataInstalled) {
   SequencerCreationResult creationResult = createReplica();
@@ -110,9 +110,10 @@ TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   auto versionId = creationResult.metadataStore->getCurrentVersionId();
   auto startIndex = 500;
 
-  replica.append({}, versionId,
-                 startIndex,
-                 "Random Text" + std::to_string(startIndex)).get();
+  replica
+      .append({}, versionId, startIndex,
+              "Random Text" + std::to_string(startIndex))
+      .get();
 
   // 501 is the missing entry.
   std::vector<std::int32_t> elements;
@@ -126,22 +127,19 @@ TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   std::shuffle(elements.begin(), elements.end(), g);
 
   std::vector<folly::SemiFuture<LogId>> futures;
-  for (auto element: elements) {
+  for (auto element : elements) {
     std::cout << element << " ";
-    auto future =
-        replica.append({}, versionId,
-                       element,
-                       "Random Text" + std::to_string(element))
-            .via(&folly::InlineExecutor::instance())
-            .thenValue([element](auto &&r) {
-              return element;
-            });
+    auto future = replica
+                      .append({}, versionId, element,
+                              "Random Text" + std::to_string(element))
+                      .via(&folly::InlineExecutor::instance())
+                      .thenValue([element](auto &&r) { return element; });
 
     futures.emplace_back(std::move(future));
   }
   std::cout << std::endl;
 
-  for (auto &future: futures) {
+  for (auto &future : futures) {
     ASSERT_FALSE(future.isReady());
   }
 
@@ -149,9 +147,9 @@ TEST(ReplicaTest, UnOrderedAppendAlwaysFinishInOrder) {
   replica.append({}, versionId, 501, "Random Text" + std::to_string(500)).get();
   folly::collectAll(futures.begin(), futures.end()).get();
 
-  for (auto &future: futures) {
+  for (auto &future : futures) {
     ASSERT_NO_THROW(future.value());
   }
 }
 
-}
+} // namespace rk::projects::durable_log

@@ -6,8 +6,8 @@
 
 namespace rk::projects::counter_app {
 
-CounterAppClient::CounterAppClient(std::shared_ptr<grpc::Channel> channel) :
-    stub_{CounterService::NewStub(std::move(channel))} {}
+CounterAppClient::CounterAppClient(std::shared_ptr<grpc::Channel> channel)
+    : stub_{CounterService::NewStub(std::move(channel))} {}
 
 folly::coro::Task<std::int64_t>
 CounterAppClient::incrementAndGet(std::string key, std::int64_t incrBy) {
@@ -24,7 +24,7 @@ CounterAppClient::incrementAndGet(std::string key, std::int64_t incrBy) {
     LOG(INFO) << "Failed: " << status.error_details();
   }
 
-    co_return response.value();
+  co_return response.value();
 }
 
 folly::coro::Task<std::int64_t>
@@ -42,7 +42,7 @@ CounterAppClient::decrementAndGet(std::string key, std::int64_t decrBy) {
     LOG(INFO) << "Failed: " << status.error_details();
   }
 
-    co_return response.value();
+  co_return response.value();
 }
 
 folly::coro::Task<std::int64_t> CounterAppClient::getValue(std::string key) {
@@ -61,4 +61,4 @@ folly::coro::Task<std::int64_t> CounterAppClient::getValue(std::string key) {
   co_return response.value();
 }
 
-}
+} // namespace rk::projects::counter_app

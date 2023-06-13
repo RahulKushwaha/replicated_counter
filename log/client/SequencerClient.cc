@@ -6,8 +6,8 @@
 
 namespace rk::projects::durable_log::client {
 
-SequencerClient::SequencerClient(std::shared_ptr<grpc::Channel> channel) :
-    stub_{server::SequencerService::NewStub(std::move(channel))} {}
+SequencerClient::SequencerClient(std::shared_ptr<grpc::Channel> channel)
+    : stub_{server::SequencerService::NewStub(std::move(channel))} {}
 
 folly::SemiFuture<std::string> SequencerClient::getId() {
   grpc::ClientContext context;
@@ -20,8 +20,8 @@ folly::SemiFuture<std::string> SequencerClient::getId() {
     return folly::makeSemiFuture(response.id());
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<std::string>(std::move(err));
 }
 
@@ -36,8 +36,8 @@ folly::SemiFuture<LogId> SequencerClient::append(std::string logEntryPayload) {
     return folly::makeSemiFuture<LogId>(response.log_id());
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
@@ -51,8 +51,8 @@ folly::SemiFuture<LogId> SequencerClient::latestAppendPosition() {
     return folly::makeSemiFuture<LogId>(response.log_id());
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
@@ -67,9 +67,9 @@ folly::SemiFuture<bool> SequencerClient::isAlive() {
     return folly::makeSemiFuture<bool>(true);
   }
 
-  auto err =
-      folly::make_exception_wrapper<std::runtime_error>(context.debug_error_string());
+  auto err = folly::make_exception_wrapper<std::runtime_error>(
+      context.debug_error_string());
   return folly::makeSemiFuture<bool>(std::move(err));
 }
 
-}
+} // namespace rk::projects::durable_log::client

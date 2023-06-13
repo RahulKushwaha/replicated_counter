@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include "log/include/MetadataStore.h"
 #include "log/client/MetadataStoreClient.h"
+#include "log/include/MetadataStore.h"
 
 namespace rk::projects::durable_log {
 
-class RemoteMetadataStore: public MetadataStore {
- public:
-  explicit RemoteMetadataStore(std::shared_ptr<client::MetadataStoreClient> metadataStoreClient)
+class RemoteMetadataStore : public MetadataStore {
+public:
+  explicit RemoteMetadataStore(
+      std::shared_ptr<client::MetadataStoreClient> metadataStoreClient)
       : client_{std::move(metadataStoreClient)} {}
 
   std::optional<MetadataConfig> getConfig(VersionId versionId) override {
@@ -31,12 +32,10 @@ class RemoteMetadataStore: public MetadataStore {
     client_->compareAndAppendRange(versionId, newMetadataConfig);
   }
 
-  void printConfigChain() override {
-    client_->printConfigChain().semi().get();
-  }
+  void printConfigChain() override { client_->printConfigChain().semi().get(); }
 
- private:
+private:
   std::shared_ptr<client::MetadataStoreClient> client_;
 };
 
-}
+} // namespace rk::projects::durable_log

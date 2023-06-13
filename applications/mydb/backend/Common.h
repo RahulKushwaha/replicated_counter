@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include <glog/logging.h>
 #include "applications/mydb/backend/proto/db.pb.h"
+#include <glog/logging.h>
 
 namespace rk::projects::mydb {
 using namespace internal;
@@ -20,27 +20,26 @@ const std::unordered_set<TableSchemaType::TableIdType> EMPTY{};
 }
 
 class TableSchema {
- public:
+public:
   explicit TableSchema(std::shared_ptr<Table> table)
       : table_{std::move(table)} {
-    for (auto &col: table_->columns()) {
+    for (auto &col : table_->columns()) {
       std::string_view columnName = col.name();
       columnIdToName_[col.id()] = columnName;
       columnNameToId_[columnName] = col.id();
       columnTypes_[col.id()] = col.column_type();
     }
 
-    for (auto &col: table_->primary_key_index().column_ids()) {
+    for (auto &col : table_->primary_key_index().column_ids()) {
       primaryKeyColumns_.insert(col);
     }
 
-    for (auto &idx: table_->secondary_index()) {
-      for (auto &col: idx.column_ids()) {
+    for (auto &idx : table_->secondary_index()) {
+      for (auto &col : idx.column_ids()) {
         secondaryKeyColumns_[idx.id()].insert(col);
         colIdToSecondaryIdx_[col].insert(idx.id());
       }
     }
-
   }
 
   inline TableSchemaType::ColumnIdType getColumnId(const std::string &colName) {
@@ -51,9 +50,7 @@ class TableSchema {
     return columnIdToName_.at(colId);
   }
 
-  inline Table &rawTable() {
-    return *table_;
-  }
+  inline Table &rawTable() { return *table_; }
 
   inline bool isPrimaryKeyColumn(const std::string &colName) {
     auto colItr = columnNameToId_.find(colName);
@@ -69,9 +66,8 @@ class TableSchema {
     return itr != primaryKeyColumns_.end();
   }
 
-  inline bool
-  isSecondIndexColumn(TableSchemaType::ColumnIdType idxId,
-                      TableSchemaType::ColumnIdType colId) {
+  inline bool isSecondIndexColumn(TableSchemaType::ColumnIdType idxId,
+                                  TableSchemaType::ColumnIdType colId) {
     auto idxItr = secondaryKeyColumns_.find(idxId);
     if (idxItr == secondaryKeyColumns_.end()) {
       return false;
@@ -100,21 +96,22 @@ class TableSchema {
     return {};
   }
 
- private:
+private:
   std::shared_ptr<Table> table_;
   std::unordered_map<TableSchemaType::ColumnIdType, std::string_view>
       columnIdToName_;
   std::unordered_map<std::string_view, TableSchemaType::ColumnIdType>
       columnNameToId_;
   std::unordered_map<TableSchemaType::ColumnIdType,
-                     internal::Column_COLUMN_TYPE> columnTypes_;
+                     internal::Column_COLUMN_TYPE>
+      columnTypes_;
   std::unordered_set<TableSchemaType::ColumnIdType> primaryKeyColumns_;
   std::unordered_map<TableSchemaType::ColumnIdType,
-                     std::unordered_set<TableSchemaType::ColumnIdType >>
+                     std::unordered_set<TableSchemaType::ColumnIdType>>
       secondaryKeyColumns_;
   std::unordered_map<TableSchemaType::ColumnIdType,
                      std::unordered_set<TableSchemaType::TableIdType>>
       colIdToSecondaryIdx_;
 };
 
-}
+} // namespace rk::projects::mydb
