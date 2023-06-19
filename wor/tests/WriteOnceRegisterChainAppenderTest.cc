@@ -11,7 +11,8 @@ namespace rk::projects::wor {
 
 TEST(WriteOnceRegisterChainAppenderTests, WriteToChain) {
   std::string value{"hello world"};
-  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>();
+  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>(
+      std::move(std::make_shared<InMemoryWriteOnceRegister>));
   WriteOnceRegisterChainAppender<std::string> appender{chain};
   appender.append(value).semi().get();
   auto optionalWorId = chain->tail();
@@ -25,7 +26,8 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteToChain) {
 
 TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
   std::string valueFmt{"hello world {}"};
-  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>();
+  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>(
+      std::move(std::make_shared<InMemoryWriteOnceRegister>));
   WriteOnceRegisterChainAppender<std::string> appender{chain};
 
   std::vector<std::string> values;
