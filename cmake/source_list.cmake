@@ -69,6 +69,7 @@ set(
 
         wor/include/WriteOnceRegister.h
         wor/include/WriteOnceRegisterChain.h
+        wor/WriteOnceRegisterChainImpl.h
         wor/WriteOnceRegisterChainAppender.h
         wor/inmemory/InMemoryWriteOnceRegister.h
         wor/inmemory/InMemoryWriteOnceRegisterChain.h
