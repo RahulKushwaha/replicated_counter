@@ -7,6 +7,7 @@
 #include <mutex>
 
 namespace rk::projects::wor {
+
 class InMemoryWriteOnceRegister : public WriteOnceRegister {
 public:
   explicit InMemoryWriteOnceRegister()

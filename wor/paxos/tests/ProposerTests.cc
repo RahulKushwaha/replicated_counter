@@ -4,7 +4,4 @@
 #include "wor/paxos/LocalAcceptor.h"
 #include <gtest/gtest.h>
 
-namespace rk::projects::paxos {
-
-
-}
+namespace rk::projects::paxos {}

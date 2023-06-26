@@ -25,6 +25,8 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/log/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/log/server/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/server/proto/*.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/statemachine/proto/*.proto"
+        "${CMAKE_CURRENT_LIST_DIR}/wor/paxos/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/server/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/*.proto"
@@ -87,6 +89,9 @@ target_link_libraries(MetadataServer ${SERVER_LIBS})
 
 enable_testing()
 
+find_package(Rocksdb REQUIRED)
+set(ROCKS_DB_LIB /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
+
 set(
         TEST_LIBS
 
@@ -97,13 +102,13 @@ set(
         proto-objects
         ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
+        ${ROCKS_DB_LIB}
 )
 
 option(MYDB "ENABLE mydb" OFF)
 if (MYDB)
     find_package(Arrow REQUIRED)
-    find_package(Rocksdb REQUIRED)
-    set(ROCKS_DB_LIB /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
+
     set(
             MY_DB_SOURCE_FILES_LIST
 

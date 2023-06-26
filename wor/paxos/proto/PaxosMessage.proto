@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package rk.projects.paxos.internal;
+
+message BallotId{
+  int32 major_id = 1;
+  int64 minor_id = 2;
+}
+
+message Promise{
+  BallotId ballot_id = 1;
+  optional string value = 2;
+}
+
+message Proposal{
+  BallotId ballot_id = 1;
+  string value = 2;
+}
+
+message PaxosInstance{
+  string id = 1;
+  BallotId promised_ballot_id = 2;
+  Promise accepted = 3;
+  bool committed = 4;
+}
