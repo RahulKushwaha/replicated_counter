@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include "Proposer.h"
 #include "wor/include/WriteOnceRegister.h"
 
@@ -11,11 +12,15 @@ namespace rk::projects::paxos {
 class PaxosWriteOnceRegister : public wor::WriteOnceRegister {
 public:
   explicit PaxosWriteOnceRegister(std::shared_ptr<Proposer> proposer)
-      : lockId_{0}, proposer_{std::move(proposer)} {}
+      : majorId_{99}, lockId_{0}, proposer_{std::move(proposer)} {}
 
   std::optional<wor::LockId> lock() override {
     auto lockId = getNextLockId();
-    auto result = proposer_->prepare(lockId).semi().get();
+    BallotId ballotId{};
+    ballotId.set_major_id(majorId_);
+    ballotId.set_minor_id(lockId);
+
+    auto result = proposer_->prepare(std::move(ballotId)).semi().get();
 
     if (!result) {
       return {};
@@ -25,7 +30,13 @@ public:
   }
 
   bool write(wor::LockId lockId, std::string payload) override {
-    return proposer_->propose(lockId, std::move(payload)).semi().get();
+    BallotId ballotId{};
+    ballotId.set_major_id(majorId_);
+    ballotId.set_minor_id(lockId);
+
+    return proposer_->propose(std::move(ballotId), std::move(payload))
+        .semi()
+        .get();
   }
 
   std::variant<std::string, ReadError> read() override {
@@ -44,6 +55,7 @@ private:
   }
 
 private:
+  std::int32_t majorId_;
   wor::LockId lockId_;
   std::shared_ptr<Proposer> proposer_;
 };

@@ -67,6 +67,8 @@ set(
         log/utils/UuidGenerator.h
         metrics/MetricsRegistry.h
 
+        wor/KVStoreLite.h
+        wor/RocksKVStoreLite.h
         wor/include/WriteOnceRegister.h
         wor/include/WriteOnceRegisterChain.h
         wor/WriteOnceRegisterChainImpl.h
@@ -77,7 +79,9 @@ set(
         wor/paxos/include/Acceptor.h
         wor/paxos/include/Proposer1.h
         wor/paxos/LocalAcceptor.h
+        wor/paxos/LocalAcceptor.cc
         wor/paxos/Common.h
+        wor/paxos/Common.cc
         wor/paxos/PaxosWriteOnceRegister.h
         wor/paxos/Proposer.h
 

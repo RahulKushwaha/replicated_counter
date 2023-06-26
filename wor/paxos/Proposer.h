@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include "folly/experimental/coro/Collect.h"
 #include "folly/experimental/coro/TimedWait.h"
 #include "wor/paxos/include/Acceptor.h"
@@ -46,9 +47,11 @@ public:
       if (prepareResp.has_value() &&
           std::holds_alternative<Promise>(prepareResp.value())) {
         auto ballotIdAndValue = std::get<Promise>(prepareResp.value());
-        if (ballotIdAndValue.value.has_value()) {
-          proposals.emplace_back(
-              Proposal{ballotIdAndValue.id, ballotIdAndValue.value.value()});
+        if (ballotIdAndValue.has_value()) {
+          Proposal proposal{};
+          proposal.mutable_ballot_id()->CopyFrom(ballotIdAndValue.ballot_id());
+          proposal.set_value(std::move(*ballotIdAndValue.mutable_value()));
+          proposals.emplace_back(std::move(proposal));
           successfulPrepares++;
         } else {
           successfulPrepares++;
@@ -68,7 +71,7 @@ public:
     for (auto &proposal : proposals) {
       if (!selectedProposal.has_value() ||
           (selectedProposal.has_value() &&
-           selectedProposal.value().id < proposal.id)) {
+           selectedProposal.value().ballot_id() < proposal.ballot_id())) {
         selectedProposal = proposal;
       }
     }
@@ -79,10 +82,9 @@ public:
   }
 
   coro<bool> propose(BallotId ballotId, std::string value) override {
-    Proposal proposal{.id = ballotId,
-                      .value = selectedProposal_.has_value()
-                                   ? selectedProposal_->value
-                                   : value};
+    Proposal proposal{};
+    proposal.mutable_ballot_id()->CopyFrom(ballotId);
+    proposal.set_value(std::move(value));
 
     std::int32_t successfulProposals{0};
     for (auto &acceptor : proposeAcceptors_) {
