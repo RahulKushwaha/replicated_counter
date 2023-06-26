@@ -6,25 +6,25 @@
 
 namespace rk::projects::paxos {
 
-LocalAcceptor::LocalAcceptor(std::string id)
-    : id_{std::move(id)}, paxosInstance_{} {
-  paxosInstance_.mutable_promised_ballot_id()->set_major_id(-1);
-  paxosInstance_.mutable_promised_ballot_id()->set_minor_id(-1);
-  paxosInstance_.set_committed(false);
-}
+LocalAcceptor::LocalAcceptor(std::string id,
+                             std::shared_ptr<wor::KVStoreLite> persistence)
+    : id_{std::move(id)}, lookup_{}, persistence_{std::move(persistence)} {}
 
 std::string LocalAcceptor::getId() { return id_; }
 
 coro<std::variant<Promise, std::false_type>>
 LocalAcceptor::prepare(Ballot ballot) {
-  if (ballot.id <= paxosInstance_.promised_ballot_id()) {
+  auto paxosInstance = getOrCreate(ballot.id.paxos_instance_id());
+  if (ballot.id <= paxosInstance->promised_ballot_id()) {
     co_return std::false_type{};
   }
 
-  paxosInstance_.mutable_promised_ballot_id()->CopyFrom(ballot.id);
+  paxosInstance->mutable_promised_ballot_id()->CopyFrom(ballot.id);
+  co_await persistence_->put(paxosInstance->id(),
+                             paxosInstance->SerializeAsString());
 
-  if (paxosInstance_.has_accepted()) {
-    co_return paxosInstance_.accepted();
+  if (paxosInstance->has_accepted()) {
+    co_return paxosInstance->accepted();
   }
 
   Promise promise{};
@@ -33,37 +33,72 @@ LocalAcceptor::prepare(Ballot ballot) {
 }
 
 coro<bool> LocalAcceptor::accept(Proposal proposal) {
-  if (proposal.ballot_id() < paxosInstance_.promised_ballot_id()) {
+  auto paxosInstance = getOrCreate(proposal.ballot_id().paxos_instance_id());
+
+  if (proposal.ballot_id() < paxosInstance->promised_ballot_id()) {
     co_return false;
   }
 
-  paxosInstance_.mutable_promised_ballot_id()->CopyFrom(proposal.ballot_id());
+  paxosInstance->mutable_promised_ballot_id()->CopyFrom(proposal.ballot_id());
 
-  paxosInstance_.mutable_accepted()->mutable_ballot_id()->CopyFrom(
+  paxosInstance->mutable_accepted()->mutable_ballot_id()->CopyFrom(
       proposal.ballot_id());
-  paxosInstance_.mutable_accepted()->set_value(proposal.value());
+  paxosInstance->mutable_accepted()->set_value(proposal.value());
+
+  co_await persistence_->put(paxosInstance->id(),
+                             paxosInstance->SerializeAsString());
   co_return true;
 }
 
 coro<bool> LocalAcceptor::commit(BallotId ballotId) {
-  if (!paxosInstance_.committed()) {
-    paxosInstance_.set_committed(true);
+  auto paxosInstance = getOrCreate(ballotId.paxos_instance_id());
+
+  if (!paxosInstance->committed()) {
+    paxosInstance->set_committed(true);
+    co_await persistence_->put(paxosInstance->id(),
+                               paxosInstance->SerializeAsString());
     co_return true;
   }
 
   co_return false;
 }
 
-coro<std::optional<Promise>> LocalAcceptor::getAcceptedValue() {
-  co_return paxosInstance_.accepted();
-}
-
-coro<std::optional<std::string>> LocalAcceptor::getCommittedValue() {
-  if (paxosInstance_.committed()) {
-    co_return paxosInstance_.accepted().value();
+coro<std::optional<Promise>>
+LocalAcceptor::getAcceptedValue(std::string paxosInstanceId) {
+  if (auto itr = lookup_.find(paxosInstanceId); itr != lookup_.end()) {
+    co_return itr->second->accepted();
   }
 
   co_return {};
+}
+
+coro<std::optional<std::string>>
+LocalAcceptor::getCommittedValue(std::string paxosInstanceId) {
+  if (auto itr = lookup_.find(paxosInstanceId); itr != lookup_.end()) {
+    if (auto &paxosInstance = *itr->second; paxosInstance.committed()) {
+      co_return paxosInstance.accepted().value();
+    }
+  }
+
+  co_return {};
+}
+
+internal::PaxosInstance *
+LocalAcceptor::getOrCreate(std::string paxosInstanceId) {
+  internal::PaxosInstance *paxosInstance;
+  if (auto itr = lookup_.find(paxosInstanceId); itr != lookup_.end()) {
+    paxosInstance = itr->second.get();
+  } else {
+    auto uniquePaxosInstance = std::make_unique<internal::PaxosInstance>();
+    uniquePaxosInstance->set_id(paxosInstanceId);
+    uniquePaxosInstance->mutable_promised_ballot_id()->set_major_id(-1);
+    uniquePaxosInstance->mutable_promised_ballot_id()->set_minor_id(-1);
+
+    paxosInstance = uniquePaxosInstance.get();
+    lookup_.emplace(paxosInstanceId, std::move(uniquePaxosInstance));
+  }
+
+  return paxosInstance;
 }
 
 } // namespace rk::projects::paxos

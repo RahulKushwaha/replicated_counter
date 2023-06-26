@@ -20,8 +20,10 @@ public:
   virtual coro<bool> accept(Proposal proposal) = 0;
   virtual coro<bool> commit(BallotId ballotId) = 0;
 
-  virtual coro<std::optional<Promise>> getAcceptedValue() = 0;
-  virtual coro<std::optional<std::string>> getCommittedValue() = 0;
+  virtual coro<std::optional<Promise>>
+  getAcceptedValue(std::string paxosInstanceId) = 0;
+  virtual coro<std::optional<std::string>>
+  getCommittedValue(std::string paxosInstanceId) = 0;
 };
 
 } // namespace rk::projects::paxos

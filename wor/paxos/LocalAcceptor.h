@@ -16,18 +16,24 @@ namespace rk::projects::paxos {
 
 class LocalAcceptor : public Acceptor {
 public:
-  explicit LocalAcceptor(std::string id);
+  explicit LocalAcceptor(std::string id,
+                         std::shared_ptr<wor::KVStoreLite> persistence);
 
   std::string getId() override;
   coro<std::variant<Promise, std::false_type>> prepare(Ballot ballot) override;
   coro<bool> accept(Proposal proposal) override;
   coro<bool> commit(BallotId ballotId) override;
-  coro<std::optional<Promise>> getAcceptedValue() override;
-  coro<std::optional<std::string>> getCommittedValue() override;
+  coro<std::optional<Promise>> getAcceptedValue(std::string paxosInstanceId) override;
+  coro<std::optional<std::string>> getCommittedValue(std::string paxosInstanceId) override;
+
+private:
+  internal::PaxosInstance *getOrCreate(std::string paxosInstanceId);
 
 private:
   std::string id_;
-  internal::PaxosInstance paxosInstance_;
+  std::unordered_map<std::string, std::unique_ptr<internal::PaxosInstance>>
+      lookup_;
+  std::shared_ptr<wor::KVStoreLite> persistence_;
 };
 
 } // namespace rk::projects::paxos
