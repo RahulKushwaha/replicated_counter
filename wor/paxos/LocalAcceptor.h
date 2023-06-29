@@ -5,7 +5,7 @@
 #pragma once
 #include "Common.h"
 #include "folly/experimental/coro/Task.h"
-#include "wor/KVStoreLite.h"
+#include "persistence/KVStoreLite.h"
 #include "wor/paxos/include/Acceptor.h"
 #include "wor/paxos/proto/PaxosMessage.pb.h"
 #include <cstdint>

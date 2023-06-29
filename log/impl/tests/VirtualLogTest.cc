@@ -112,6 +112,7 @@ TEST(VirtualLogTests, Reconfigure) {
   for (auto &replica : replicaSet) {
     for (int i = 1; i <= limit; i++) {
       replica->append({}, currentVersionId, i, "Log_Entry" + std::to_string(i))
+          .semi()
           .get();
     }
 
@@ -149,6 +150,7 @@ TEST(VirtualLogTests, Reconfigure) {
     for (auto &replica : replicaSet) {
       auto future =
           replica->getLogEntry(config->version_id(), logId)
+              .semi()
               .via(&folly::InlineExecutor::instance())
               .thenValue([](std::variant<LogEntry, LogReadError> &&value) {
                 if (std::holds_alternative<LogEntry>(value)) {
@@ -228,8 +230,11 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   for (auto &replica : replicaSet) {
     auto &logEntries = logEntriesOrder[logEntriesIndex];
     for (const auto logEntry : logEntries) {
-      replica->append({}, versionId, logEntry,
-                      "Log_Entry" + std::to_string(logEntry));
+      replica
+          ->append({}, versionId, logEntry,
+                   "Log_Entry" + std::to_string(logEntry))
+          .semi()
+          .get();
     }
 
     logEntriesIndex++;

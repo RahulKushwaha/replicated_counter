@@ -22,9 +22,10 @@ std::string ReplicaImpl::getId() { return id_; }
 
 std::string ReplicaImpl::getName() { return name_; }
 
-folly::SemiFuture<folly::Unit>
-ReplicaImpl::append(std::optional<LogId> globalCommitIndex, VersionId versionId,
-                    LogId logId, std::string logEntryPayload, bool skipSeal) {
+coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
+                                      VersionId versionId, LogId logId,
+                                      std::string logEntryPayload,
+                                      bool skipSeal) {
   std::lock_guard lk{*mtx_};
 
   std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
@@ -44,7 +45,8 @@ ReplicaImpl::append(std::optional<LogId> globalCommitIndex, VersionId versionId,
     nanoLogStore_->add(versionId, nanoLog);
   }
 
-  return nanoLog->append(globalCommitIndex, logId, logEntryPayload, skipSeal)
+  co_return co_await nanoLog
+      ->append(globalCommitIndex, logId, logEntryPayload, skipSeal)
       .via(&folly::InlineExecutor::instance())
       .then([](folly::Try<LogId> &&logId) {
         if (logId.hasValue()) {
@@ -55,18 +57,17 @@ ReplicaImpl::append(std::optional<LogId> globalCommitIndex, VersionId versionId,
       });
 }
 
-folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+coro<std::variant<LogEntry, LogReadError>>
 ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
   std::lock_guard lk{*mtx_};
 
   std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
 
   if (!nanoLog) {
-    return folly::makeSemiFuture<std::variant<LogEntry, LogReadError>>(
-        std::variant<LogEntry, LogReadError>{LogReadError::NotFound});
+    co_return std::variant<LogEntry, LogReadError>{LogReadError::NotFound};
   }
 
-  return folly::makeSemiFuture(nanoLog->getLogEntry(logId));
+  co_return nanoLog->getLogEntry(logId);
 }
 
 LogId ReplicaImpl::getLocalCommitIndex(VersionId versionId) {

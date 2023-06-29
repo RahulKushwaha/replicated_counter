@@ -7,7 +7,7 @@
 #include "rocksdb/db.h"
 #include "rocksdb/utilities/write_batch_with_index.h"
 
-namespace rk::projects::wor {
+namespace rk::projects::persistence {
 
 class RocksKVStoreLite : public KVStoreLite {
 public:
@@ -58,8 +58,19 @@ public:
     co_return true;
   }
 
+  folly::coro::AsyncGenerator<KeyValue> scan(std::string prefix) override {
+    auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
+    itr->Seek(prefix);
+    while (itr->Valid() && itr->key().starts_with(prefix)) {
+      auto r = std::make_tuple(itr->key().ToString(), itr->value().ToString());
+      co_yield r;
+
+      itr->Next();
+    }
+  }
+
 private:
   std::shared_ptr<rocksdb::DB> rocks_;
 };
 
-} // namespace rk::projects::wor
+} // namespace rk::projects::persistence

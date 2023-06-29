@@ -73,6 +73,7 @@ VirtualLogImpl::getLogEntry(LogId logId) {
           std::size_t retryAttempt) {
         auto &replica = state_->replicaSet[retryAttempt];
         return replica->getLogEntry(versionId, logId)
+            .semi()
             .via(&folly::InlineExecutor::instance())
             .then([logId, retryAttempt](
                       folly::Try<std::variant<LogEntry, LogReadError>>
@@ -129,6 +130,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     for (auto &replica : replicaSet) {
       auto future =
           replica->getLogEntry(versionId, logId)
+              .semi()
               .via(&folly::InlineExecutor::instance())
               .then([](folly::Try<std::variant<LogEntry, LogReadError>>
                            &&result) {
@@ -164,6 +166,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     for (auto &replica : state_->replicaSet) {
       folly::SemiFuture<folly::Unit> appendFuture =
           replica->append({}, versionId, logEntry.logId, logEntry.payload, true)
+              .semi()
               .via(&folly::InlineExecutor::instance());
 
       appendFutures.emplace_back(std::move(appendFuture));

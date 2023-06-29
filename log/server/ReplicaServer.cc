@@ -32,6 +32,7 @@ grpc::Status ReplicaServer::append(::grpc::ServerContext *context,
     replica_
         ->append(globalCommitIndex, request->version_id(), request->log_id(),
                  request->payload(), request->skip_seal())
+        .semi()
         .get();
   } catch (const std::exception &e) {
     return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
@@ -46,7 +47,9 @@ ReplicaServer::getLogEntry(::grpc::ServerContext *context,
                            server::GetLogEntryResponse *response) {
   try {
     auto logEntryResponse =
-        replica_->getLogEntry(request->version_id(), request->log_id()).get();
+        replica_->getLogEntry(request->version_id(), request->log_id())
+            .semi()
+            .get();
 
     if (std::holds_alternative<durable_log::LogEntry>(logEntryResponse)) {
       auto logEntry = std::get<durable_log::LogEntry>(logEntryResponse);

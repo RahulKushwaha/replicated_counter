@@ -4,10 +4,13 @@
 
 #pragma once
 
+#include "folly/experimental/coro/Task.h"
 #include <cstdint>
 #include <string>
 
 namespace rk::projects::durable_log {
+
+template <typename T> using coro = folly::coro::Task<T>;
 
 using LogId = std::int64_t;
 using VersionId = std::int64_t;

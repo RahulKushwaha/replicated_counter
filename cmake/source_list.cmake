@@ -34,6 +34,8 @@ set(
         log/impl/RemoteSequencer.h
         log/impl/ReplicaImpl.cc
         log/impl/ReplicaImpl.h
+        log/impl/RocksReplica.cc
+        log/impl/RocksReplica.h
         log/impl/SequencerImpl.cc
         log/impl/SequencerImpl.h
         log/impl/VectorBasedNanoLog.cc
@@ -67,8 +69,9 @@ set(
         log/utils/UuidGenerator.h
         metrics/MetricsRegistry.h
 
-        wor/KVStoreLite.h
-        wor/RocksKVStoreLite.h
+        persistence/KVStoreLite.h
+        persistence/RocksKVStoreLite.h
+        persistence/RocksDbFactory.h
         wor/include/WriteOnceRegister.h
         wor/include/WriteOnceRegisterChain.h
         wor/WriteOnceRegisterChainImpl.h
