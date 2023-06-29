@@ -34,13 +34,13 @@ class NanoLogSealedException : public std::logic_error {
 public:
   explicit NanoLogSealedException(std::string versionId)
       : std::logic_error(
-            fmt::format("NanoLog is sealed. versionId: {}", versionId)) {}
+            fmt::format("nanolog is sealed. versionId: {}", versionId)) {}
 };
 
 class NanoLogLogPositionAlreadyOccupied : public std::exception {
 public:
   const char *what() const _NOEXCEPT override {
-    return "There is already a log entry at that position.";
+    return "there is already a log entry at that position.";
   }
 };
 

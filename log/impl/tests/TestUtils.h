@@ -53,13 +53,13 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
     });
 
     ON_CALL(*mockReplica, append(_, _, _, _, _)).WillByDefault([]() {
-      return folly::makeSemiFuture<folly::Unit>(
+      return folly::coro::makeErrorTask<folly::Unit>(
           folly::make_exception_wrapper<NonRecoverableError>(
               NonRecoverableError{}));
     });
 
     ON_CALL(*mockReplica, getLogEntry(_, _)).WillByDefault([]() {
-      return folly::SemiFuture<std::variant<LogEntry, LogReadError>>(
+      return folly::coro::makeErrorTask<std::variant<LogEntry, LogReadError>>(
           folly::make_exception_wrapper<NonRecoverableError>(
               NonRecoverableError{}));
     });

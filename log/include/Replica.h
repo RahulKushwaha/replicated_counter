@@ -17,10 +17,11 @@ class Replica {
 public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
-  virtual folly::SemiFuture<folly::Unit>
-  append(std::optional<LogId> globalCommitIndex, VersionId versionId,
-         LogId logId, std::string logEntryPayload, bool skipSeal = false) = 0;
-  virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
+  virtual coro<folly::Unit> append(std::optional<LogId> globalCommitIndex,
+                                   VersionId versionId, LogId logId,
+                                   std::string logEntryPayload,
+                                   bool skipSeal = false) = 0;
+  virtual coro<std::variant<LogEntry, LogReadError>>
   getLogEntry(VersionId versionId, LogId logId) = 0;
 
   virtual LogId getLocalCommitIndex(VersionId versionId) = 0;

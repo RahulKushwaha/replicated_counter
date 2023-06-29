@@ -13,13 +13,13 @@ public:
   MOCK_METHOD(std::string, getId, (), (override));
   MOCK_METHOD(std::string, getName, (), (override));
 
-  MOCK_METHOD(folly::SemiFuture<folly::Unit>, append,
+  MOCK_METHOD(coro<folly::Unit>, append,
               (std::optional<LogId> globalCommitIndex, VersionId versionId,
                LogId logId, std::string logEntryPayload, bool skipSeal),
               (override));
 
-  MOCK_METHOD((folly::SemiFuture<std::variant<LogEntry, LogReadError>>),
-              getLogEntry, (VersionId versionId, LogId logId), (override));
+  MOCK_METHOD((coro<std::variant<LogEntry, LogReadError>>), getLogEntry,
+              (VersionId versionId, LogId logId), (override));
 
   MOCK_METHOD(LogId, getLocalCommitIndex, (VersionId versionId), (override));
 

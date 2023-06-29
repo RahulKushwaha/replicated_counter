@@ -48,8 +48,11 @@ folly::SemiFuture<LogId> SequencerImpl::append(std::string logEntryPayload) {
       [this, logId, logEntryPayload](std::size_t) {
         std::vector<folly::SemiFuture<folly::Unit>> futures;
         for (auto &replica : replicaSet_) {
-          folly::SemiFuture<folly::Unit> future = replica->append(
-              {globalCommitIndex_.load()}, versionId_, logId, logEntryPayload);
+          folly::SemiFuture<folly::Unit> future =
+              replica
+                  ->append({globalCommitIndex_.load()}, versionId_, logId,
+                           logEntryPayload)
+                  .semi();
           futures.emplace_back(std::move(future));
         }
 

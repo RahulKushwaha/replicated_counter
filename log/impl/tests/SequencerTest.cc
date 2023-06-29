@@ -19,7 +19,7 @@ TEST(SequencerTest, appendLogEntry) {
   ASSERT_EQ(sequencer->append(logEntry).get(), 1);
 
   for (auto &replica : replicaSet) {
-    auto result = replica->getLogEntry(versionId, 1).get();
+    auto result = replica->getLogEntry(versionId, 1).semi().get();
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(std::get<LogEntry>(result).logId, 1);
     ASSERT_EQ(std::get<LogEntry>(result).payload, logEntry);
@@ -37,7 +37,7 @@ TEST(SequencerTest, appendLogEntryWithMajorityFailing) {
   ASSERT_THROW(sequencer->append(logEntry).get(), std::exception);
 
   for (auto &replica : goodReplicaSet) {
-    auto result = replica->getLogEntry(versionId, 1).get();
+    auto result = replica->getLogEntry(versionId, 1).semi().get();
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(std::get<LogEntry>(result).logId, 1);
     ASSERT_EQ(std::get<LogEntry>(result).payload, logEntry);

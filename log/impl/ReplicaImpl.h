@@ -21,13 +21,13 @@ public:
   std::string getId() override;
   std::string getName() override;
 
-  folly::SemiFuture<folly::Unit> append(std::optional<LogId> globalCommitIndex,
-                                        VersionId versionId, LogId logId,
-                                        std::string logEntryPayload,
-                                        bool skipSeal = false) override;
+  coro<folly::Unit> append(std::optional<LogId> globalCommitIndex,
+                           VersionId versionId, LogId logId,
+                           std::string logEntryPayload,
+                           bool skipSeal = false) override;
 
-  folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(VersionId versionId, LogId logId) override;
+  coro<std::variant<LogEntry, LogReadError>> getLogEntry(VersionId versionId,
+                                                         LogId logId) override;
 
   LogId getLocalCommitIndex(VersionId versionId) override;
 
