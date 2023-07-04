@@ -21,7 +21,7 @@ public:
   MOCK_METHOD((coro<std::variant<LogEntry, LogReadError>>), getLogEntry,
               (VersionId versionId, LogId logId), (override));
 
-  MOCK_METHOD(LogId, getLocalCommitIndex, (VersionId versionId), (override));
+  MOCK_METHOD(LogId, getCommitIndex, (VersionId versionId), (override));
 
   MOCK_METHOD(LogId, seal, (VersionId versionId), (override));
 };

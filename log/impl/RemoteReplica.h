@@ -31,7 +31,7 @@ public:
     return replicaClient_->getLogEntry(versionId, logId);
   }
 
-  LogId getLocalCommitIndex(VersionId versionId) override {
+  LogId getCommitIndex(VersionId versionId) override {
     return replicaClient_->getLocalCommitIndex(versionId).get();
   }
 

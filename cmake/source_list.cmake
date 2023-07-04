@@ -40,6 +40,7 @@ set(
         log/impl/SequencerImpl.h
         log/impl/VectorBasedNanoLog.cc
         log/impl/VectorBasedNanoLog.h
+        log/impl/RocksNanoLog.h
         log/impl/VirtualLogFactory.cc
         log/impl/VirtualLogFactory.h
         log/impl/VirtualLogImpl.cc

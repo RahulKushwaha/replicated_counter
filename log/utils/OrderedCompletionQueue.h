@@ -20,9 +20,11 @@ public:
     std::vector<std::int64_t> toDelete;
 
     for (auto &[key, value] : promises_) {
-      if (key <= index) {
+      if (key < index) {
         value->promise.setValue(value->result);
         toDelete.push_back(key);
+      } else {
+        break;
       }
     }
 
@@ -51,10 +53,26 @@ public:
    *
    * All promises from the currentIndex to the first hole are completed.
    * */
-  void add(std::int64_t index, folly::Promise<T> promise, T result) {
+  void add(std::int64_t index, folly::Promise<T> promise, T result,
+           bool complete = true) {
     promises_[index] = std::make_shared<PromiseState>(
         PromiseState{std::move(promise), std::move(result)});
-    checkAndCompleteAfterCurrentIndex();
+    if (complete) {
+      checkAndCompleteAfterCurrentIndex();
+    }
+  }
+
+  std::pair<std::int64_t, std::int64_t> getRangeEligibleForCompletion() {
+    auto startIndex = currentIndex_;
+    for (auto &[key, value] : promises_) {
+      if (key == startIndex) {
+        startIndex++;
+      } else {
+        break;
+      }
+    }
+
+    return {currentIndex_, startIndex};
   }
 
   std::int64_t getCurrentIndex() { return currentIndex_; }

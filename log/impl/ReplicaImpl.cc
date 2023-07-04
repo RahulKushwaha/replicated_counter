@@ -71,7 +71,7 @@ ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
   co_return co_await nanoLog->getLogEntry(logId);
 }
 
-LogId ReplicaImpl::getLocalCommitIndex(VersionId versionId) {
+LogId ReplicaImpl::getCommitIndex(VersionId versionId) {
   std::lock_guard lk{*mtx_};
 
   auto nanoLog = nanoLogStore_->getNanoLog(versionId);

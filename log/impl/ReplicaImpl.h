@@ -29,7 +29,7 @@ public:
   coro<std::variant<LogEntry, LogReadError>> getLogEntry(VersionId versionId,
                                                          LogId logId) override;
 
-  LogId getLocalCommitIndex(VersionId versionId) override;
+  LogId getCommitIndex(VersionId versionId) override;
 
   LogId seal(VersionId versionId) override;
 

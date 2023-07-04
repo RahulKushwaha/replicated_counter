@@ -198,6 +198,7 @@ TEST_P(ReplicaTests, UnOrderedAppendAlwaysFinishInOrder) {
 }
 
 INSTANTIATE_TEST_SUITE_P(ReplicaParameterizedTests, ReplicaTests,
-                         testing::Values(ReplicaType::InMemory));
+                         testing::Values(ReplicaType::RocksDb,
+                                         ReplicaType::InMemory));
 
 } // namespace rk::projects::durable_log

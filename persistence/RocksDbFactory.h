@@ -13,6 +13,7 @@ public:
   struct RocksDbConfig {
     std::string path;
     bool createIfMissing;
+    bool manualWALFlush;
   };
 
   static rocksdb::DB *provide(const RocksDbConfig &config) {
@@ -20,6 +21,7 @@ public:
 
     rocksdb::Options options;
     options.create_if_missing = config.createIfMissing;
+    options.manual_wal_flush = config.manualWALFlush;
 
     rocksdb::Status status = rocksdb::DB::Open(options, config.path, &db);
 
@@ -39,7 +41,7 @@ public:
           auto s = db->Close();
           LOG(INFO) << "db close: " << s.ToString();
           s = rocksdb::DestroyDB(config.path, rocksdb::Options{});
-          LOG(INFO) << "db destroy: " << s.ToString();
+          LOG(INFO) << "db destroy: " << config.path << ", " << s.ToString();
         }};
   }
 };

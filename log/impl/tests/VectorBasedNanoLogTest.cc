@@ -2,53 +2,94 @@
 // Created by Rahul  Kushwaha on 1/1/23.
 //
 
+#include "log/impl/VectorBasedNanoLog.h"
+#include "log/impl/RocksNanoLog.h"
+#include "persistence/RocksDbFactory.h"
+#include "persistence/RocksKVStoreLite.h"
 #include <gtest/gtest.h>
 #include <random>
 
-#include "../VectorBasedNanoLog.h"
-
 namespace rk::projects::durable_log {
 
-TEST(VectorBasedNanoLogTest, AppendWithoutSealDonotFail) {
-  VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
+namespace {
 
-  ASSERT_NO_THROW(log.append({}, 4, "").semi().get()) << "No Exception";
+enum class NanoLogType {
+  InMemory,
+  RocksDb,
+};
+
+} // namespace
+
+class NanoLogTests : public testing::TestWithParam<NanoLogType> {
+protected:
+  std::shared_ptr<rocksdb::DB> rocks_;
+  persistence::RocksDbFactory::RocksDbConfig config_{
+      .path = "/tmp/nanolog_tests", .createIfMissing = true};
+  NanoLogType nanoLogType_;
+
+protected:
+  void SetUp() override { nanoLogType_ = GetParam(); }
+  void TearDown() override {}
+
+  std::shared_ptr<NanoLog> makeLog(std::string id, std::string name,
+                                   std::string metadataVersionId,
+                                   LogId startIndex, LogId endIndex,
+                                   bool sealed) {
+    switch (nanoLogType_) {
+    case NanoLogType::InMemory:
+      return std::make_shared<VectorBasedNanoLog>(
+          std::move(id), std::move(name), std::move(metadataVersionId),
+          startIndex, endIndex, sealed);
+    case NanoLogType::RocksDb:
+      rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
+      auto kvStore = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
+      return std::make_shared<RocksNanoLog>(
+          std::move(id), std::move(name), std::move(metadataVersionId),
+          startIndex, endIndex, sealed, std::move(kvStore));
+    }
+
+    throw std::runtime_error{"unknown nanolog type"};
+  }
+};
+
+TEST_P(NanoLogTests, AppendWithoutSealDonotFail) {
+  auto log = makeLog("id", "name", "versionId", 4, 40, false);
+
+  ASSERT_NO_THROW(log->append({}, 4, "").semi().get()) << "No Exception";
 }
 
-TEST(VectorBasedNanoLogTest, OutOfOrderAppendNeverFinishes) {
-  VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
+TEST_P(NanoLogTests, OutOfOrderAppendNeverFinishes) {
+  auto log = makeLog("id", "name", "versionId", 4, 40, false);
   auto future =
-      log.append({}, 5, "").semi().via(&folly::InlineExecutor::instance());
+      log->append({}, 5, "").semi().via(&folly::InlineExecutor::instance());
 
   ASSERT_FALSE(future.isReady());
 }
 
-TEST(VectorBasedNanoLogTest,
-     OrderOfOrderAppendSucceedsAfterAllPreviousAreCompleted) {
-  VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
+TEST_P(NanoLogTests, OrderOfOrderAppendSucceedsAfterAllPreviousAreCompleted) {
+  auto log = makeLog("id", "name", "versionId", 4, 40, false);
 
   auto future6 =
-      log.append({}, 6, "").semi().via(&folly::InlineExecutor::instance());
+      log->append({}, 6, "").semi().via(&folly::InlineExecutor::instance());
   ASSERT_FALSE(future6.isReady());
 
   auto future5 =
-      log.append({}, 5, "").semi().via(&folly::InlineExecutor::instance());
+      log->append({}, 5, "").semi().via(&folly::InlineExecutor::instance());
   ASSERT_FALSE(future6.isReady());
   ASSERT_FALSE(future5.isReady());
 
   auto future4 =
-      log.append({}, 4, "").semi().via(&folly::InlineExecutor::instance());
+      log->append({}, 4, "").semi().via(&folly::InlineExecutor::instance());
   ASSERT_EQ(future4.value(), 4);
   ASSERT_EQ(future5.value(), 5);
   ASSERT_EQ(future6.value(), 6);
 }
 
-TEST(VectorBasedNanoLogTest, MultipleUnorderedAppends) {
+TEST_P(NanoLogTests, MultipleUnorderedAppends) {
   LogId startLogId = 4;
   LogId endLogId = 40;
 
-  VectorBasedNanoLog log{"id",       "name",   "versionId",
-                         startLogId, endLogId, false};
+  auto log = makeLog("id", "name", "versionId", startLogId, endLogId, false);
 
   std::vector<LogId> logIds;
   for (LogId id = startLogId; id < endLogId; id++) {
@@ -64,7 +105,7 @@ TEST(VectorBasedNanoLogTest, MultipleUnorderedAppends) {
 
   std::map<LogId, folly::SemiFuture<LogId>> futures;
   for (auto logId : logIds) {
-    auto future = log.append({}, logId, "")
+    auto future = log->append({}, logId, "")
                       .semi()
                       .via(&folly::InlineExecutor::instance());
 
@@ -75,19 +116,23 @@ TEST(VectorBasedNanoLogTest, MultipleUnorderedAppends) {
     if (logId < pivot) {
       ASSERT_EQ(future.value(), logId);
     } else {
-      ASSERT_THROW(future.value(), folly::FutureNotReady);
+      ASSERT_THROW(future.value(), folly::FutureNotReady) << logId;
     }
   }
 
-  ASSERT_EQ(log.getLocalCommitIndex(), pivot);
+  ASSERT_EQ(log->getLocalCommitIndex(), pivot);
 }
 
-TEST(VectorBasedNanoLogTest, FailedAppendsAfterSeal) {
-  VectorBasedNanoLog log{"id", "name", "versionId", 4, 40, false};
-  log.seal();
+TEST_P(NanoLogTests, FailedAppendsAfterSeal) {
+  auto log = makeLog("id", "name", "versionId", 4, 40, false);
+  log->seal();
 
-  ASSERT_THROW(log.append({}, 4, "").semi().get(), NanoLogSealedException)
+  ASSERT_THROW(log->append({}, 4, "").semi().get(), NanoLogSealedException)
       << "Exception Thrown";
 }
+
+INSTANTIATE_TEST_SUITE_P(NanoLogParameterizedTests, NanoLogTests,
+                         testing::Values(NanoLogType::InMemory,
+                                         NanoLogType::RocksDb));
 
 } // namespace rk::projects::durable_log
