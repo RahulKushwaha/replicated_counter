@@ -47,6 +47,7 @@ coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
 
   co_return co_await nanoLog
       ->append(globalCommitIndex, logId, logEntryPayload, skipSeal)
+      .semi()
       .via(&folly::InlineExecutor::instance())
       .then([](folly::Try<LogId> &&logId) {
         if (logId.hasValue()) {
@@ -67,7 +68,7 @@ ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
     co_return std::variant<LogEntry, LogReadError>{LogReadError::NotFound};
   }
 
-  co_return nanoLog->getLogEntry(logId);
+  co_return co_await nanoLog->getLogEntry(logId);
 }
 
 LogId ReplicaImpl::getLocalCommitIndex(VersionId versionId) {

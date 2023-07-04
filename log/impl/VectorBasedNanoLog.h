@@ -23,10 +23,10 @@ public:
   std::string getName() override;
   std::string getMetadataVersionId() override;
 
-  folly::SemiFuture<LogId> append(std::optional<LogId> globalCommitIndex,
-                                  LogId logId, std::string logEntryPayload,
-                                  bool skipSeal = false) override;
-  std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) override;
+  coro<LogId> append(std::optional<LogId> globalCommitIndex, LogId logId,
+                     std::string logEntryPayload,
+                     bool skipSeal = false) override;
+  coro<std::variant<LogEntry, LogReadError>> getLogEntry(LogId logId) override;
 
   LogId seal() override;
   LogId getLocalCommitIndex() override;

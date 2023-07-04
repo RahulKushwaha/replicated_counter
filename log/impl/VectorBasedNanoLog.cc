@@ -23,11 +23,11 @@ std::string VectorBasedNanoLog::getMetadataVersionId() {
   return metadataVersionId_;
 }
 
-folly::SemiFuture<LogId>
-VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
-                           std::string logEntryPayload, bool skipSeal) {
+coro<LogId> VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex,
+                                       LogId logId, std::string logEntryPayload,
+                                       bool skipSeal) {
   if (!skipSeal && sealed_) {
-    return folly::makeSemiFuture<LogId>(
+    co_return co_await folly::makeSemiFuture<LogId>(
         folly::make_exception_wrapper<NanoLogSealedException>(
             metadataVersionId_));
   }
@@ -37,9 +37,9 @@ VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
   if (!result.second) {
     if (skipSeal) {
       // TODO: Check if the logEntry is the same as provided in the call.
-      return folly::makeSemiFuture(logId);
+      co_return co_await folly::makeSemiFuture(logId);
     } else {
-      return folly::makeSemiFuture<LogId>(
+      co_return co_await folly::makeSemiFuture<LogId>(
           folly::make_exception_wrapper<NanoLogLogPositionAlreadyOccupied>());
     }
   }
@@ -50,16 +50,16 @@ VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex, LogId logId,
     completionQueue_.completeAllBelow(globalCommitIndex.value());
   }
 
-  return std::move(future);
+  co_return co_await std::move(future);
 }
 
-std::variant<LogEntry, LogReadError>
+coro<std::variant<LogEntry, LogReadError>>
 VectorBasedNanoLog::getLogEntry(LogId logId) {
   if (auto itr = logs_.find(logId); itr != logs_.end()) {
-    return {LogEntry{logId, itr->second}};
+    co_return {LogEntry{logId, itr->second}};
   }
 
-  return {LogReadError::NotFound};
+  co_return {LogReadError::NotFound};
 }
 
 LogId VectorBasedNanoLog::seal() {
