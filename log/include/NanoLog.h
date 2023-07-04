@@ -16,10 +16,11 @@ public:
   virtual std::string getName() = 0;
   virtual std::string getMetadataVersionId() = 0;
 
-  virtual folly::SemiFuture<LogId>
-  append(std::optional<LogId> globalCommitIndex, LogId logId,
-         std::string logEntryPayload, bool skipSeal = false) = 0;
-  virtual std::variant<LogEntry, LogReadError> getLogEntry(LogId logId) = 0;
+  virtual coro<LogId> append(std::optional<LogId> globalCommitIndex,
+                             LogId logId, std::string logEntryPayload,
+                             bool skipSeal = false) = 0;
+  virtual coro<std::variant<LogEntry, LogReadError>>
+  getLogEntry(LogId logId) = 0;
   virtual LogId seal() = 0;
   virtual LogId getLocalCommitIndex() = 0;
 
