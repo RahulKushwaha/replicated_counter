@@ -69,6 +69,15 @@ public:
     }
   }
 
+  folly::coro::Task<bool> flushWal() override {
+    auto s = rocks_->FlushWAL(true);
+    if (!s.ok()) {
+      LOG(INFO) << "wal flush failed: " << s.ToString();
+    }
+
+    co_return s.ok();
+  }
+
 private:
   std::shared_ptr<rocksdb::DB> rocks_;
 };

@@ -21,18 +21,21 @@ public:
   coro<std::variant<LogEntry, LogReadError>> getLogEntry(VersionId versionId,
                                                          LogId logId) override;
 
-  LogId getLocalCommitIndex(VersionId versionId) override;
+  LogId getCommitIndex(VersionId versionId) override;
   LogId seal(VersionId versionId) override;
 
   ~RocksReplica() override = default;
 
 private:
-  inline std::string getLogKey(VersionId versionId, LogId logId);
-  inline std::string getLogKeyPrefix(VersionId versionId);
-  inline std::string getSealKey(VersionId versionId);
-  inline std::string getCommitIndexKey(VersionId versionId);
+  struct KeyFormat {
+    std::string logKey() { return "VERSION_ID|{}|LOG_ID|{}"; }
+    std::string logKeyPrefix() { return "VERSION_ID|{}|LOG_ID|"; }
+    std::string sealKey() { return "VERSION_ID|{}|SEAL|"; }
+    std::string startIndexKey() { return "VERSION_ID|{}|START_INDEX|"; }
+    std::string endIndexKey() { return "VERSION_ID|{}|END_INDEX|"; }
+  };
 
-  coro<std::optional<LogId>> getLatestLogId(VersionId versionId);
+  KeyFormat formatter;
 
 private:
   std::string id_;

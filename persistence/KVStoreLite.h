@@ -21,6 +21,8 @@ public:
 
   virtual folly::coro::AsyncGenerator<KeyValue>
   scan(std::string startPrefix) = 0;
+
+  virtual folly::coro::Task<bool> flushWal() = 0;
 };
 
 } // namespace rk::projects::persistence

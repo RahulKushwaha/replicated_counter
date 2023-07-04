@@ -89,7 +89,7 @@ grpc::Status ReplicaServer::getLocalCommitIndex(
     const server::GetLocalCommitIndexRequest *request,
     server::LogIdResponse *response) {
   try {
-    response->set_log_id(replica_->getLocalCommitIndex(request->version_id()));
+    response->set_log_id(replica_->getCommitIndex(request->version_id()));
   } catch (const std::exception &e) {
     return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
   }
