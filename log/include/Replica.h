@@ -24,8 +24,8 @@ public:
   virtual coro<std::variant<LogEntry, LogReadError>>
   getLogEntry(VersionId versionId, LogId logId) = 0;
 
-  virtual LogId getCommitIndex(VersionId versionId) = 0;
-  virtual LogId seal(VersionId versionId) = 0;
+  virtual coro<LogId> getCommitIndex(VersionId versionId) = 0;
+  virtual coro<LogId> seal(VersionId versionId) = 0;
 
   virtual ~Replica() = default;
 };

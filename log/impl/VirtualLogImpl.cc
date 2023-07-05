@@ -117,7 +117,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
   for (auto &replica : replicaSet) {
-    auto endLogId = replica->seal(versionId);
+    auto endLogId = co_await replica->seal(versionId);
 
     minLogId = std::min(minLogId, endLogId);
     maxLogId = std::max(maxLogId, endLogId);

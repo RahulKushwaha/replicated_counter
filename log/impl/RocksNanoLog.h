@@ -19,21 +19,16 @@ public:
         versionId_{std::move(versionId)}, startIndex_{startIndex},
         endIndexDirty_{true}, endIndex_{endIndex}, sealed_{sealed},
         sealDirty_{true}, completionQueue_{startIndex_},
-        kvStore_{std::move(kvStore)} {
-    // Remove these sync calls.
-    kvStore_
-        ->put(fmt::format(formatter.startIndexKey(), versionId_),
-              std::to_string(startIndex))
-        .semi()
-        .get();
-    kvStore_
-        ->put(fmt::format(formatter.endIndexKey(), versionId_),
-              std::to_string(startIndex))
-        .semi()
-        .get();
-    kvStore_->put(fmt::format(formatter.sealKey(), versionId_), "FALSE")
-        .semi()
-        .get();
+        kvStore_{std::move(kvStore)} {}
+
+  coro<void> init() {
+    co_await kvStore_->put(fmt::format(formatter.startIndexKey(), versionId_),
+                           std::to_string(startIndex_));
+    co_await kvStore_->put(fmt::format(formatter.endIndexKey(), versionId_),
+                           std::to_string(startIndex_));
+    co_await kvStore_->put(fmt::format(formatter.sealKey(), versionId_),
+                           sealed_ ? "TRUE" : "FALSE");
+    co_return;
   }
 
   std::string getId() override { return id_; };
@@ -86,17 +81,18 @@ public:
     }
   }
 
-  LogId seal() override {
-    if (co_setSeal().semi().get()) {
-      return endIndex_;
+  coro<LogId> seal() override {
+    if (co_await co_setSeal()) {
+      co_return endIndex_;
     }
 
-    return -1;
+    co_return -1;
   }
 
-  LogId getLocalCommitIndex() override {
-    return co_getEndIndex().semi().get();
+  coro<LogId> getLocalCommitIndex() override {
+    co_return co_await co_getEndIndex();
   };
+
   LogId getStartIndex() override { return startIndex_; };
   LogId getEndIndex() override { return co_getEndIndex().semi().get(); };
   bool isSealed() override { return co_isSealed().semi().get(); };

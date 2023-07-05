@@ -6,6 +6,7 @@
 #include "RegistryImpl.h"
 #include "SequencerImpl.h"
 #include "VirtualLogImpl.h"
+#include "log/impl/NanoLogFactory.h"
 #include "log/utils/UuidGenerator.h"
 
 namespace rk::projects::durable_log {
@@ -52,9 +53,13 @@ std::unique_ptr<Replica>
 makeReplica(std::string id, std::string name,
             std::shared_ptr<NanoLogStore> nanoLogStore,
             std::shared_ptr<MetadataStore> metadataStore) {
-  return std::make_unique<ReplicaImpl>(std::move(id), std::move(name),
-                                       std::move(nanoLogStore),
-                                       std::move(metadataStore));
+  auto nanoLogFactory = std::make_shared<NanoLogFactory>(
+      persistence::RocksDbFactory::RocksDbConfig{});
+
+  return std::make_unique<ReplicaImpl>(
+      std::move(id), std::move(name), std::move(nanoLogStore),
+      std::move(metadataStore), std::move(nanoLogFactory),
+      NanoLogType::InMemory);
 }
 
 std::unique_ptr<Sequencer>

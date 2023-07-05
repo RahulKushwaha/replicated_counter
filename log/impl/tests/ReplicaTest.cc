@@ -7,9 +7,9 @@
 #include <random>
 
 #include "log/impl/InMemoryMetadataStore.h"
+#include "log/impl/NanoLogFactory.h"
 #include "log/impl/NanoLogStoreImpl.h"
 #include "log/impl/ReplicaImpl.h"
-#include "log/impl/RocksReplica.h"
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
 
@@ -31,7 +31,6 @@ struct SequencerCreationResult {
 
 class ReplicaTests : public testing::TestWithParam<ReplicaType> {
 protected:
-  std::shared_ptr<rocksdb::DB> rocks_;
   SequencerCreationResult creationResult_;
   persistence::RocksDbFactory::RocksDbConfig config_{
       .path = "/tmp/replica_tests", .createIfMissing = true};
@@ -54,17 +53,19 @@ protected:
       metadataStore->compareAndAppendRange(0, config);
     }
 
+    auto nanoLogFactory = std::make_shared<NanoLogFactory>(config_);
+
     if (inMemoryReplica) {
       return {std::make_shared<ReplicaImpl>(ReplicaImpl{
-                  "random_id", "random_name", nanoLogStore, metadataStore}),
+                  "random_id", "random_name", nanoLogStore, metadataStore,
+                  nanoLogFactory, NanoLogType::InMemory}),
               metadataStore};
     }
 
-    rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
-    auto kvStore = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
-    auto rocksReplica = std::make_shared<RocksReplica>(
-        "random_id", "random_name", metadataStore, kvStore);
-    return {rocksReplica, metadataStore};
+    return {std::make_shared<ReplicaImpl>(
+                ReplicaImpl{"random_id", "random_name", nanoLogStore,
+                            metadataStore, nanoLogFactory, NanoLogType::Rocks}),
+            metadataStore};
   }
 
   void SetUp() override {
@@ -112,7 +113,7 @@ TEST_P(ReplicaTests, AppendLogEntryWhenNanoLogIsSealed) {
     LOG(INFO) << "append complete" << std::endl;
   }
 
-  replica->seal(versionId);
+  replica->seal(versionId).semi().get();
 
   std::string logEntry{"Hello World"};
   ASSERT_THROW(replica->append({}, versionId, 501, logEntry).semi().get(),

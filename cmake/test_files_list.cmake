@@ -6,7 +6,7 @@ set(
         log/impl/tests/ReplicaTest.cc
         log/impl/tests/SequencerTest.cc
         log/impl/tests/TestUtils.h
-        log/impl/tests/VectorBasedNanoLogTest.cc
+        log/impl/tests/NanoLogTests.cc
         log/impl/tests/VirtualLogTest.cc
         log/utils/tests/FutureUtilsTest.cc
         log/utils/tests/OrderedCompletionQueueTests.cc

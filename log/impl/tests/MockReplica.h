@@ -4,7 +4,7 @@
 #include <gmock/gmock.h>
 #include <variant>
 
-#include "../../include/Replica.h"
+#include "log/include/Replica.h"
 
 namespace rk::projects::durable_log {
 
@@ -21,9 +21,9 @@ public:
   MOCK_METHOD((coro<std::variant<LogEntry, LogReadError>>), getLogEntry,
               (VersionId versionId, LogId logId), (override));
 
-  MOCK_METHOD(LogId, getCommitIndex, (VersionId versionId), (override));
+  MOCK_METHOD(coro<LogId>, getCommitIndex, (VersionId versionId), (override));
 
-  MOCK_METHOD(LogId, seal, (VersionId versionId), (override));
+  MOCK_METHOD(coro<LogId>, seal, (VersionId versionId), (override));
 };
 
 } // namespace rk::projects::durable_log

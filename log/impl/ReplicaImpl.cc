@@ -3,7 +3,7 @@
 //
 
 #include "ReplicaImpl.h"
-#include "VectorBasedNanoLog.h"
+#include "InMemoryNanoLog.h"
 #include "folly/executors/InlineExecutor.h"
 #include "log/utils/UuidGenerator.h"
 
@@ -12,11 +12,13 @@ namespace rk::projects::durable_log {
 ReplicaImpl::ReplicaImpl(std::string id, std::string name,
                          std::shared_ptr<NanoLogStore> nanoLogStore,
                          std::shared_ptr<MetadataStore> metadataStore,
-                         bool local)
+                         std::shared_ptr<NanoLogFactory> nanoLogFactory,
+                         NanoLogType nanoLogType)
     : id_{std::move(id)}, name_{std::move(name)},
       nanoLogStore_{std::move(nanoLogStore)},
-      metadataStore_{std::move(metadataStore)}, local_{local},
-      mtx_{std::make_shared<std::mutex>()} {}
+      metadataStore_{std::move(metadataStore)},
+      mtx_{std::make_shared<std::mutex>()},
+      nanoLogFactory_{std::move(nanoLogFactory)}, nanoLogType_{nanoLogType} {}
 
 std::string ReplicaImpl::getId() { return id_; }
 
@@ -37,9 +39,9 @@ coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
       throw MetadataBlockNotFound{};
     }
 
-    nanoLog = std::make_shared<VectorBasedNanoLog>(
-        utils::UuidGenerator::instance().generate(), "VectorBasedNanoLog",
-        std::to_string(versionId), config->start_index(),
+    nanoLog = co_await nanoLogFactory_->makeNanoLog(
+        nanoLogType_, utils::UuidGenerator::instance().generate(),
+        "VectorBasedNanoLog", std::to_string(versionId), config->start_index(),
         std::numeric_limits<std::int64_t>::max(), false);
 
     nanoLogStore_->add(versionId, nanoLog);
@@ -71,14 +73,14 @@ ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
   co_return co_await nanoLog->getLogEntry(logId);
 }
 
-LogId ReplicaImpl::getCommitIndex(VersionId versionId) {
+coro<LogId> ReplicaImpl::getCommitIndex(VersionId versionId) {
   std::lock_guard lk{*mtx_};
 
   auto nanoLog = nanoLogStore_->getNanoLog(versionId);
-  return nanoLog->getLocalCommitIndex();
+  co_return co_await nanoLog->getLocalCommitIndex();
 }
 
-LogId ReplicaImpl::seal(VersionId versionId) {
+coro<LogId> ReplicaImpl::seal(VersionId versionId) {
   std::lock_guard lk{*mtx_};
 
   std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
@@ -91,9 +93,9 @@ LogId ReplicaImpl::seal(VersionId versionId) {
   // There might be a case where an empty segment might be sealed
   // due to multiple seal commands one after the another.
   if (!nanoLog) {
-    nanoLog = std::make_shared<VectorBasedNanoLog>(
-        utils::UuidGenerator::instance().generate(), "VectorBasedNanoLog",
-        std::to_string(versionId), config->start_index(),
+    nanoLog = co_await nanoLogFactory_->makeNanoLog(
+        nanoLogType_, utils::UuidGenerator::instance().generate(),
+        "VectorBasedNanoLog", std::to_string(versionId), config->start_index(),
         std::numeric_limits<std::int64_t>::max(), false);
 
     nanoLogStore_->add(versionId, nanoLog);
@@ -102,7 +104,7 @@ LogId ReplicaImpl::seal(VersionId versionId) {
   }
 
   if (nanoLog) {
-    return nanoLog->seal();
+    co_return co_await nanoLog->seal();
   }
 
   throw NanoLogLogNotAvailable{};

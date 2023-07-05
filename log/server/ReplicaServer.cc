@@ -89,7 +89,8 @@ grpc::Status ReplicaServer::getLocalCommitIndex(
     const server::GetLocalCommitIndexRequest *request,
     server::LogIdResponse *response) {
   try {
-    response->set_log_id(replica_->getCommitIndex(request->version_id()));
+    response->set_log_id(
+        replica_->getCommitIndex(request->version_id()).semi().get());
   } catch (const std::exception &e) {
     return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
   }
@@ -101,7 +102,7 @@ grpc::Status ReplicaServer::seal(::grpc::ServerContext *context,
                                  const server::SealRequest *request,
                                  server::LogIdResponse *response) {
   try {
-    response->set_log_id(replica_->seal(request->version_id()));
+    response->set_log_id(replica_->seal(request->version_id()).semi().get());
   } catch (const std::exception &e) {
     return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
   }

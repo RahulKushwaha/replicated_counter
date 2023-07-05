@@ -12,9 +12,9 @@ namespace rk::projects::durable_log {
 
 using namespace rk::projects::utils;
 
-class VectorBasedNanoLog : public NanoLog {
+class InMemoryNanoLog : public NanoLog {
 public:
-  explicit VectorBasedNanoLog(std::string id, std::string name,
+  explicit InMemoryNanoLog(std::string id, std::string name,
                               std::string metadataVersionId, LogId startIndex,
                               LogId endIndex, bool sealed);
 
@@ -28,8 +28,8 @@ public:
                      bool skipSeal = false) override;
   coro<std::variant<LogEntry, LogReadError>> getLogEntry(LogId logId) override;
 
-  LogId seal() override;
-  LogId getLocalCommitIndex() override;
+  coro<LogId> seal() override;
+  coro<LogId> getLocalCommitIndex() override;
 
   LogId getStartIndex() override;
   LogId getEndIndex() override;

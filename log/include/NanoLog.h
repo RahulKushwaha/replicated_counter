@@ -21,8 +21,8 @@ public:
                              bool skipSeal = false) = 0;
   virtual coro<std::variant<LogEntry, LogReadError>>
   getLogEntry(LogId logId) = 0;
-  virtual LogId seal() = 0;
-  virtual LogId getLocalCommitIndex() = 0;
+  virtual coro<LogId> seal() = 0;
+  virtual coro<LogId> getLocalCommitIndex() = 0;
 
   virtual LogId getStartIndex() = 0;
   virtual LogId getEndIndex() = 0;
