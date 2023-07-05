@@ -121,7 +121,7 @@ TEST(VirtualLogTests, Reconfigure) {
 
   int i = 10;
   for (auto &replica : replicaSet) {
-    ASSERT_EQ(replica->getCommitIndex(currentVersionId), i + 1);
+    ASSERT_EQ(replica->getCommitIndex(currentVersionId).semi().get(), i + 1);
     i += 10;
   }
 
@@ -240,13 +240,13 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
     logEntriesIndex++;
   }
 
-  ASSERT_EQ(replicaSet[0]->getCommitIndex(versionId), 11);
-  ASSERT_EQ(replicaSet[1]->getCommitIndex(versionId), 11);
+  ASSERT_EQ(replicaSet[0]->getCommitIndex(versionId).semi().get(), 11);
+  ASSERT_EQ(replicaSet[1]->getCommitIndex(versionId).semi().get(), 11);
   // Replica 2,3,4 have holes. Therefore, they cannot ack to the entries after
   // the holes.
-  ASSERT_EQ(replicaSet[2]->getCommitIndex(versionId), 5);
-  ASSERT_EQ(replicaSet[3]->getCommitIndex(versionId), 6);
-  ASSERT_EQ(replicaSet[4]->getCommitIndex(versionId), 7);
+  ASSERT_EQ(replicaSet[2]->getCommitIndex(versionId).semi().get(), 5);
+  ASSERT_EQ(replicaSet[3]->getCommitIndex(versionId).semi().get(), 6);
+  ASSERT_EQ(replicaSet[4]->getCommitIndex(versionId).semi().get(), 7);
 
   std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
       "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,

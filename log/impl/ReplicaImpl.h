@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "log/impl/NanoLogFactory.h"
 #include "log/include/NanoLogStore.h"
 #include "log/include/Replica.h"
 #include "log/include/Sequencer.h"
@@ -16,7 +17,8 @@ public:
   explicit ReplicaImpl(std::string id, std::string name,
                        std::shared_ptr<NanoLogStore> nanoLogStore,
                        std::shared_ptr<MetadataStore> metadataStore,
-                       bool local = false);
+                       std::shared_ptr<NanoLogFactory> nanoLogFactory,
+                       NanoLogType nanoLogType);
 
   std::string getId() override;
   std::string getName() override;
@@ -29,9 +31,9 @@ public:
   coro<std::variant<LogEntry, LogReadError>> getLogEntry(VersionId versionId,
                                                          LogId logId) override;
 
-  LogId getCommitIndex(VersionId versionId) override;
+  coro<LogId> getCommitIndex(VersionId versionId) override;
 
-  LogId seal(VersionId versionId) override;
+  coro<LogId> seal(VersionId versionId) override;
 
   ~ReplicaImpl() override = default;
 
@@ -40,8 +42,9 @@ private:
   std::string name_;
   std::shared_ptr<NanoLogStore> nanoLogStore_;
   std::shared_ptr<MetadataStore> metadataStore_;
-  const bool local_;
   std::shared_ptr<std::mutex> mtx_;
+  std::shared_ptr<NanoLogFactory> nanoLogFactory_;
+  NanoLogType nanoLogType_;
 };
 
 } // namespace rk::projects::durable_log

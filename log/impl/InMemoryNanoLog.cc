@@ -2,11 +2,11 @@
 // Created by Rahul  Kushwaha on 12/31/22.
 //
 
-#include "VectorBasedNanoLog.h"
+#include "InMemoryNanoLog.h"
 
 namespace rk::projects::durable_log {
 
-VectorBasedNanoLog::VectorBasedNanoLog(std::string id, std::string name,
+InMemoryNanoLog::InMemoryNanoLog(std::string id, std::string name,
                                        std::string metadataVersionId,
                                        LogId startIndex, LogId endIndex,
                                        bool sealed)
@@ -15,15 +15,15 @@ VectorBasedNanoLog::VectorBasedNanoLog(std::string id, std::string name,
       endIndex_(endIndex), sealed_(sealed), logs_{},
       completionQueue_{startIndex_} {}
 
-std::string VectorBasedNanoLog::getId() { return id_; }
+std::string InMemoryNanoLog::getId() { return id_; }
 
-std::string VectorBasedNanoLog::getName() { return name_; }
+std::string InMemoryNanoLog::getName() { return name_; }
 
-std::string VectorBasedNanoLog::getMetadataVersionId() {
+std::string InMemoryNanoLog::getMetadataVersionId() {
   return metadataVersionId_;
 }
 
-coro<LogId> VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex,
+coro<LogId> InMemoryNanoLog::append(std::optional<LogId> globalCommitIndex,
                                        LogId logId, std::string logEntryPayload,
                                        bool skipSeal) {
   if (!skipSeal && sealed_) {
@@ -54,7 +54,7 @@ coro<LogId> VectorBasedNanoLog::append(std::optional<LogId> globalCommitIndex,
 }
 
 coro<std::variant<LogEntry, LogReadError>>
-VectorBasedNanoLog::getLogEntry(LogId logId) {
+InMemoryNanoLog::getLogEntry(LogId logId) {
   if (auto itr = logs_.find(logId); itr != logs_.end()) {
     co_return {LogEntry{logId, itr->second}};
   }
@@ -62,19 +62,19 @@ VectorBasedNanoLog::getLogEntry(LogId logId) {
   co_return {LogReadError::NotFound};
 }
 
-LogId VectorBasedNanoLog::seal() {
+coro<LogId> InMemoryNanoLog::seal() {
   sealed_ = true;
-  return completionQueue_.getCurrentIndex();
+  co_return completionQueue_.getCurrentIndex();
 }
 
-LogId VectorBasedNanoLog::getStartIndex() { return startIndex_; }
+LogId InMemoryNanoLog::getStartIndex() { return startIndex_; }
 
-LogId VectorBasedNanoLog::getEndIndex() { return endIndex_; }
+LogId InMemoryNanoLog::getEndIndex() { return endIndex_; }
 
-bool VectorBasedNanoLog::isSealed() { return sealed_; }
+bool InMemoryNanoLog::isSealed() { return sealed_; }
 
-LogId VectorBasedNanoLog::getLocalCommitIndex() {
-  return completionQueue_.getCurrentIndex();
+coro<LogId> InMemoryNanoLog::getLocalCommitIndex() {
+  co_return completionQueue_.getCurrentIndex();
 }
 
 } // namespace rk::projects::durable_log

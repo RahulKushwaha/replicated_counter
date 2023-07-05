@@ -72,9 +72,13 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
 
   for (std::int32_t i = 0; i < totalNumberOfReplicas - numberOfBadReplicas;
        i++) {
+    auto nanoLogFactory = std::make_shared<NanoLogFactory>(
+        persistence::RocksDbFactory::RocksDbConfig{});
+
     std::shared_ptr<Replica> replica = std::make_shared<ReplicaImpl>(
         "REPLICA_" + utils::UuidGenerator::instance().generate(), "random_name",
-        std::make_shared<NanoLogStoreImpl>(), metadataStore);
+        std::make_shared<NanoLogStoreImpl>(), metadataStore,
+        std::move(nanoLogFactory), NanoLogType::InMemory);
 
     config.mutable_replica_set_config()->Add()->set_id(replica->getId());
     registry->registerReplica(replica);

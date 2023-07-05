@@ -2,7 +2,8 @@
 // Created by Rahul  Kushwaha on 1/1/23.
 //
 
-#include "log/impl/VectorBasedNanoLog.h"
+#include "log/impl/InMemoryNanoLog.h"
+#include "log/impl/NanoLogFactory.h"
 #include "log/impl/RocksNanoLog.h"
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
@@ -10,15 +11,6 @@
 #include <random>
 
 namespace rk::projects::durable_log {
-
-namespace {
-
-enum class NanoLogType {
-  InMemory,
-  RocksDb,
-};
-
-} // namespace
 
 class NanoLogTests : public testing::TestWithParam<NanoLogType> {
 protected:
@@ -37,10 +29,10 @@ protected:
                                    bool sealed) {
     switch (nanoLogType_) {
     case NanoLogType::InMemory:
-      return std::make_shared<VectorBasedNanoLog>(
-          std::move(id), std::move(name), std::move(metadataVersionId),
-          startIndex, endIndex, sealed);
-    case NanoLogType::RocksDb:
+      return std::make_shared<InMemoryNanoLog>(std::move(id), std::move(name),
+                                               std::move(metadataVersionId),
+                                               startIndex, endIndex, sealed);
+    case NanoLogType::Rocks:
       rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
       auto kvStore = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
       return std::make_shared<RocksNanoLog>(
@@ -120,12 +112,12 @@ TEST_P(NanoLogTests, MultipleUnorderedAppends) {
     }
   }
 
-  ASSERT_EQ(log->getLocalCommitIndex(), pivot);
+  ASSERT_EQ(log->getLocalCommitIndex().semi().get(), pivot);
 }
 
 TEST_P(NanoLogTests, FailedAppendsAfterSeal) {
   auto log = makeLog("id", "name", "versionId", 4, 40, false);
-  log->seal();
+  log->seal().semi().get();
 
   ASSERT_THROW(log->append({}, 4, "").semi().get(), NanoLogSealedException)
       << "Exception Thrown";
@@ -133,6 +125,6 @@ TEST_P(NanoLogTests, FailedAppendsAfterSeal) {
 
 INSTANTIATE_TEST_SUITE_P(NanoLogParameterizedTests, NanoLogTests,
                          testing::Values(NanoLogType::InMemory,
-                                         NanoLogType::RocksDb));
+                                         NanoLogType::Rocks));
 
 } // namespace rk::projects::durable_log

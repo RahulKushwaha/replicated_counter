@@ -34,13 +34,12 @@ set(
         log/impl/RemoteSequencer.h
         log/impl/ReplicaImpl.cc
         log/impl/ReplicaImpl.h
-        log/impl/RocksReplica.cc
-        log/impl/RocksReplica.h
         log/impl/SequencerImpl.cc
         log/impl/SequencerImpl.h
-        log/impl/VectorBasedNanoLog.cc
-        log/impl/VectorBasedNanoLog.h
+        log/impl/InMemoryNanoLog.cc
+        log/impl/InMemoryNanoLog.h
         log/impl/RocksNanoLog.h
+        log/impl/NanoLogFactory.h
         log/impl/VirtualLogFactory.cc
         log/impl/VirtualLogFactory.h
         log/impl/VirtualLogImpl.cc
@@ -68,6 +67,7 @@ set(
         log/utils/GrpcServerFactory.h
         log/utils/OrderedCompletionQueue.h
         log/utils/UuidGenerator.h
+
         metrics/MetricsRegistry.h
 
         persistence/KVStoreLite.h

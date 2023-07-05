@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "../include/Replica.h"
+#include "log/include/Replica.h"
 #include "log/server/proto/Common.pb.h"
 #include "log/server/proto/Replica.grpc.pb.h"
 #include <grpc++/grpc++.h>
