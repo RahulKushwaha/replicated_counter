@@ -28,46 +28,44 @@ coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
                                       VersionId versionId, LogId logId,
                                       std::string logEntryPayload,
                                       bool skipSeal) {
-  std::lock_guard lk{*mtx_};
+  std::shared_ptr<NanoLog> nanoLog;
 
-  std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
+  {
+    std::lock_guard lk{*mtx_};
 
-  // If there is nanolog for the versionId, we need to create one.
-  if (!nanoLog) {
-    auto config = metadataStore_->getConfig(versionId);
-    if (!config.has_value()) {
-      throw MetadataBlockNotFound{};
+    nanoLog = nanoLogStore_->getNanoLog(versionId);
+    // If there is nanolog for the versionId, we need to create one.
+    if (!nanoLog) {
+      auto config = metadataStore_->getConfig(versionId);
+      if (!config.has_value()) {
+        throw MetadataBlockNotFound{};
+      }
+
+      nanoLog = co_await nanoLogFactory_->makeNanoLog(
+          nanoLogType_, utils::UuidGenerator::instance().generate(),
+          "VectorBasedNanoLog", std::to_string(versionId),
+          config->start_index(), std::numeric_limits<std::int64_t>::max(),
+          false);
+
+      nanoLogStore_->add(versionId, nanoLog);
     }
-
-    nanoLog = co_await nanoLogFactory_->makeNanoLog(
-        nanoLogType_, utils::UuidGenerator::instance().generate(),
-        "VectorBasedNanoLog", std::to_string(versionId), config->start_index(),
-        std::numeric_limits<std::int64_t>::max(), false);
-
-    nanoLogStore_->add(versionId, nanoLog);
   }
 
-  co_return co_await nanoLog
-      ->append(globalCommitIndex, logId, logEntryPayload, skipSeal)
-      .semi()
-      .via(&folly::InlineExecutor::instance())
-      .then([](folly::Try<LogId> &&logId) {
-        if (logId.hasValue()) {
-          return folly::makeSemiFuture();
-        } else {
-          return folly::makeSemiFuture<folly::Unit>(logId.exception());
-        }
-      });
+  co_await nanoLog->append(globalCommitIndex, logId, logEntryPayload, skipSeal);
+
+  co_return folly::unit;
 }
 
 coro<std::variant<LogEntry, LogReadError>>
 ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
-  std::lock_guard lk{*mtx_};
+  std::shared_ptr<NanoLog> nanoLog;
+  {
+    std::lock_guard lk{*mtx_};
 
-  std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
-
-  if (!nanoLog) {
-    co_return std::variant<LogEntry, LogReadError>{LogReadError::NotFound};
+    nanoLog = nanoLogStore_->getNanoLog(versionId);
+    if (!nanoLog) {
+      co_return std::variant<LogEntry, LogReadError>{LogReadError::NotFound};
+    }
   }
 
   co_return co_await nanoLog->getLogEntry(logId);
