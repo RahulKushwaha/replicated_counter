@@ -15,8 +15,8 @@ using namespace rk::projects::utils;
 class InMemoryNanoLog : public NanoLog {
 public:
   explicit InMemoryNanoLog(std::string id, std::string name,
-                              std::string metadataVersionId, LogId startIndex,
-                              LogId endIndex, bool sealed);
+                           std::string metadataVersionId, LogId startIndex,
+                           LogId endIndex, bool sealed);
 
 public:
   std::string getId() override;
@@ -44,5 +44,6 @@ private:
   bool sealed_;
   std::map<LogId, std::string> logs_;
   OrderedCompletionQueue<LogId> completionQueue_;
+  std::shared_ptr<std::mutex> mtx_;
 };
 } // namespace rk::projects::durable_log

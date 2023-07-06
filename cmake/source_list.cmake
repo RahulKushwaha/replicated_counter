@@ -39,6 +39,7 @@ set(
         log/impl/InMemoryNanoLog.cc
         log/impl/InMemoryNanoLog.h
         log/impl/RocksNanoLog.h
+        log/impl/RocksNanoLog.cc
         log/impl/NanoLogFactory.h
         log/impl/VirtualLogFactory.cc
         log/impl/VirtualLogFactory.h

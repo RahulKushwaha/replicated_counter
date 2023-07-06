@@ -168,26 +168,25 @@ TEST_P(ReplicaTests, UnOrderedAppendAlwaysFinishInOrder) {
   std::mt19937 g(rd());
   std::shuffle(elements.begin(), elements.end(), g);
 
-  std::vector<folly::SemiFuture<LogId>> futures;
+  std::vector<folly::Future<LogId>> futures;
   for (auto element : elements) {
-    std::cout << element << " " << std::endl;
+    LOG(INFO) << element;
     auto future = replica
                       ->append({}, versionId, element,
                                "Random Text" + std::to_string(element))
                       .semi()
-                      .via(&folly::InlineExecutor::instance())
-                      .thenValue([element](auto &&r) { return element; })
-                      .thenError([](auto &&e) -> folly::Try<int> { throw e; });
+                      .defer([element](auto &&r) -> LogId { return element; })
+                      .via(&folly::InlineExecutor::instance());
 
     futures.emplace_back(std::move(future));
   }
-  std::cout << std::endl;
+  LOG(INFO) << "finished appending";
 
   for (auto &future : futures) {
     ASSERT_FALSE(future.isReady());
   }
 
-  // Append the missing entry, 501
+  LOG(INFO) << "Append the missing entry, 501";
   replica->append({}, versionId, 501, "Random Text" + std::to_string(500))
       .semi()
       .get();
@@ -199,7 +198,7 @@ TEST_P(ReplicaTests, UnOrderedAppendAlwaysFinishInOrder) {
 }
 
 INSTANTIATE_TEST_SUITE_P(ReplicaParameterizedTests, ReplicaTests,
-                         testing::Values(ReplicaType::RocksDb,
-                                         ReplicaType::InMemory));
+                         testing::Values(ReplicaType::InMemory,
+                                         ReplicaType::RocksDb));
 
 } // namespace rk::projects::durable_log
