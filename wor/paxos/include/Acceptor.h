@@ -16,12 +16,14 @@ public:
   virtual std::string getId() = 0;
 
   virtual coro<std::variant<Promise, std::false_type>>
-  prepare(Ballot ballot) = 0;
-  virtual coro<bool> accept(Proposal proposal) = 0;
-  virtual coro<bool> commit(BallotId ballotId) = 0;
+  prepare(std::string paxosInstanceId, Ballot ballot) = 0;
+  virtual coro<bool> accept(std::string paxosInstanceId, Proposal proposal) = 0;
+  virtual coro<bool> commit(std::string paxosInstanceId, BallotId ballotId) = 0;
 
-  virtual coro<std::optional<Promise>> getAcceptedValue() = 0;
-  virtual coro<std::optional<std::string>> getCommittedValue() = 0;
+  virtual coro<std::optional<Promise>>
+  getAcceptedValue(std::string paxosInstanceId) = 0;
+  virtual coro<std::optional<std::string>>
+  getCommittedValue(std::string paxosInstanceId) = 0;
 };
 
 } // namespace rk::projects::paxos

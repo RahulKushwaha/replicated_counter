@@ -32,7 +32,11 @@ public:
       co_return value;
     }
 
-    co_return {};
+    if (status.IsNotFound()) {
+      co_return {};
+    }
+
+    throw std::runtime_error{status.ToString()};
   }
 
   folly::coro::Task<bool> putIfNotExists(std::string key,

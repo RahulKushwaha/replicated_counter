@@ -11,8 +11,9 @@ namespace rk::projects::paxos {
 
 class PaxosWriteOnceRegister : public wor::WriteOnceRegister {
 public:
-  explicit PaxosWriteOnceRegister(std::shared_ptr<Proposer> proposer)
-      : majorId_{99}, lockId_{0}, proposer_{std::move(proposer)} {}
+  explicit PaxosWriteOnceRegister(std::shared_ptr<Proposer> proposer,
+                                  std::int32_t majorId)
+      : majorId_{majorId}, lockId_{0}, proposer_{std::move(proposer)} {}
 
   std::optional<wor::LockId> lock() override {
     auto lockId = getNextLockId();
