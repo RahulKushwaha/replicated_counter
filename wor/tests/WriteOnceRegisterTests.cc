@@ -2,6 +2,8 @@
 // Created by Rahul  Kushwaha on 6/7/23.
 //
 
+#include "persistence/RocksDbFactory.h"
+#include "persistence/RocksKVStoreLite.h"
 #include "wor/inmemory/InMemoryWriteOnceRegister.h"
 #include "wor/paxos/LocalAcceptor.h"
 #include "wor/paxos/PaxosWriteOnceRegister.h"
@@ -12,17 +14,29 @@
 namespace rk::projects::wor {
 using namespace paxos;
 
+static std::int32_t majorId = 1;
+
 std::shared_ptr<PaxosWriteOnceRegister> createPaxosRegister() {
   int members{5};
 
   std::vector<std::shared_ptr<Acceptor>> acceptors;
   for (int i = 0; i < members; i++) {
     std::string acceptorId = fmt::format("acceptor_{}", i);
-    acceptors.emplace_back(std::make_shared<LocalAcceptor>(acceptorId));
+    persistence::RocksDbFactory::RocksDbConfig config{
+        .path = fmt::format(
+            "/tmp/paxos_tests/paxos_acceptor_tests{}_{}",
+            std::chrono::system_clock::now().time_since_epoch().count(), i),
+        .createIfMissing = true};
+    auto rocks = persistence::RocksDbFactory::provideSharedPtr(config);
+    auto kvStore =
+        std::make_shared<persistence::RocksKVStoreLite>(std::move(rocks));
+    acceptors.emplace_back(
+        std::make_shared<LocalAcceptor>(acceptorId, std::move(kvStore)));
   }
 
   auto proposer = std::make_shared<Proposer>(members, acceptors);
-  auto paxosRegister = std::make_shared<PaxosWriteOnceRegister>(proposer);
+  auto paxosRegister =
+      std::make_shared<PaxosWriteOnceRegister>(proposer, majorId++);
   return paxosRegister;
 }
 

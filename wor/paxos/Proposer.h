@@ -15,6 +15,7 @@
 
 namespace rk::projects::paxos {
 using PrepareResponse = std::variant<Promise, std::false_type>;
+std::string paxosInstanceId = "FIX ME";
 
 class Proposer : public Proposer1 {
 public:
@@ -29,7 +30,7 @@ public:
 
     std::vector<coro<folly::Optional<PrepareResponse>>> prepareTasks;
     for (auto &acceptor : prepareAcceptors_) {
-      auto prepareTask = acceptor->prepare(Ballot{ballotId});
+      auto prepareTask = acceptor->prepare(paxosInstanceId, Ballot{ballotId});
       auto prepareWithTimeout = folly::coro::timed_wait(
           std::move(prepareTask), std::chrono::milliseconds(100));
 
@@ -88,7 +89,7 @@ public:
 
     std::int32_t successfulProposals{0};
     for (auto &acceptor : proposeAcceptors_) {
-      auto result = co_await acceptor->accept(proposal);
+      auto result = co_await acceptor->accept(paxosInstanceId, proposal);
       if (result) {
         successfulProposals++;
       }
@@ -100,7 +101,7 @@ public:
 
     bool committed{false};
     for (auto &acceptor : proposeAcceptors_) {
-      auto commitResult = co_await acceptor->commit(ballotId);
+      auto commitResult = co_await acceptor->commit(paxosInstanceId, ballotId);
       committed |= commitResult;
     }
 
@@ -109,7 +110,8 @@ public:
 
   coro<std::optional<std::string>> getCommittedValue() override {
     for (auto &acceptor : proposeAcceptors_) {
-      if (auto committedValue = co_await acceptor->getCommittedValue();
+      if (auto committedValue =
+              co_await acceptor->getCommittedValue(paxosInstanceId);
           committedValue.has_value()) {
         co_return committedValue.value();
       }
