@@ -7,7 +7,7 @@
 #include "folly/experimental/coro/Collect.h"
 #include "folly/experimental/coro/TimedWait.h"
 #include "wor/paxos/include/Acceptor.h"
-#include "wor/paxos/include/Proposer1.h"
+#include "wor/paxos/include/Proposer.h"
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -15,16 +15,15 @@
 
 namespace rk::projects::paxos {
 using PrepareResponse = std::variant<Promise, std::false_type>;
-std::string paxosInstanceId = "FIX ME";
 
-class Proposer : public Proposer1 {
+class ProposerImpl : public Proposer {
 public:
-  explicit Proposer(std::int32_t majoritySize,
-                    std::vector<std::shared_ptr<Acceptor>> acceptors)
+  explicit ProposerImpl(std::int32_t majoritySize,
+                        std::vector<std::shared_ptr<Acceptor>> acceptors)
       : majority_{majoritySize}, prepareAcceptors_{std::move(acceptors)},
         proposeAcceptors_{}, selectedProposal_{} {}
 
-  coro<bool> prepare(BallotId ballotId) override {
+  coro<bool> prepare(std::string paxosInstanceId, BallotId ballotId) override {
     // first clear the list of acceptors from the proposeAcceptors_ list.
     proposeAcceptors_.clear();
 
@@ -82,10 +81,14 @@ public:
     co_return true;
   }
 
-  coro<bool> propose(BallotId ballotId, std::string value) override {
+  coro<bool> propose(std::string paxosInstanceId, BallotId ballotId,
+                     std::string value) override {
+    auto proposalValue = selectedProposal_.has_value()
+                             ? selectedProposal_.value().value()
+                             : value;
     Proposal proposal{};
     proposal.mutable_ballot_id()->CopyFrom(ballotId);
-    proposal.set_value(std::move(value));
+    proposal.set_value(std::move(proposalValue));
 
     std::int32_t successfulProposals{0};
     for (auto &acceptor : proposeAcceptors_) {
@@ -108,7 +111,8 @@ public:
     co_return committed;
   }
 
-  coro<std::optional<std::string>> getCommittedValue() override {
+  coro<std::optional<std::string>>
+  getCommittedValue(std::string paxosInstanceId) override {
     for (auto &acceptor : proposeAcceptors_) {
       if (auto committedValue =
               co_await acceptor->getCommittedValue(paxosInstanceId);

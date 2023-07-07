@@ -34,9 +34,9 @@ std::shared_ptr<PaxosWriteOnceRegister> createPaxosRegister() {
         std::make_shared<LocalAcceptor>(acceptorId, std::move(kvStore)));
   }
 
-  auto proposer = std::make_shared<Proposer>(members, acceptors);
+  auto proposer = std::make_shared<ProposerImpl>(members, acceptors);
   auto paxosRegister =
-      std::make_shared<PaxosWriteOnceRegister>(proposer, majorId++);
+      std::make_shared<PaxosWriteOnceRegister>(majorId++, proposer);
   return paxosRegister;
 }
 
@@ -48,7 +48,7 @@ TEST_P(WorTests, LockIdsAreIncreme) {
 
   std::vector<LockId> lockIds;
   for (int i = 0; i < 100; i++) {
-    auto lockId = wor->lock();
+    auto lockId = wor->lock().semi().get();
     ASSERT_TRUE(lockId.has_value());
     lockIds.emplace_back(lockId.value());
   }
@@ -58,7 +58,7 @@ TEST_P(WorTests, LockIdsAreIncreme) {
 
 TEST_P(WorTests, ReadFromUnCommittedReturnsError) {
   auto wor = GetParam();
-  auto result = wor->read();
+  auto result = wor->read().semi().get();
 
   ASSERT_TRUE(std::holds_alternative<WriteOnceRegister::ReadError>(result));
 
@@ -72,20 +72,20 @@ TEST_P(WorTests, WriteWithHigherLockValueSucceeds) {
   // Acquire a bunch of locks.
   std::vector<LockId> lockIds;
   for (int i = 0; i < 100; i++) {
-    auto lockId = wor->lock();
+    auto lockId = wor->lock().semi().get();
     ASSERT_TRUE(lockId.has_value());
     lockIds.emplace_back(lockId.value());
   }
 
-  auto lockId = wor->lock();
+  auto lockId = wor->lock().semi().get();
   ASSERT_TRUE(lockId.has_value());
 
   // All the locks acquired previously should fail.
   for (auto prevLockId : lockIds) {
-    auto writeResult = wor->write(prevLockId, "Hello World");
+    auto writeResult = wor->write(prevLockId, "Hello World").semi().get();
     ASSERT_FALSE(writeResult);
 
-    auto readResult = wor->read();
+    auto readResult = wor->read().semi().get();
     ASSERT_TRUE(
         std::holds_alternative<WriteOnceRegister::ReadError>(readResult));
 
@@ -93,35 +93,35 @@ TEST_P(WorTests, WriteWithHigherLockValueSucceeds) {
     ASSERT_EQ(WriteOnceRegister::ReadError::NOT_WRITTEN, readError);
   }
 
-  auto result = wor->write(lockId.value(), "Hello World 1");
+  auto result = wor->write(lockId.value(), "Hello World 1").semi().get();
   ASSERT_TRUE(result);
 
-  ASSERT_EQ("Hello World 1", std::get<std::string>(wor->read()));
+  ASSERT_EQ("Hello World 1", std::get<std::string>(wor->read().semi().get()));
 }
 
 TEST_P(WorTests, WriteIsAllowedOnlyOnce) {
   auto payload{"Hello World"};
   auto wor = GetParam();
-  auto lockId = wor->lock();
+  auto lockId = wor->lock().semi().get();
   ASSERT_TRUE(lockId.has_value());
 
-  auto result = wor->write(lockId.value(), payload);
+  auto result = wor->write(lockId.value(), payload).semi().get();
   ASSERT_TRUE(result);
 
-  ASSERT_EQ(payload, std::get<std::string>(wor->read()));
+  ASSERT_EQ(payload, std::get<std::string>(wor->read().semi().get()));
 
   // Try writing it multiple times, and the result should be the same every
   // time.
   for (int i = 0; i < 100; i++) {
     auto newPayload = fmt::format("Hello World {}", i);
 
-    lockId = wor->lock();
+    lockId = wor->lock().semi().get();
     ASSERT_TRUE(lockId.has_value());
 
-    result = wor->write(lockId.value(), newPayload);
+    result = wor->write(lockId.value(), newPayload).semi().get();
     ASSERT_FALSE(result);
 
-    ASSERT_EQ(payload, std::get<std::string>(wor->read()));
+    ASSERT_EQ(payload, std::get<std::string>(wor->read().semi().get()));
   }
 }
 

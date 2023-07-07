@@ -10,6 +10,7 @@
 namespace rk::projects::wor {
 
 using LockId = std::int64_t;
+template <typename T> using coro = folly::coro::Task<T>;
 
 class WriteOnceRegister {
 public:
@@ -18,9 +19,9 @@ public:
     NOT_WRITTEN,
   };
 
-  virtual std::optional<LockId> lock() = 0;
-  virtual bool write(LockId lockId, std::string payload) = 0;
-  virtual std::variant<std::string, ReadError> read() = 0;
+  virtual coro<std::optional<LockId>> lock() = 0;
+  virtual coro<bool> write(LockId lockId, std::string payload) = 0;
+  virtual coro<std::variant<std::string, ReadError>> read() = 0;
 };
 
 } // namespace rk::projects::wor
