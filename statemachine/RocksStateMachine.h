@@ -28,7 +28,8 @@ public:
       // remove this in future as all the wors' should be completely written.
       assert(wor.has_value());
 
-      auto serializedPayload = std::get<std::string>(wor.value()->read());
+      auto serializedPayload =
+          std::get<std::string>(co_await wor.value()->read());
       RocksTxn currentTxn{.serializedPayload = serializedPayload};
 
       co_await applicator_->apply(currentTxn);

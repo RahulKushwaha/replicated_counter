@@ -14,29 +14,29 @@ public:
       : lockId_{0}, committed_{false}, payload_{},
         mtx_{std::make_unique<std::mutex>()} {}
 
-  std::optional<LockId> lock() override {
+  coro<std::optional<LockId>> lock() override {
     std::lock_guard lg{*mtx_};
     lockId_++;
-    return {lockId_};
+    co_return {lockId_};
   }
 
-  bool write(LockId lockId, std::string payload) override {
+  coro<bool> write(LockId lockId, std::string payload) override {
     std::lock_guard lg{*mtx_};
     if (!committed_ && lockId == lockId_) {
       payload_ = std::move(payload);
       committed_ = true;
-      return true;
+      co_return true;
     }
 
-    return false;
+    co_return false;
   }
 
-  std::variant<std::string, ReadError> read() override {
+  coro<std::variant<std::string, ReadError>> read() override {
     if (committed_) {
-      return {payload_};
+      co_return {payload_};
     }
 
-    return {ReadError::NOT_WRITTEN};
+    co_return {ReadError::NOT_WRITTEN};
   }
 
 private:

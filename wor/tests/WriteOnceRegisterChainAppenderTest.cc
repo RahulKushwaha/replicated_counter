@@ -21,7 +21,8 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteToChain) {
   auto optionalWor = chain->get(optionalWorId.value());
   ASSERT_TRUE(optionalWor.has_value());
 
-  ASSERT_EQ(value, std::get<std::string>(optionalWor.value()->read()));
+  ASSERT_EQ(value,
+            std::get<std::string>(optionalWor.value()->read().semi().get()));
 }
 
 TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
@@ -33,14 +34,17 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
   std::vector<std::string> values;
   for (int i = 0; i < 100; i++) {
     auto value = fmt::format(valueFmt, i);
-    appender.append(value).semi().get();
+    auto worId = appender.append(value).semi().get();
+    ASSERT_NE(worId, -1);
+
     auto optionalWorId = chain->tail();
     ASSERT_TRUE(optionalWorId.has_value());
 
     auto optionalWor = chain->get(optionalWorId.value());
     ASSERT_TRUE(optionalWor.has_value());
 
-    ASSERT_EQ(value, std::get<std::string>(optionalWor.value()->read()));
+    ASSERT_EQ(value,
+              std::get<std::string>(optionalWor.value()->read().semi().get()));
     values.emplace_back(value);
   }
 
@@ -50,10 +54,11 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
   for (auto worId = frontWorId.value(); worId <= endWorId.value(); worId++) {
     auto wor = chain->get(worId);
     ASSERT_TRUE(wor.has_value());
-    valuesInChain.emplace_back(std::get<std::string>(wor.value()->read()));
-
-    ASSERT_EQ(values, valuesInChain);
+    valuesInChain.emplace_back(
+        std::get<std::string>(wor.value()->read().semi().get()));
   }
+
+  ASSERT_EQ(values, valuesInChain);
 }
 
 } // namespace rk::projects::wor

@@ -29,18 +29,19 @@ public:
 
       auto wor = optionalWor.value();
       while (true) {
-        auto lockId = wor->lock();
+        auto lockId = co_await wor->lock();
         if (!lockId.has_value()) {
           continue;
         }
 
-        auto writeResponse = wor->write(lockId.value(), t);
+        auto writeResponse = co_await wor->write(lockId.value(), t);
         if (writeResponse) {
+          successfullyWrittenWorId = worId.value();
           successfullyWritten = true;
           break;
         }
 
-        auto readValue = wor->read();
+        auto readValue = co_await wor->read();
         if (std::holds_alternative<WriteOnceRegister::ReadError>(readValue)) {
           // We either encounter an error or it is not written. In any case we
           // need to continue writing to it until it succeeds.
