@@ -155,12 +155,12 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     }
 
     LogEntry logEntry =
-        folly::collectAnyWithoutException(futures.begin(), futures.end())
+        co_await folly::collectAnyWithoutException(futures.begin(),
+                                                   futures.end())
             .via(&folly::InlineExecutor::instance())
             .thenValue([](std::pair<std::size_t, LogEntry> &&result) {
               return result.second;
-            })
-            .get();
+            });
     LOG(INFO) << "found log entry";
     std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
     for (auto &replica : state_->replicaSet) {
@@ -172,8 +172,8 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
       appendFutures.emplace_back(std::move(appendFuture));
     }
 
-    utils::anyNSuccessful(std::move(appendFutures),
-                          state_->replicaSet.size() / 2 + 1)
+    co_await utils::anyNSuccessful(std::move(appendFutures),
+                                   state_->replicaSet.size() / 2 + 1)
         .via(&folly::InlineExecutor::instance())
         .then([](folly::Try<folly::Unit> &&result) {
           if (result.hasException()) {
@@ -187,8 +187,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
           }
 
           return result.value();
-        })
-        .get();
+        });
   }
 
   LOG(INFO)
@@ -245,15 +244,15 @@ folly::coro::Task<void> VirtualLogImpl::refreshConfiguration() {
 
   if (currentVersionId < versionId) {
     LOG(INFO) << "New version of metadata found: " << versionId;
-    setState(versionId);
+    co_await setState(versionId);
   }
 
   co_return;
 }
 
-void VirtualLogImpl::setState(VersionId versionId) {
+coro<void> VirtualLogImpl::setState(VersionId versionId) {
   LOG(INFO) << "Installing new State";
-  auto config = metadataStore_->getConfig(versionId).semi().get();
+  auto config = co_await metadataStore_->getConfig(versionId);
 
   if (!config.has_value()) {
     LOG(INFO) << "Config is not present.";

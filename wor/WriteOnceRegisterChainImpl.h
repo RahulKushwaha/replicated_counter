@@ -54,6 +54,7 @@ public:
 
     return {lookup_.begin()->first};
   }
+  ~WriteOnceRegisterChainImpl() override = default;
 
 private:
   WorId worId_;

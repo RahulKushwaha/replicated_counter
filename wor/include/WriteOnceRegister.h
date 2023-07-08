@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "folly/experimental/coro/Task.h"
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -22,6 +23,8 @@ public:
   virtual coro<std::optional<LockId>> lock() = 0;
   virtual coro<bool> write(LockId lockId, std::string payload) = 0;
   virtual coro<std::variant<std::string, ReadError>> read() = 0;
+
+  virtual ~WriteOnceRegister() = default;
 };
 
 } // namespace rk::projects::wor
