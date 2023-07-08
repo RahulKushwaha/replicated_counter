@@ -12,7 +12,7 @@ MetadataServer::MetadataServer(std::shared_ptr<MetadataStore> metadataStore)
 grpc::Status MetadataServer::getConfig(::grpc::ServerContext *context,
                                        const server::MetadataVersionId *request,
                                        MetadataConfig *response) {
-  auto metadataConfig = metadataStore_->getConfig(request->id());
+  auto metadataConfig = metadataStore_->getConfig(request->id()).semi().get();
   if (metadataConfig.has_value()) {
     response->CopyFrom(*metadataConfig);
   } else {
@@ -25,8 +25,8 @@ grpc::Status MetadataServer::getConfig(::grpc::ServerContext *context,
 grpc::Status MetadataServer::getCurrentConfig(
     ::grpc::ServerContext *context, const ::google::protobuf::Empty *request,
     ::rk::projects::durable_log::MetadataConfig *response) {
-  auto versionId = metadataStore_->getCurrentVersionId();
-  auto metadataConfig = metadataStore_->getConfig(versionId);
+  auto versionId = metadataStore_->getCurrentVersionId().semi().get();
+  auto metadataConfig = metadataStore_->getConfig(versionId).semi().get();
   if (metadataConfig.has_value()) {
     response->CopyFrom(*metadataConfig);
   } else {
@@ -40,7 +40,8 @@ grpc::Status MetadataServer::getCurrentConfig(
 grpc::Status MetadataServer::getConfigUsingLogId(::grpc::ServerContext *context,
                                                  const server::LogId *request,
                                                  MetadataConfig *response) {
-  auto metadataConfig = metadataStore_->getConfigUsingLogId(request->id());
+  auto metadataConfig =
+      metadataStore_->getConfigUsingLogId(request->id()).semi().get();
   if (metadataConfig.has_value()) {
     response->CopyFrom(*metadataConfig);
   } else {
@@ -55,8 +56,11 @@ grpc::Status MetadataServer::compareAndAppendRange(
     const server::CompareAndAppendRangeRequest *request,
     ::google::protobuf::Empty *response) {
   try {
-    metadataStore_->compareAndAppendRange(request->metadata_version_id().id(),
-                                          request->metadata_config());
+    metadataStore_
+        ->compareAndAppendRange(request->metadata_version_id().id(),
+                                request->metadata_config())
+        .semi()
+        .get();
   } catch (const OptimisticConcurrencyException &e) {
     return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
   }

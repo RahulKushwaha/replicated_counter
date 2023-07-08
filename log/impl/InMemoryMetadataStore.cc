@@ -9,12 +9,12 @@ namespace rk::projects::durable_log {
 InMemoryMetadataStore::InMemoryMetadataStore()
     : state_{std::make_unique<State>()} {}
 
-std::optional<MetadataConfig>
+coro<std::optional<MetadataConfig>>
 InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   if (state_->logIdToConfig_.empty()) {
-    return {};
+    co_return {};
   }
 
   auto itr = state_->logIdToConfig_.upper_bound(logId);
@@ -24,7 +24,7 @@ InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
 
   while (true) {
     if (logId >= itr->second.start_index() && logId < itr->second.end_index()) {
-      return itr->second;
+      co_return itr->second;
     }
 
     if (itr == state_->logIdToConfig_.begin()) {
@@ -36,29 +36,29 @@ InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
 
   LOG(ERROR) << "Metadata Block for log_id " << logId << " not present";
 
-  return {};
+  co_return {};
 }
 
-std::optional<MetadataConfig>
+coro<std::optional<MetadataConfig>>
 InMemoryMetadataStore::getConfig(VersionId versionId) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   if (auto itr = state_->configs_.find(versionId);
       itr != state_->configs_.end()) {
-    return itr->second;
+    co_return itr->second;
   }
 
-  return {};
+  co_return {};
 }
 
-VersionId InMemoryMetadataStore::getCurrentVersionId() {
+coro<VersionId> InMemoryMetadataStore::getCurrentVersionId() {
   // TODO: Convert this to a ReaderWriter lock.
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
   if (state_->configs_.empty()) {
-    return 0;
+    co_return 0;
   }
 
-  return state_->configs_.rbegin()->first;
+  co_return state_->configs_.rbegin()->first;
 }
 
 void InMemoryMetadataStore::printConfigChain() {
@@ -68,8 +68,9 @@ void InMemoryMetadataStore::printConfigChain() {
   }
 }
 
-void InMemoryMetadataStore::compareAndAppendRange(
-    VersionId versionId, MetadataConfig newMetadataConfig) {
+coro<void>
+InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
+                                             MetadataConfig newMetadataConfig) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   if (state_->configs_.empty()) {
@@ -79,7 +80,7 @@ void InMemoryMetadataStore::compareAndAppendRange(
 
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
     state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
-    return;
+    co_return;
   }
 
   auto lastConfig = state_->configs_.rbegin();
@@ -90,7 +91,7 @@ void InMemoryMetadataStore::compareAndAppendRange(
     state_->configs_[versionId].set_end_index(newMetadataConfig.start_index());
     state_->configs_[newMetadataConfig.version_id()] = newMetadataConfig;
     state_->logIdToConfig_[newMetadataConfig.start_index()] = newMetadataConfig;
-    return;
+    co_return;
   }
 
   throw OptimisticConcurrencyException{};

@@ -18,25 +18,26 @@ public:
 
   std::string getName() override { throw NotImplementedException{}; }
 
-  folly::SemiFuture<folly::Unit> append(std::optional<LogId> globalCommitIndex,
-                                        VersionId versionId, LogId logId,
-                                        std::string logEntryPayload,
-                                        bool skipSeal) override {
-    return replicaClient_->append(globalCommitIndex, versionId, logId,
-                                  std::move(logEntryPayload), skipSeal);
+  coro<folly::Unit> append(std::optional<LogId> globalCommitIndex,
+                           VersionId versionId, LogId logId,
+                           std::string logEntryPayload,
+                           bool skipSeal) override {
+    co_return co_await replicaClient_->append(globalCommitIndex, versionId,
+                                              logId, std::move(logEntryPayload),
+                                              skipSeal);
   }
 
-  folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(VersionId versionId, LogId logId) override {
-    return replicaClient_->getLogEntry(versionId, logId);
+  coro<std::variant<LogEntry, LogReadError>> getLogEntry(VersionId versionId,
+                                                         LogId logId) override {
+    co_return co_await replicaClient_->getLogEntry(versionId, logId);
   }
 
-  LogId getCommitIndex(VersionId versionId) override {
-    return replicaClient_->getLocalCommitIndex(versionId).get();
+  coro<LogId> getCommitIndex(VersionId versionId) override {
+    co_return co_await replicaClient_->getLocalCommitIndex(versionId);
   }
 
-  LogId seal(VersionId versionId) override {
-    return replicaClient_->seal(versionId).get();
+  coro<LogId> seal(VersionId versionId) override {
+    co_return co_await replicaClient_->seal(versionId);
   }
 
 private:

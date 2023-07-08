@@ -15,7 +15,7 @@ namespace {
 MetadataConfig
 getConfigOrFatalFailure(const std::shared_ptr<MetadataStore> &metadataStore,
                         VersionId metadataConfigVersionId) {
-  auto &&config = metadataStore->getConfig(metadataConfigVersionId);
+  auto config = metadataStore->getConfig(metadataConfigVersionId).semi().get();
   assert(config.has_value());
 
   return config.value();
@@ -52,7 +52,7 @@ folly::SemiFuture<LogId> VirtualLogImpl::append(std::string logEntryPayload) {
 
 folly::SemiFuture<std::variant<LogEntry, LogReadError>>
 VirtualLogImpl::getLogEntry(LogId logId) {
-  auto metadataConfig = metadataStore_->getConfigUsingLogId(logId);
+  auto metadataConfig = metadataStore_->getConfigUsingLogId(logId).semi().get();
 
   if (!metadataConfig.has_value()) {
     throw std::runtime_error{
@@ -101,7 +101,7 @@ VirtualLogImpl::getLogEntry(LogId logId) {
 
 folly::coro::Task<MetadataConfig>
 VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
-  VersionId versionId = metadataStore_->getCurrentVersionId();
+  VersionId versionId = co_await metadataStore_->getCurrentVersionId();
   LOG(INFO) << "Starting Reconfiguration: VersionId: " << versionId;
 
   // Make a copy of the replicaSet
@@ -197,7 +197,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
 
   // Quorum of the nanologs have been re-replicated.
   // Update the MetadataConfig block.
-  auto metadataConfig = metadataStore_->getConfig(versionId);
+  auto metadataConfig = co_await metadataStore_->getConfig(versionId);
 
   if (metadataConfig) {
     MetadataConfig newConfig{};
@@ -216,7 +216,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     replicaConfig->CopyFrom(targetMetadataConfig.replica_set_config());
 
     try {
-      metadataStore_->compareAndAppendRange(versionId, newConfig);
+      co_await metadataStore_->compareAndAppendRange(versionId, newConfig);
       setState(newConfig.version_id());
       state_->sequencer->start(newConfig.version_id(), newConfig.start_index());
       co_return newConfig;
@@ -226,10 +226,10 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     }
   }
 
-  auto newVersionId = metadataStore_->getCurrentVersionId();
+  auto newVersionId = co_await metadataStore_->getCurrentVersionId();
 
   setState(newVersionId);
-  co_return *metadataStore_->getConfig(newVersionId);
+  co_return *(co_await metadataStore_->getConfig(newVersionId));
 }
 
 folly::coro::Task<MetadataConfig> VirtualLogImpl::getCurrentConfig() {
@@ -238,7 +238,7 @@ folly::coro::Task<MetadataConfig> VirtualLogImpl::getCurrentConfig() {
 
 folly::coro::Task<void> VirtualLogImpl::refreshConfiguration() {
   LOG(INFO) << "Refreshing State";
-  auto versionId = metadataStore_->getCurrentVersionId();
+  auto versionId = co_await metadataStore_->getCurrentVersionId();
   auto currentVersionId = state_->metadataConfig.version_id();
 
   CHECK(currentVersionId <= versionId);
@@ -253,7 +253,7 @@ folly::coro::Task<void> VirtualLogImpl::refreshConfiguration() {
 
 void VirtualLogImpl::setState(VersionId versionId) {
   LOG(INFO) << "Installing new State";
-  auto config = metadataStore_->getConfig(versionId);
+  auto config = metadataStore_->getConfig(versionId).semi().get();
 
   if (!config.has_value()) {
     LOG(INFO) << "Config is not present.";

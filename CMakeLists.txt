@@ -67,12 +67,16 @@ add_link_options(-fsanitize=undefined)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+find_package(Rocksdb REQUIRED)
+set(ROCKS_DB_LIB /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
+
 set(
         SERVER_LIBS
         folly
         proto-objects
         ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
+        ${ROCKS_DB_LIB}
 )
 
 add_executable(LogStorage main.cpp ${SOURCE_FILES_LIST})
@@ -88,9 +92,6 @@ add_executable(MetadataServer metadata/main.cc ${SOURCE_FILES_LIST})
 target_link_libraries(MetadataServer ${SERVER_LIBS})
 
 enable_testing()
-
-find_package(Rocksdb REQUIRED)
-set(ROCKS_DB_LIB /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
 
 set(
         TEST_LIBS

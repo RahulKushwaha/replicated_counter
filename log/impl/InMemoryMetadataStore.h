@@ -15,13 +15,13 @@ class InMemoryMetadataStore : public MetadataStore {
 public:
   explicit InMemoryMetadataStore();
 
-  std::optional<MetadataConfig> getConfig(VersionId versionId) override;
-  std::optional<MetadataConfig> getConfigUsingLogId(LogId logId) override;
+  coro<std::optional<MetadataConfig>> getConfig(VersionId versionId) override;
+  coro<std::optional<MetadataConfig>> getConfigUsingLogId(LogId logId) override;
 
-  VersionId getCurrentVersionId() override;
+  coro<VersionId> getCurrentVersionId() override;
 
-  void compareAndAppendRange(VersionId versionId,
-                             MetadataConfig newMetadataConfig) override;
+  coro<void> compareAndAppendRange(VersionId versionId,
+                                   MetadataConfig newMetadataConfig) override;
 
   void printConfigChain() override;
 
