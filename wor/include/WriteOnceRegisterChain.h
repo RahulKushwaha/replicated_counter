@@ -14,6 +14,8 @@ public:
   virtual std::optional<std::shared_ptr<WriteOnceRegister>> get(WorId id) = 0;
   virtual std::optional<WorId> tail() = 0;
   virtual std::optional<WorId> front() = 0;
+
+  virtual ~WriteOnceRegisterChain() = default;
 };
 
 } // namespace rk::projects::wor

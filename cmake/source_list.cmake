@@ -24,6 +24,7 @@ set(
         log/impl/FailureDetectorImpl.h
         log/impl/InMemoryMetadataStore.cc
         log/impl/InMemoryMetadataStore.h
+        log/impl/PersistentMetadataStore.h
         log/impl/NanoLogStoreImpl.cc
         log/impl/NanoLogStoreImpl.h
         log/impl/NullSequencer.h
@@ -88,10 +89,14 @@ set(
         wor/paxos/Common.h
         wor/paxos/Common.cc
         wor/paxos/PaxosWriteOnceRegister.h
+        wor/WORFactory.h
+        wor/WORFactory.cc
 
         statemachine/include/StateMachine.h
         statemachine/RocksStateMachine.h
         statemachine/ConflictDetector.h
         statemachine/RocksTxnApplicator.h
+        statemachine/MetadataStoreStateMachine.h
+        statemachine/MetadataStoreApplicator.h
         statemachine/Common.h
 )

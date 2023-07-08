@@ -36,7 +36,7 @@ public:
   ~VirtualLogImpl() override = default;
 
 private:
-  void setState(VersionId versionId);
+  coro<void> setState(VersionId versionId);
 
 private:
   struct State {

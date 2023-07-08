@@ -54,7 +54,7 @@ public:
     rocksdb::Status status =
         rocks_->DeleteRange(rocksdb::WriteOptions{}, nullptr, start, end);
 
-    if (status.ok()) {
+    if (!status.ok()) {
       LOG(INFO) << "failed to delete range";
       co_return false;
     }

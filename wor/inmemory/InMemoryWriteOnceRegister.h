@@ -39,6 +39,8 @@ public:
     co_return {ReadError::NOT_WRITTEN};
   }
 
+  ~InMemoryWriteOnceRegister() override = default;
+
 private:
   LockId lockId_;
   bool committed_;
