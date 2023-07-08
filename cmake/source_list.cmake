@@ -82,13 +82,12 @@ set(
         wor/inmemory/InMemoryWriteOnceRegisterChain.h
 
         wor/paxos/include/Acceptor.h
-        wor/paxos/include/Proposer1.h
+        wor/paxos/include/Proposer.h
         wor/paxos/LocalAcceptor.h
         wor/paxos/LocalAcceptor.cc
         wor/paxos/Common.h
         wor/paxos/Common.cc
         wor/paxos/PaxosWriteOnceRegister.h
-        wor/paxos/Proposer.h
 
         statemachine/include/StateMachine.h
         statemachine/RocksStateMachine.h

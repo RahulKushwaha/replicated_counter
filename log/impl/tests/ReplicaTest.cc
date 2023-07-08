@@ -50,7 +50,7 @@ protected:
       config.set_start_index(500);
       config.set_end_index(1000);
 
-      metadataStore->compareAndAppendRange(0, config);
+      metadataStore->compareAndAppendRange(0, config).semi().get();
     }
 
     auto nanoLogFactory = std::make_shared<NanoLogFactory>(config_);
@@ -87,7 +87,7 @@ protected:
 TEST_P(ReplicaTests, AppendLogEntryWhenMetadataInstalled) {
   auto replica = creationResult_.replica;
   auto metadataStore = creationResult_.metadataStore;
-  auto versionId = metadataStore->getCurrentVersionId();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get();
 
   // Append a log entry.
   {
@@ -105,7 +105,7 @@ TEST_P(ReplicaTests, AppendLogEntryWhenMetadataInstalled) {
 TEST_P(ReplicaTests, AppendLogEntryWhenNanoLogIsSealed) {
   auto replica = creationResult_.replica;
   auto metadataStore = creationResult_.metadataStore;
-  auto versionId = metadataStore->getCurrentVersionId();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get();
 
   {
     ASSERT_NO_THROW(
@@ -124,7 +124,7 @@ TEST_P(ReplicaTests,
        AppendLogEntryWhenNanoLogIsSealedButOverrideFlagIsPresent) {
   auto replica = creationResult_.replica;
   auto metadataStore = creationResult_.metadataStore;
-  auto versionId = metadataStore->getCurrentVersionId();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get();
 
   ASSERT_NO_THROW(
       replica->append({}, versionId, 500, "Hello World").semi().get());
@@ -138,7 +138,8 @@ TEST_P(ReplicaTests,
 
 TEST_P(ReplicaTests, AppendDuplicateLogEntry) {
   auto replica = creationResult_.replica;
-  auto versionId = creationResult_.metadataStore->getCurrentVersionId();
+  auto versionId =
+      creationResult_.metadataStore->getCurrentVersionId().semi().get();
 
   ASSERT_NO_THROW(
       replica->append({}, versionId, 500, "Hello World").semi().get());
@@ -148,7 +149,8 @@ TEST_P(ReplicaTests, AppendDuplicateLogEntry) {
 
 TEST_P(ReplicaTests, UnOrderedAppendAlwaysFinishInOrder) {
   auto replica = creationResult_.replica;
-  auto versionId = creationResult_.metadataStore->getCurrentVersionId();
+  auto versionId =
+      creationResult_.metadataStore->getCurrentVersionId().semi().get();
   auto startIndex = 500;
 
   replica

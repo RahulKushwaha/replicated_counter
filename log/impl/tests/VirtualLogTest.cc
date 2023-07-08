@@ -106,7 +106,7 @@ TEST(VirtualLogTests, Reconfigure) {
   auto sequencerCreationResult = createSequencer(0);
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto metadataStore = sequencerCreationResult.metadataStore;
-  auto currentVersionId = metadataStore->getCurrentVersionId();
+  auto currentVersionId = metadataStore->getCurrentVersionId().semi().get();
 
   int limit = 10;
   for (auto &replica : replicaSet) {
@@ -137,10 +137,10 @@ TEST(VirtualLogTests, Reconfigure) {
           .get());
 
   // Successfully installed a new metadata block.
-  auto versionId = metadataStore->getCurrentVersionId();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get();
   ASSERT_EQ(versionId, 2);
 
-  auto config = metadataStore->getConfig(1);
+  auto config = metadataStore->getConfig(1).semi().get();
   ASSERT_TRUE(config.has_value());
 
   LOG(INFO) << "Last Entry: " << config->end_index();
@@ -201,7 +201,7 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
   }
 
   // Successfully installed a new metadata block.
-  auto versionId = metadataStore->getCurrentVersionId();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get();
   auto finalVersionId = totalNumberOfReconfigurations + 1;
   ASSERT_EQ(versionId, finalVersionId);
 
@@ -216,7 +216,7 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto metadataStore = sequencerCreationResult.metadataStore;
   auto sequencer = sequencerCreationResult.sequencer;
-  auto versionId = metadataStore->getCurrentVersionId();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get();
 
   std::vector<std::vector<int>> logEntriesOrder{
       {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},

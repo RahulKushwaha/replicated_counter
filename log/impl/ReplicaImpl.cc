@@ -36,7 +36,7 @@ coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
     nanoLog = nanoLogStore_->getNanoLog(versionId);
     // If there is nanolog for the versionId, we need to create one.
     if (!nanoLog) {
-      auto config = metadataStore_->getConfig(versionId);
+      auto config = co_await metadataStore_->getConfig(versionId);
       if (!config.has_value()) {
         throw MetadataBlockNotFound{};
       }
@@ -83,7 +83,7 @@ coro<LogId> ReplicaImpl::seal(VersionId versionId) {
 
   std::shared_ptr<NanoLog> nanoLog = nanoLogStore_->getNanoLog(versionId);
 
-  auto config = metadataStore_->getConfig(versionId);
+  auto config = co_await metadataStore_->getConfig(versionId);
   if (!config.has_value()) {
     throw MetadataBlockNotFound{};
   }

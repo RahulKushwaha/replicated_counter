@@ -20,13 +20,17 @@ struct OptimisticConcurrencyException : public std::exception {
 
 class MetadataStore {
 public:
-  virtual std::optional<MetadataConfig> getConfig(VersionId versionId) = 0;
-  virtual std::optional<MetadataConfig> getConfigUsingLogId(LogId logId) = 0;
+  virtual coro<std::optional<MetadataConfig>>
+  getConfig(VersionId versionId) = 0;
 
-  virtual VersionId getCurrentVersionId() = 0;
+  virtual coro<std::optional<MetadataConfig>>
+  getConfigUsingLogId(LogId logId) = 0;
 
-  virtual void compareAndAppendRange(VersionId versionId,
-                                     MetadataConfig newMetadataConfig) = 0;
+  virtual coro<VersionId> getCurrentVersionId() = 0;
+
+  virtual coro<void>
+  compareAndAppendRange(VersionId versionId,
+                        MetadataConfig newMetadataConfig) = 0;
 
   virtual void printConfigChain() = 0;
 

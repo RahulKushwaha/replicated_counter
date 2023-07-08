@@ -121,8 +121,6 @@ coro<internal::PaxosInstance> LocalAcceptor::getOrCreate(std::string id) {
       throw std::runtime_error{"paxos instance could not be deserialized"};
     }
 
-    //LOG(INFO)<<paxosInstance.DebugString();
-
     co_return paxosInstance;
   }
 

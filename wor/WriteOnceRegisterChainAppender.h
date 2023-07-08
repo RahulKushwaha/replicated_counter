@@ -13,10 +13,11 @@ public:
       std::shared_ptr<WriteOnceRegisterChain> chain)
       : chain_{std::move(chain)} {}
 
-  folly::coro::Task<WorId> append(T t) {
+  coro<WorId> append(T t, std::int32_t maxNumberOfAttempts =
+                              std::numeric_limits<std::int32_t>::max()) {
     bool successfullyWritten{false};
     WorId successfullyWrittenWorId{-1};
-    while (!successfullyWritten) {
+    while (!successfullyWritten && maxNumberOfAttempts > 0) {
       auto worId = chain_->append();
       if (!worId.has_value()) {
         continue;
@@ -26,6 +27,8 @@ public:
       if (!optionalWor.has_value()) {
         continue;
       }
+
+      maxNumberOfAttempts--;
 
       auto wor = optionalWor.value();
       while (true) {

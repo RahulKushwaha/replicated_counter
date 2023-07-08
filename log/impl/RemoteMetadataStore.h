@@ -15,21 +15,22 @@ public:
       std::shared_ptr<client::MetadataStoreClient> metadataStoreClient)
       : client_{std::move(metadataStoreClient)} {}
 
-  std::optional<MetadataConfig> getConfig(VersionId versionId) override {
-    return client_->getConfig(versionId).get();
+  coro<std::optional<MetadataConfig>> getConfig(VersionId versionId) override {
+    co_return client_->getConfig(versionId).get();
   }
 
-  std::optional<MetadataConfig> getConfigUsingLogId(LogId logId) override {
-    return client_->getConfigUsingLogId(logId).get();
+  coro<std::optional<MetadataConfig>>
+  getConfigUsingLogId(LogId logId) override {
+    co_return client_->getConfigUsingLogId(logId).get();
   }
 
-  VersionId getCurrentVersionId() override {
-    return client_->getCurrentVersionId().get();
+  coro<VersionId> getCurrentVersionId() override {
+    co_return client_->getCurrentVersionId().get();
   }
 
-  void compareAndAppendRange(VersionId versionId,
-                             MetadataConfig newMetadataConfig) override {
-    client_->compareAndAppendRange(versionId, newMetadataConfig);
+  coro<void> compareAndAppendRange(VersionId versionId,
+                                   MetadataConfig newMetadataConfig) override {
+    co_await client_->compareAndAppendRange(versionId, newMetadataConfig);
   }
 
   void printConfigChain() override { client_->printConfigChain().semi().get(); }
