@@ -11,7 +11,7 @@ namespace rk::projects::paxos {
 
 class PaxosWriteOnceRegister : public wor::WriteOnceRegister {
 public:
-  explicit PaxosWriteOnceRegister(std::int32_t registerId,
+  explicit PaxosWriteOnceRegister(std::int64_t registerId,
                                   std::shared_ptr<Proposer> proposer)
       : registerId_{std::to_string(registerId)}, majorId_{registerId},
         lockId_{0}, proposer_{std::move(proposer)} {}
@@ -21,9 +21,7 @@ public:
     BallotId ballotId{};
     ballotId.set_major_id(majorId_);
     ballotId.set_minor_id(lockId);
-
     auto result = co_await proposer_->prepare(registerId_, std::move(ballotId));
-
     if (!result) {
       co_return {};
     }
@@ -58,7 +56,7 @@ private:
 
 private:
   std::string registerId_;
-  std::int32_t majorId_;
+  std::int64_t majorId_;
   wor::LockId lockId_;
   std::shared_ptr<Proposer> proposer_;
 };

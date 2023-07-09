@@ -37,9 +37,8 @@ std::unique_ptr<WriteOnceRegisterChain> makeChainUsingPaxosWor() {
   }
 
   auto proposer = std::make_shared<paxos::ProposerImpl>(members, acceptors);
-  auto worFactory = [proposer](WorId worId) mutable {
-    return std::make_shared<paxos::PaxosWriteOnceRegister>(worId,
-                                                           std::move(proposer));
+  auto worFactory = [proposer](WorId worId) {
+    return std::make_shared<paxos::PaxosWriteOnceRegister>(worId, proposer);
   };
 
   return std::make_unique<WriteOnceRegisterChainImpl>(worFactory);
