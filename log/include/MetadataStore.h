@@ -29,8 +29,7 @@ public:
   virtual coro<VersionId> getCurrentVersionId() = 0;
 
   virtual coro<void>
-  compareAndAppendRange(VersionId versionId,
-                        MetadataConfig newMetadataConfig) = 0;
+  compareAndAppendRange(MetadataConfig newMetadataConfig) = 0;
 
   virtual void printConfigChain() = 0;
 

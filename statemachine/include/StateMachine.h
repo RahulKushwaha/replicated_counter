@@ -8,7 +8,7 @@ namespace rk::projects::state_machine {
 
 template <typename T, typename R> class Applicator {
 public:
-  virtual folly::coro::Task<R> apply(T &t) = 0;
+  virtual folly::coro::Task<R> apply(T t) = 0;
 };
 
 template <typename T, typename R> class StateMachine {

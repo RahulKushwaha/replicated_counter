@@ -93,7 +93,7 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
 
   config.mutable_sequencer_config()->set_id(sequencer->getId());
 
-  metadataStore->compareAndAppendRange(0, config).semi().get();
+  metadataStore->compareAndAppendRange(config).semi().get();
 
   return {sequencer,     replicaSet, badReplicaSet, goodReplicaSet,
           metadataStore, config,     registry};

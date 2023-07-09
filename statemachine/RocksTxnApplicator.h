@@ -17,7 +17,7 @@ public:
       std::shared_ptr<ConflictDetector> conflictDetector, rocksdb::DB *rocks)
       : conflictDetector_{std::move(conflictDetector)}, rocks_{rocks} {}
 
-  folly::coro::Task<RocksTxnResult> apply(RocksTxn &txn) override {
+  folly::coro::Task<RocksTxnResult> apply(RocksTxn txn) override {
     RocksTxnResult txnResult{.txnSucceeded = false,
                              .speculativeTxnResult =
                                  SpeculativeTxnResult{.conflictDetected = false,

@@ -15,6 +15,7 @@ namespace {
 enum class MetadataStoreType {
   InMemory,
   InMemoryWor,
+  PaxosWor,
 };
 
 }
@@ -27,11 +28,19 @@ protected:
     case MetadataStoreType::InMemory: {
       return std::make_unique<InMemoryMetadataStore>();
     }
+
     case MetadataStoreType::InMemoryWor: {
       auto chain = wor::makeChainUsingInMemoryWor();
       auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
-      return std::make_unique<PersistentMetadataStore>(inMemoryMetadataStore,
-                                                       std::move(chain));
+      return std::make_unique<PersistentMetadataStore>(
+          std::move(inMemoryMetadataStore), std::move(chain));
+    }
+
+    case MetadataStoreType::PaxosWor: {
+      auto chain = wor::makeChainUsingPaxosWor();
+      auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
+      return std::make_unique<PersistentMetadataStore>(
+          std::move(inMemoryMetadataStore), std::move(chain));
     }
     default:
       throw std::runtime_error{"unknown metadata store type"};
@@ -56,14 +65,16 @@ TEST_P(MetadataStoreTests, addToEmptyStore) {
   {
     auto store = getStore();
     MetadataConfig config;
-    ASSERT_THROW(store->compareAndAppendRange(4, config).semi().get(),
+    config.set_previous_version_id(4);
+    ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
   }
 
   {
     auto store = getStore();
     MetadataConfig config;
-    ASSERT_THROW(store->compareAndAppendRange(10, config).semi().get(),
+    config.set_previous_version_id(10);
+    ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
   }
 }
@@ -78,7 +89,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStore) {
     config.set_start_index(500);
     config.set_end_index(1000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(0, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Add the next version.
@@ -89,7 +100,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStore) {
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(1, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Add the next version.
@@ -100,7 +111,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStore) {
     config.set_start_index(4500);
     config.set_end_index(5000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(2, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 }
 
@@ -114,7 +125,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSameConfig) {
     config.set_start_index(500);
     config.set_end_index(1000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(0, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Add the next version.
@@ -125,7 +136,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSameConfig) {
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(1, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Add the next version.
@@ -136,7 +147,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSameConfig) {
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_THROW(store->compareAndAppendRange(1, config).semi().get(),
+    ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
   }
 }
@@ -151,7 +162,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSkippingConfigs) {
     config.set_start_index(500);
     config.set_end_index(1000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(0, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Add the next version.
@@ -162,7 +173,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSkippingConfigs) {
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(1, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Add the skipped version.
@@ -173,7 +184,7 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSkippingConfigs) {
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_THROW(store->compareAndAppendRange(2, config).semi().get(),
+    ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
   }
 }
@@ -184,11 +195,11 @@ TEST_P(MetadataStoreTests, getUsingLogId) {
   {
     MetadataConfig config;
     config.set_version_id(1);
-    config.set_previous_version_id(2);
+    config.set_previous_version_id(0);
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(0, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   {
@@ -219,21 +230,21 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
   {
     MetadataConfig config;
     config.set_version_id(1);
-    config.set_previous_version_id(2);
+    config.set_previous_version_id(0);
     config.set_start_index(1500);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(0, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   {
     MetadataConfig config;
     config.set_version_id(2);
-    config.set_previous_version_id(2);
+    config.set_previous_version_id(1);
     config.set_start_index(2000);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(1, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   {
@@ -243,7 +254,7 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
     config.set_start_index(2000);
     config.set_end_index(2000);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(2, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   {
@@ -254,11 +265,11 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
   {
     MetadataConfig config;
     config.set_version_id(4);
-    config.set_previous_version_id(2);
+    config.set_previous_version_id(3);
     config.set_start_index(2000);
     config.set_end_index(2001);
 
-    ASSERT_NO_THROW(store->compareAndAppendRange(3, config).semi().get());
+    ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
 
   // Now we should be able to fine 2000.
@@ -270,6 +281,7 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
 
 INSTANTIATE_TEST_SUITE_P(MetadataStoreParameterizedTests, MetadataStoreTests,
                          testing::Values(MetadataStoreType::InMemory,
-                                         MetadataStoreType::InMemoryWor));
+                                         MetadataStoreType::InMemoryWor,
+                                         MetadataStoreType::PaxosWor));
 
 } // namespace rk::projects::durable_log

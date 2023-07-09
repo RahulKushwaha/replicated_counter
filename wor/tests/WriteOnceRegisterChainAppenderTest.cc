@@ -2,6 +2,7 @@
 // Created by Rahul  Kushwaha on 6/9/23.
 //
 #include "wor/WriteOnceRegisterChainAppender.h"
+#include "wor/WORFactory.h"
 #include "wor/inmemory/InMemoryWriteOnceRegisterChain.h"
 #include <fmt/format.h>
 #include <gtest/gtest.h>
@@ -11,8 +12,7 @@ namespace rk::projects::wor {
 
 TEST(WriteOnceRegisterChainAppenderTests, WriteToChain) {
   std::string value{"hello world"};
-  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>(
-      std::move(std::make_shared<InMemoryWriteOnceRegister>));
+  std::shared_ptr<WriteOnceRegisterChain> chain = makeChainUsingInMemoryWor();
   WriteOnceRegisterChainAppender<std::string> appender{chain};
   appender.append(value).semi().get();
   auto optionalWorId = chain->tail();
@@ -27,8 +27,7 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteToChain) {
 
 TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
   std::string valueFmt{"hello world {}"};
-  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>(
-      std::move(std::make_shared<InMemoryWriteOnceRegister>));
+  std::shared_ptr<WriteOnceRegisterChain> chain = makeChainUsingInMemoryWor();
   WriteOnceRegisterChainAppender<std::string> appender{chain};
 
   std::vector<std::string> values;

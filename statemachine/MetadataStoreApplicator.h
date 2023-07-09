@@ -4,25 +4,20 @@
 #pragma once
 #include "folly/experimental/coro/Task.h"
 #include "log/include/MetadataStore.h"
+#include "log/proto/MetadataConfig.pb.h"
 #include "statemachine/include/StateMachine.h"
 
 namespace rk::projects::state_machine {
 
-class MetadataStoreApplicator : public Applicator<std::string, void> {
+class MetadataStoreApplicator
+    : public Applicator<durable_log::MetadataConfig, void> {
 public:
   explicit MetadataStoreApplicator(
       std::shared_ptr<durable_log::MetadataStore> metadataStore)
       : metadataStore_{std::move(metadataStore)} {}
 
-  folly::coro::Task<void> apply(std::string &t) override {
-    auto metadataConfig = durable_log::MetadataConfig{};
-    bool parseResult = metadataConfig.ParseFromString(t);
-    if (!parseResult) {
-      throw std::runtime_error{"non recoverable error"};
-    }
-
-    co_await metadataStore_->compareAndAppendRange(
-        metadataConfig.previous_version_id(), metadataConfig);
+  folly::coro::Task<void> apply(durable_log::MetadataConfig metadataConfig) override {
+    co_await metadataStore_->compareAndAppendRange(metadataConfig);
   }
 
 private:

@@ -20,8 +20,7 @@ public:
 
   coro<VersionId> getCurrentVersionId() override;
 
-  coro<void> compareAndAppendRange(VersionId versionId,
-                                   MetadataConfig newMetadataConfig) override;
+  coro<void> compareAndAppendRange(MetadataConfig newMetadataConfig) override;
 
   void printConfigChain() override;
 

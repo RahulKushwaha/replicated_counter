@@ -50,7 +50,7 @@ protected:
       config.set_start_index(500);
       config.set_end_index(1000);
 
-      metadataStore->compareAndAppendRange(0, config).semi().get();
+      metadataStore->compareAndAppendRange(config).semi().get();
     }
 
     auto nanoLogFactory = std::make_shared<NanoLogFactory>(config_);

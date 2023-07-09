@@ -43,9 +43,8 @@ public:
     return delegate_->getCurrentVersionId();
   }
 
-  coro<void> compareAndAppendRange(VersionId versionId,
-                                   MetadataConfig newMetadataConfig) override {
-    co_await stateMachine_->append(newMetadataConfig.SerializeAsString());
+  coro<void> compareAndAppendRange(MetadataConfig newMetadataConfig) override {
+    co_await stateMachine_->append(std::move(newMetadataConfig));
   }
 
   void printConfigChain() override { delegate_->printConfigChain(); }

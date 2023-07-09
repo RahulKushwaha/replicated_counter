@@ -13,7 +13,7 @@ namespace rk::projects::wor {
 class WriteOnceRegisterChainImpl : public WriteOnceRegisterChain {
 public:
   explicit WriteOnceRegisterChainImpl(
-      std::function<std::shared_ptr<WriteOnceRegister>()> registerFactory)
+      std::function<std::shared_ptr<WriteOnceRegister>(WorId)> registerFactory)
       : worId_{0}, lookup_{}, mtx_{std::make_unique<std::mutex>()},
         registerFactory_{std::move(registerFactory)} {}
 
@@ -21,7 +21,7 @@ public:
     std::lock_guard lg{*mtx_};
 
     worId_++;
-    auto wor = registerFactory_();
+    auto wor = registerFactory_(worId_);
     lookup_.emplace(worId_, wor);
     return {worId_};
   }
@@ -60,7 +60,7 @@ private:
   WorId worId_;
   std::map<WorId, std::shared_ptr<WriteOnceRegister>> lookup_;
   std::unique_ptr<std::mutex> mtx_;
-  std::function<std::shared_ptr<WriteOnceRegister>()> registerFactory_;
+  std::function<std::shared_ptr<WriteOnceRegister>(WorId)> registerFactory_;
 };
 
 } // namespace rk::projects::wor

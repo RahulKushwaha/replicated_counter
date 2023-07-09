@@ -22,7 +22,7 @@ std::unique_ptr<VirtualLog> makeVirtualLog(std::string name) {
   config.set_start_index(1);
   config.set_end_index(1000);
 
-  metadataStore->compareAndAppendRange(0, config);
+  metadataStore->compareAndAppendRange(config).semi().get();
 
   std::vector<std::shared_ptr<Replica>> replicaSet;
   for (int i = 0; i < 5; i++) {
