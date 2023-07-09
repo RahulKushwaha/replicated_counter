@@ -28,10 +28,14 @@ public:
       auto wor = chain_->get(i);
       // remove this in future as all the wors' should be completely written.
       assert(wor.has_value());
+      auto worValue = co_await wor.value()->read();
 
-      auto serializedPayload =
-          std::get<std::string>(co_await wor.value()->read());
+      if (std::holds_alternative<wor::WriteOnceRegister::ReadError>(worValue)) {
+        throw std::runtime_error{wor::WriteOnceRegister::toString(
+            std::get<wor::WriteOnceRegister::ReadError>(worValue))};
+      }
 
+      auto serializedPayload = std::get<std::string>(worValue);
       auto metadataConfig = durable_log::MetadataConfig{};
       bool parseResult = metadataConfig.ParseFromString(serializedPayload);
       if (!parseResult) {

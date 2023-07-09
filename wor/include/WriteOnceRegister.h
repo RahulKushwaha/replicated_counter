@@ -20,6 +20,13 @@ public:
     NOT_WRITTEN,
   };
 
+  static std::string toString(ReadError readError) {
+    static std::map<ReadError, std::string> lookup{
+        {ReadError::UNKNOWN, "unknown"},
+        {ReadError::NOT_WRITTEN, "not_written"}};
+    return lookup.at(readError);
+  }
+
   virtual coro<std::optional<LockId>> lock() = 0;
   virtual coro<bool> write(LockId lockId, std::string payload) = 0;
   virtual coro<std::variant<std::string, ReadError>> read() = 0;

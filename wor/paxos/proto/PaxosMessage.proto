@@ -3,7 +3,7 @@ syntax = "proto3";
 package rk.projects.paxos.internal;
 
 message BallotId{
-  int32 major_id = 1;
+  int64 major_id = 1;
   int64 minor_id = 2;
 }
 

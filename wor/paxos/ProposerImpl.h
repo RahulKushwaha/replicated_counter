@@ -26,7 +26,6 @@ public:
   coro<bool> prepare(std::string paxosInstanceId, BallotId ballotId) override {
     // first clear the list of acceptors from the proposeAcceptors_ list.
     proposeAcceptors_.clear();
-
     std::vector<coro<folly::Optional<PrepareResponse>>> prepareTasks;
     for (auto &acceptor : prepareAcceptors_) {
       auto prepareTask = acceptor->prepare(paxosInstanceId, Ballot{ballotId});
@@ -39,7 +38,6 @@ public:
     // make a function that allows for waiting for first n successful.
     auto prepares =
         co_await folly::coro::collectAllRange(std::move(prepareTasks));
-
     std::vector<Proposal> proposals;
     std::int32_t successfulPrepares{0};
     auto index{0};

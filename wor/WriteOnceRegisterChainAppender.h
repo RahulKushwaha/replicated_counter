@@ -46,8 +46,11 @@ public:
 
         auto readValue = co_await wor->read();
         if (std::holds_alternative<WriteOnceRegister::ReadError>(readValue)) {
-          // We either encounter an error or it is not written. In any case we
-          // need to continue writing to it until it succeeds.
+          LOG(INFO) << "failed to read wor: "
+                    << WriteOnceRegister::toString(
+                           std::get<WriteOnceRegister::ReadError>(readValue));
+          // We either encounter an error or it is not written. In any case
+          // we need to continue writing to it until it succeeds.
           continue;
         }
 
