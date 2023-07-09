@@ -9,5 +9,6 @@
 namespace rk::projects::wor {
 
 std::unique_ptr<WriteOnceRegisterChain> makeChainUsingInMemoryWor();
+std::unique_ptr<WriteOnceRegisterChain> makeChainUsingPaxosWor();
 
 } // namespace rk::projects::wor

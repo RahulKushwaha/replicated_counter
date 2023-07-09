@@ -215,7 +215,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
     replicaConfig->CopyFrom(targetMetadataConfig.replica_set_config());
 
     try {
-      co_await metadataStore_->compareAndAppendRange(versionId, newConfig);
+      co_await metadataStore_->compareAndAppendRange(newConfig);
       setState(newConfig.version_id());
       state_->sequencer->start(newConfig.version_id(), newConfig.start_index());
       co_return newConfig;

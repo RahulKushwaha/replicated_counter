@@ -44,8 +44,11 @@ TEST_F(RocksStateMachineTests, WriteSingleTxn) {
   using appender_t = wor::WriteOnceRegisterChainAppender<std::string>;
   auto conflictDetector = std::make_shared<ConflictDetector>();
   auto applicator = std::make_shared<RocksTxnApplicator>(conflictDetector, db_);
-  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>(
-      std::move(std::make_shared<InMemoryWriteOnceRegister>));
+  auto worFactory = [](WorId worId) {
+    return std::make_shared<InMemoryWriteOnceRegister>();
+  };
+
+  auto chain = std::make_shared<InMemoryWriteOnceRegisterChain>(worFactory);
   RocksStateMachine stm{applicator, chain};
   stm.setApplicator(applicator);
 

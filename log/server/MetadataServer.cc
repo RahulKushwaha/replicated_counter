@@ -56,9 +56,7 @@ grpc::Status MetadataServer::compareAndAppendRange(
     const server::CompareAndAppendRangeRequest *request,
     ::google::protobuf::Empty *response) {
   try {
-    metadataStore_
-        ->compareAndAppendRange(request->metadata_version_id().id(),
-                                request->metadata_config())
+    metadataStore_->compareAndAppendRange(request->metadata_config())
         .semi()
         .get();
   } catch (const OptimisticConcurrencyException &e) {

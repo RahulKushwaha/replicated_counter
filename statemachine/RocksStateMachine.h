@@ -32,10 +32,10 @@ public:
           std::get<std::string>(co_await wor.value()->read());
       RocksTxn currentTxn{.serializedPayload = serializedPayload};
 
-      co_await applicator_->apply(currentTxn);
+      co_await applicator_->apply(std::move(currentTxn));
     }
 
-    co_return co_await applicator_->apply(txn);
+    co_return co_await applicator_->apply(std::move(txn));
   }
 
   void setApplicator(std::shared_ptr<applicator_t> applicator) override {

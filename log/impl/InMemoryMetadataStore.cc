@@ -69,9 +69,9 @@ void InMemoryMetadataStore::printConfigChain() {
 }
 
 coro<void>
-InMemoryMetadataStore::compareAndAppendRange(VersionId versionId,
-                                             MetadataConfig newMetadataConfig) {
+InMemoryMetadataStore::compareAndAppendRange(MetadataConfig newMetadataConfig) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
+  auto versionId = newMetadataConfig.previous_version_id();
 
   if (state_->configs_.empty()) {
     if (versionId != 0) {

@@ -1,6 +1,7 @@
 //
 // Created by Rahul  Kushwaha on 6/7/23.
 //
+#pragma once
 #include "wor/include/WriteOnceRegister.h"
 
 #include <memory>

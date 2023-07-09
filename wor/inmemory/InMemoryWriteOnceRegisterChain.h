@@ -15,7 +15,7 @@ namespace rk::projects::wor {
 class InMemoryWriteOnceRegisterChain : public WriteOnceRegisterChainImpl {
 public:
   explicit InMemoryWriteOnceRegisterChain(
-      std::function<std::shared_ptr<WriteOnceRegister>()> registerFactory)
+      std::function<std::shared_ptr<WriteOnceRegister>(WorId)> registerFactory)
       : WriteOnceRegisterChainImpl(std::move(registerFactory)) {}
 };
 
