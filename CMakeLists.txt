@@ -12,6 +12,7 @@ include(cmake/test_files_list.cmake)
 include(cmake/gtest.cmake)
 include(cmake/prometheus.cmake)
 include(cmake/openssl.cmake)
+include(cmake/backward.cmake)
 
 set(ENV{OPENSSL_ROOT_DIR} ${OPENSSL_INSTALL_DIR})
 find_package(OpenSSL 1.1.1 MODULE)
@@ -77,6 +78,8 @@ set(
         ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
         ${ROCKS_DB_LIB}
+        ${BACKWARD_SOURCES}
+        ${BACKWARD_ENABLE}
 )
 
 add_executable(LogStorage main.cpp ${SOURCE_FILES_LIST})
@@ -104,6 +107,9 @@ set(
         ${PROTOBUF_LIBRARIES}
         prometheus-cpp::pull
         ${ROCKS_DB_LIB}
+
+        ${BACKWARD_SOURCES}
+        ${BACKWARD_ENABLE}
 )
 
 option(MYDB "ENABLE mydb" OFF)
