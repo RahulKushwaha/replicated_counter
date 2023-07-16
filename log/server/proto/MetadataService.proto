@@ -18,8 +18,7 @@ service MetadataService{
 }
 
 message CompareAndAppendRangeRequest{
-  MetadataVersionId metadata_version_id = 1;
-  MetadataConfig metadata_config = 2;
+  MetadataConfig metadata_config = 1;
 }
 
 message LogId{

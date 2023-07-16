@@ -11,6 +11,32 @@
 
 namespace rk::projects::wor {
 
+std::unique_ptr<WriteOnceRegister>
+makePaxosWor(WorId worId, const durable_log::MetadataConfig &metadataConfig) {
+  auto members{metadataConfig.replica_set_config_size()};
+
+  std::vector<std::shared_ptr<paxos::Acceptor>> acceptors;
+  for (int i = 0; i < members; i++) {
+    const auto &replica = metadataConfig.replica_set_config(i);
+    std::string acceptorId = fmt::format("acceptor_{}", replica.id());
+    persistence::RocksDbFactory::RocksDbConfig config{
+        .path = fmt::format(
+            "/tmp/paxos/paxos_acceptor{}_{}",
+            std::chrono::system_clock::now().time_since_epoch().count(),
+            replica.id()),
+        .createIfMissing = true};
+    auto rocks = persistence::RocksDbFactory::provideSharedPtr(config);
+    auto kvStore =
+        std::make_shared<persistence::RocksKVStoreLite>(std::move(rocks));
+    acceptors.emplace_back(
+        std::make_shared<paxos::LocalAcceptor>(acceptorId, std::move(kvStore)));
+  }
+
+  auto proposer = std::make_shared<paxos::ProposerImpl>(members, acceptors);
+  return std::make_unique<paxos::PaxosWriteOnceRegister>(worId,
+                                                         std::move(proposer));
+}
+
 std::unique_ptr<WriteOnceRegisterChain> makeChainUsingInMemoryWor() {
   auto worFactory = [](WorId worId) {
     return std::make_shared<InMemoryWriteOnceRegister>();

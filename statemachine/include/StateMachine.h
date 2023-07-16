@@ -6,14 +6,17 @@
 
 namespace rk::projects::state_machine {
 
+template <typename T> using coro = folly::coro::Task<T>;
+
 template <typename T, typename R> class Applicator {
 public:
-  virtual folly::coro::Task<R> apply(T t) = 0;
+  virtual coro<R> apply(T t) = 0;
 };
 
 template <typename T, typename R> class StateMachine {
 public:
-  virtual folly::coro::Task<R> append(T t) = 0;
+  virtual coro<R> append(T t) = 0;
+  virtual coro<void> sync() { co_return; }
   virtual void setApplicator(std::shared_ptr<Applicator<T, R>> applicator) = 0;
 };
 

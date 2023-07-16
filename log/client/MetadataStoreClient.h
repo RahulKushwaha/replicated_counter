@@ -18,7 +18,7 @@ public:
   folly::SemiFuture<MetadataConfig> getConfigUsingLogId(LogId logId);
   folly::SemiFuture<VersionId> getCurrentVersionId();
   folly::SemiFuture<folly::Unit>
-  compareAndAppendRange(VersionId versionId, MetadataConfig newMetadataConfig);
+  compareAndAppendRange(MetadataConfig newMetadataConfig);
   folly::coro::Task<void> printConfigChain();
 
 private:

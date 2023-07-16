@@ -10,24 +10,42 @@
 
 namespace rk::projects::durable_log {
 std::shared_ptr<state_machine::MetadataStoreStateMachine>
-makeMetadataStoreStateMachine(
-    std::shared_ptr<MetadataStore> metadataStore,
-    std::shared_ptr<wor::WriteOnceRegisterChain> chain) {
+makeMetadataStoreStateMachine(std::shared_ptr<MetadataStore> metadataStore) {
+  auto currentConfigSupplier =
+      [metadataStore]() -> folly::SemiFuture<MetadataConfig> {
+    return metadataStore->getCurrentVersionId().semi().deferValue(
+        [metadataStore](auto &&value) {
+          folly::SemiFuture<MetadataConfig> f =
+              metadataStore->getConfig(value).semi().deferValue(
+                  [](std::optional<MetadataConfig> &&optionalConfig) {
+                    if (optionalConfig.has_value()) {
+                      return optionalConfig.value();
+                    }
+
+                    throw std::runtime_error{"metadata config not found"};
+                  });
+
+          return std::move(f);
+        });
+  };
+  auto bootstrapConfigId = metadataStore->getCurrentVersionId().semi().get();
+  auto bootstrapConfig =
+      metadataStore->getConfig(bootstrapConfigId).semi().get();
+  assert(bootstrapConfig.has_value());
+
   auto applicator = std::make_shared<state_machine::MetadataStoreApplicator>(
       std::move(metadataStore));
   auto stateMachine =
       std::make_shared<state_machine::MetadataStoreStateMachine>(
-          std::move(applicator), std::move(chain));
+          std::move(applicator), std::move(bootstrapConfig.value()),
+          std::move(currentConfigSupplier));
   return stateMachine;
 }
 
 class PersistentMetadataStore : public MetadataStore {
 public:
-  explicit PersistentMetadataStore(
-      std::shared_ptr<MetadataStore> metadataStore,
-      std::shared_ptr<wor::WriteOnceRegisterChain> chain)
-      : stateMachine_{makeMetadataStoreStateMachine(metadataStore,
-                                                    std::move(chain))},
+  explicit PersistentMetadataStore(std::shared_ptr<MetadataStore> metadataStore)
+      : stateMachine_{makeMetadataStoreStateMachine(metadataStore)},
         delegate_{std::move(metadataStore)} {}
 
   coro<std::optional<MetadataConfig>> getConfig(VersionId versionId) override {

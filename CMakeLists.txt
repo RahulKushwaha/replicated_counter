@@ -13,6 +13,7 @@ include(cmake/gtest.cmake)
 include(cmake/prometheus.cmake)
 include(cmake/openssl.cmake)
 include(cmake/backward.cmake)
+include(cmake/fmt.cmake)
 
 set(ENV{OPENSSL_ROOT_DIR} ${OPENSSL_INSTALL_DIR})
 find_package(OpenSSL 1.1.1 MODULE)

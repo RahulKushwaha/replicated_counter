@@ -216,7 +216,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
 
     try {
       co_await metadataStore_->compareAndAppendRange(newConfig);
-      setState(newConfig.version_id());
+      co_await setState(newConfig.version_id());
       state_->sequencer->start(newConfig.version_id(), newConfig.start_index());
       co_return newConfig;
     } catch (const OptimisticConcurrencyException &e) {

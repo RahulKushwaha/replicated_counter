@@ -87,7 +87,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
   metadataConfig.set_start_index(1);
   metadataConfig.set_end_index(1000);
 
-  metadataStore->compareAndAppendRange(0, metadataConfig);
+  metadataStore->compareAndAppendRange(metadataConfig).semi().get();
 
   std::shared_ptr<Registry> registry = makeRegistry();
 

@@ -6,11 +6,17 @@
 #include <memory>
 #include <unordered_map>
 
+#include "applications/counter/CounterAppStateMachine.h"
 #include "applications/counter/proto/CounterEntry.pb.h"
 #include "folly/experimental/coro/Task.h"
-#include "log/include/VirtualLog.h"
 
 namespace rk::projects::counter_app {
+template <typename T> using coro = folly::coro::Task<T>;
+
+struct CounterKeyValue {
+  std::string key;
+  std::int64_t val;
+};
 
 using namespace rk::projects::durable_log;
 
@@ -20,47 +26,33 @@ public:
     std::string key;
     std::int64_t incrBy;
   };
-
   struct DecrOperation {
     std::string key;
     std::int64_t decrBy;
   };
 
-  struct CounterValue {
-    std::string key;
-    std::int64_t val;
-  };
-  using CounterValues = std::vector<CounterValue>;
-
   using Operation = std::variant<IncrOperation, DecrOperation>;
 
-  explicit CounterApp(std::shared_ptr<VirtualLog> virtualLog);
+  explicit CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine);
 
-  folly::coro::Task<std::int64_t> incrementAndGet(std::string key,
-                                                  std::int64_t incrBy);
-  folly::coro::Task<std::int64_t> decrementAndGet(std::string key,
-                                                  std::int64_t decrBy);
-  folly::coro::Task<std::int64_t> getValue(std::string key);
-  folly::coro::Task<std::vector<CounterApp::CounterValue>>
-  batchUptate(std::vector<Operation> operations);
+  coro<std::int64_t> incrementAndGet(std::string key, std::int64_t incrBy);
+  coro<std::int64_t> decrementAndGet(std::string key, std::int64_t decrBy);
+  coro<std::int64_t> getValue(std::string key);
+  coro<std::vector<CounterKeyValue>>
+  batchUpdate(std::vector<Operation> operations);
 
-private:
-  static std::string serialize(std::string key, std::int64_t val,
-                               CounterLogEntry_CommandType commandType);
-  static CounterLogEnteries deserialize(const std::string &payload);
-
-  static std::string serialize(const std::vector<Operation> &operations);
-
-  std::vector<CounterValue> apply(const CounterLogEnteries &counterLogEnteries);
-  std::vector<CounterValue> sync(LogId to);
+  std::vector<CounterKeyValue>
+  apply(const CounterLogEnteries &counterLogEntries);
 
 private:
-  std::shared_ptr<VirtualLog> virtualLog_;
+  static CounterLogEnteries serialize(const std::vector<Operation> &operations);
+
+private:
+  std::shared_ptr<CounterAppStateMachine> stateMachine_;
   LogId lastAppliedEntry_;
   std::unique_ptr<std::mutex> mtx_;
 
   std::unordered_map<std::string, std::atomic_int64_t> lookup_;
-  std::vector<CounterValue> applyLogEntries(LogId logIdToApply);
 };
 
 } // namespace rk::projects::counter_app

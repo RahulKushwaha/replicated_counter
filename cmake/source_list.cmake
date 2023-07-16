@@ -8,6 +8,10 @@ set(
         applications/counter/CounterApp.h
         applications/counter/CounterHealthCheck.cc
         applications/counter/CounterHealthCheck.h
+        applications/counter/CounterAppStateMachine.cc
+        applications/counter/CounterAppStateMachine.h
+        applications/counter/CounterApplicator.cc
+        applications/counter/CounterApplicator.h
         applications/counter/client/CounterAppClient.cc
         applications/counter/client/CounterAppClient.h
         applications/counter/server/CounterAppServer.h

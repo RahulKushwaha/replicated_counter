@@ -4,6 +4,8 @@
 #include <memory>
 
 #include "applications/counter/CounterApp.h"
+#include "applications/counter/CounterAppStateMachine.h"
+#include "applications/counter/CounterApplicator.h"
 #include "applications/counter/CounterHealthCheck.h"
 #include "log/impl/FailureDetectorImpl.h"
 #include "log/server/LogServer.h"
@@ -24,8 +26,14 @@ public:
 
     co_await state.logServer->start();
     LOG(INFO) << "Starting App";
-    state.counterApp =
-        std::make_shared<CounterApp>(state.logServer->getVirtualLog());
+
+    state.stateMachine = std::make_shared<CounterAppStateMachine>(
+        state.logServer->getVirtualLog());
+
+    state.counterApp = std::make_shared<CounterApp>(state.stateMachine);
+
+    state.counterApplicator =
+        std::make_shared<CounterApplicator>(state.counterApp);
 
     state.failureDetectorPool =
         std::make_shared<folly::CPUThreadPoolExecutor>(4);
@@ -44,11 +52,13 @@ public:
   folly::coro::Task<void> stop() {}
 
 private:
-private:
   struct State {
     rk::projects::server::ServerConfig logServerConfig;
     std::shared_ptr<rk::projects::durable_log::server::LogServer> logServer;
+
     std::shared_ptr<CounterApp> counterApp;
+    std::shared_ptr<CounterAppStateMachine> stateMachine;
+    std::shared_ptr<CounterApplicator> counterApplicator;
 
     std::shared_ptr<folly::CPUThreadPoolExecutor> failureDetectorPool;
     std::shared_ptr<FailureDetector> failureDetector;

@@ -9,15 +9,30 @@
 
 namespace rk::projects::state_machine {
 
+using ApplicationErrors =
+    std::variant<durable_log::OptimisticConcurrencyException>;
+using ApplicationResult =
+    std::variant<std::true_type, ApplicationErrors, folly::exception_wrapper>;
+
 class MetadataStoreApplicator
-    : public Applicator<durable_log::MetadataConfig, void> {
+    : public Applicator<durable_log::MetadataConfig, ApplicationResult> {
 public:
   explicit MetadataStoreApplicator(
       std::shared_ptr<durable_log::MetadataStore> metadataStore)
       : metadataStore_{std::move(metadataStore)} {}
 
-  folly::coro::Task<void> apply(durable_log::MetadataConfig metadataConfig) override {
-    co_await metadataStore_->compareAndAppendRange(metadataConfig);
+  folly::coro::Task<ApplicationResult>
+  apply(durable_log::MetadataConfig metadataConfig) override {
+    try {
+      co_await metadataStore_->compareAndAppendRange(metadataConfig);
+      co_return std::true_type{};
+    } catch (durable_log::OptimisticConcurrencyException &e) {
+      co_return ApplicationErrors{std::move(e)};
+    } catch (...) {
+      auto exceptionWrapper =
+          folly::exception_wrapper{std::current_exception()};
+      co_return exceptionWrapper;
+    }
   }
 
 private:

@@ -33,14 +33,14 @@ protected:
       auto chain = wor::makeChainUsingInMemoryWor();
       auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
       return std::make_unique<PersistentMetadataStore>(
-          std::move(inMemoryMetadataStore), std::move(chain));
+          std::move(inMemoryMetadataStore));
     }
 
     case MetadataStoreType::PaxosWor: {
       auto chain = wor::makeChainUsingPaxosWor();
       auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
       return std::make_unique<PersistentMetadataStore>(
-          std::move(inMemoryMetadataStore), std::move(chain));
+          std::move(inMemoryMetadataStore));
     }
     default:
       throw std::runtime_error{"unknown metadata store type"};
