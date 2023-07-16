@@ -15,7 +15,7 @@ public:
 
   grpc::Status IncrementAndGet(::grpc::ServerContext *context,
                                const IncrementRequest *request,
-                               CounterValue *response) override {
+                               CounterKeyValue *response) override {
     LOG(INFO) << "Server Request: IncrementAndGet";
 
     response->set_value(
@@ -27,7 +27,7 @@ public:
 
   grpc::Status DecrementAndGet(::grpc::ServerContext *context,
                                const DecrementRequest *request,
-                               CounterValue *response) override {
+                               CounterKeyValue *response) override {
     LOG(INFO) << "Server Request: DecrementAndGet";
 
     response->set_value(
@@ -39,7 +39,7 @@ public:
 
   grpc::Status GetCounterValue(::grpc::ServerContext *context,
                                const GetCounterValueRequest *request,
-                               CounterValue *response) override {
+                               CounterKeyValue *response) override {
     LOG(INFO) << "Server Request: GetCounterValue";
 
     response->set_value(counterApp_->getValue(request->key()).semi().get());

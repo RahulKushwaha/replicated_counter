@@ -66,12 +66,10 @@ folly::SemiFuture<VersionId> MetadataStoreClient::getCurrentVersionId() {
 }
 
 folly::SemiFuture<folly::Unit>
-MetadataStoreClient::compareAndAppendRange(VersionId versionId,
-                                           MetadataConfig newMetadataConfig) {
+MetadataStoreClient::compareAndAppendRange(MetadataConfig newMetadataConfig) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
   server::CompareAndAppendRangeRequest request;
-  request.mutable_metadata_version_id()->set_id(versionId);
   request.mutable_metadata_config()->Swap(&newMetadataConfig);
   google::protobuf::Empty response;
 

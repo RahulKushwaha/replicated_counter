@@ -3,13 +3,30 @@
 //
 
 #include "applications/counter/CounterApp.h"
+#include "applications/counter/CounterAppStateMachine.h"
+#include "applications/counter/CounterApplicator.h"
 #include "applications/counter/test/InMemoryFakeVirtualLog.h"
 #include <gtest/gtest.h>
 
 namespace rk::projects::counter_app {
 using namespace testing;
 
+namespace {
+std::shared_ptr<CounterApp> makeCounterApp() {
+  auto mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
+  auto stateMachine =
+      std::make_shared<CounterAppStateMachine>(std::move(mockVirtualLog));
+  auto counterApp = std::make_shared<CounterApp>(stateMachine);
+  auto applicator = std::make_shared<CounterApplicator>(counterApp);
+  stateMachine->setApplicator(std::move(applicator));
+
+  return counterApp;
+}
+} // namespace
+
 TEST(BatchUpdateTest, successWithSingleKey) {
+  auto counterApp = makeCounterApp();
+
   CounterApp::IncrOperation op1;
   op1.key = "testKey";
   op1.incrBy = 5;
@@ -27,12 +44,7 @@ TEST(BatchUpdateTest, successWithSingleKey) {
   operations.emplace_back(op2);
   operations.emplace_back(op3);
 
-  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
-      std::make_shared<InMemoryFakeVirtualLog>();
-
-  std::shared_ptr<CounterApp> counterApp =
-      std::make_shared<CounterApp>(mockVirtualLog);
-  auto res = counterApp->batchUptate(operations).semi().get();
+  auto res = counterApp->batchUpdate(operations).semi().get();
 
   ASSERT_EQ(res[0].key, "testKey");
   ASSERT_EQ(res[0].val, 5);
@@ -43,6 +55,8 @@ TEST(BatchUpdateTest, successWithSingleKey) {
 }
 
 TEST(BatchUpdateTest, successWithMultipleKey) {
+  auto counterApp = makeCounterApp();
+
   CounterApp::IncrOperation op1;
   op1.key = "testKey";
   op1.incrBy = 5;
@@ -75,12 +89,7 @@ TEST(BatchUpdateTest, successWithMultipleKey) {
   operations.emplace_back(op5);
   operations.emplace_back(op6);
 
-  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
-      std::make_shared<InMemoryFakeVirtualLog>();
-
-  std::shared_ptr<CounterApp> counterApp =
-      std::make_shared<CounterApp>(mockVirtualLog);
-  auto res = counterApp->batchUptate(operations).semi().get();
+  auto res = counterApp->batchUpdate(operations).semi().get();
 
   ASSERT_EQ(res[0].key, "testKey");
   ASSERT_EQ(res[0].val, 5);
@@ -97,49 +106,43 @@ TEST(BatchUpdateTest, successWithMultipleKey) {
 }
 
 TEST(BatchUpdateTest, successWithNoOps) {
+  auto counterApp = makeCounterApp();
+
   std::vector<CounterApp::Operation> operations;
-  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
-      std::make_shared<InMemoryFakeVirtualLog>();
-  std::shared_ptr<CounterApp> counterApp =
-      std::make_shared<CounterApp>(mockVirtualLog);
-  auto res = counterApp->batchUptate(operations).semi().get();
+  auto res = counterApp->batchUpdate(operations).semi().get();
 
   ASSERT_EQ(res.size(), 0);
 }
 
 TEST(BatchUpdateTest, successWithSingleKeyAndSingleIncrOperation) {
+  auto counterApp = makeCounterApp();
+
   CounterApp::IncrOperation op1;
   op1.key = "testKey";
   op1.incrBy = 5;
   std::vector<CounterApp::Operation> operations;
   operations.emplace_back(op1);
 
-  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
-      std::make_shared<InMemoryFakeVirtualLog>();
-
-  std::shared_ptr<CounterApp> counterApp =
-      std::make_shared<CounterApp>(mockVirtualLog);
-  auto res = counterApp->batchUptate(operations).semi().get();
+  auto res = counterApp->batchUpdate(operations).semi().get();
   ASSERT_EQ(res[0].key, "testKey");
   ASSERT_EQ(res[0].val, 5);
 }
 
 TEST(BatchUpdateTest, successWithSingleKeyAndHundredOperations) {
+  auto counterApp = makeCounterApp();
+
   std::vector<CounterApp::Operation> operations;
   CounterApp::IncrOperation op1;
-  std::shared_ptr<InMemoryFakeVirtualLog> mockVirtualLog =
-      std::make_shared<InMemoryFakeVirtualLog>();
-  std::shared_ptr<CounterApp> counterApp =
-      std::make_shared<CounterApp>(mockVirtualLog);
   op1.key = "testKey";
   op1.incrBy = 1;
   operations.emplace_back(op1);
 
   for (int i = 0; i <= 99; i++) {
-    counterApp->batchUptate(operations).semi().get();
+    counterApp->batchUpdate(operations).semi().get();
   }
-  auto res = counterApp->batchUptate(operations).semi().get();
+  auto res = counterApp->batchUpdate(operations).semi().get();
   ASSERT_EQ(res[0].key, "testKey");
   ASSERT_EQ(res[0].val, 101);
 }
+
 } // namespace rk::projects::counter_app

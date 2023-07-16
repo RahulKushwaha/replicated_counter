@@ -28,9 +28,8 @@ public:
     co_return client_->getCurrentVersionId().get();
   }
 
-  coro<void> compareAndAppendRange(VersionId versionId,
-                                   MetadataConfig newMetadataConfig) override {
-    co_await client_->compareAndAppendRange(versionId, newMetadataConfig);
+  coro<void> compareAndAppendRange(MetadataConfig newMetadataConfig) override {
+    co_await client_->compareAndAppendRange(newMetadataConfig);
   }
 
   void printConfigChain() override { client_->printConfigChain().semi().get(); }
