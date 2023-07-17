@@ -13,6 +13,7 @@
 #include "log/impl/RemoteMetadataStore.h"
 #include "log/impl/RemoteReplica.h"
 #include "log/impl/RemoteSequencer.h"
+#include "log/impl/RocksNanoLog.h"
 #include "log/impl/VirtualLogFactory.h"
 #include "log/impl/VirtualLogImpl.h"
 #include "log/include/NanoLogStore.h"
@@ -137,8 +138,15 @@ private:
       const auto address = fmt::format(
           GRPC_SVC_ADDRESS_FORMAT, config.replica_config().ip_address().host(),
           config.replica_config().ip_address().port());
-      replica = makeReplica(config.replica_config().id(), "ReplicaName",
-                            nanoLogStore, metadataStore);
+      auto rocksConfig = persistence::RocksDbFactory::RocksDbConfig{
+          .path = config.replica_config().data_directory(),
+          .createIfMissing = true,
+          .manualWALFlush = true,
+      };
+
+      replica =
+          makeRocksReplica(config.replica_config().id(), "ReplicaName",
+                           nanoLogStore, metadataStore, std::move(rocksConfig));
 
       registry->registerReplica(config.replica_config().id(), replica);
 
@@ -195,7 +203,7 @@ private:
           metadataStore, 1, registry);
     }
 
-    void registerSequencers() {
+    void registerSequencers() const {
       // register local sequencer
       registry->registerSequencer(config.sequencer_config().id(), sequencer);
 

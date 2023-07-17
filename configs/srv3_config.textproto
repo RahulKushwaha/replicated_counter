@@ -26,6 +26,7 @@ metadata_config{
     host: "127.0.0.1"
     port: 60003
   }
+  data_directory: "/tmp/data/METADATA_02/"
 }
 
 admin_server_config{
@@ -49,6 +50,7 @@ replica_set[
       host: "127.0.0.1"
       port: 10002
     }
+    data_directory: "/tmp/data/REPLICA_00/"
   },
   {
     id: "REPLICA_01"
@@ -56,6 +58,7 @@ replica_set[
       host: "127.0.0.1"
       port: 20002
     }
+    data_directory: "/tmp/data/REPLICA_01/"
   },
   {
     id: "REPLICA_02",
@@ -63,6 +66,7 @@ replica_set[
       host: "127.0.0.1"
       port: 30002
     }
+    data_directory: "/tmp/data/REPLICA_02/"
   },
   {
     id: "REPLICA_03",
@@ -70,6 +74,7 @@ replica_set[
       host: "127.0.0.1"
       port: 40002
     }
+    data_directory: "/tmp/data/REPLICA_03/"
   },
   {
     id: "REPLICA_04",
@@ -77,6 +82,7 @@ replica_set[
       host: "127.0.0.1"
       port: 50002
     }
+    data_directory: "/tmp/data/REPLICA_04/"
   }
 ]
 

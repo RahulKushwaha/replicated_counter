@@ -30,6 +30,7 @@ public:
 
   coro<LogId> seal() override;
   coro<LogId> getLocalCommitIndex() override;
+  coro<LogId> trim(LogId logId) override;
 
   LogId getStartIndex() override;
   LogId getEndIndex() override;

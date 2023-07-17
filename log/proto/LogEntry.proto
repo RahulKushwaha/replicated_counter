@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package rk.projects.durable_log;
+
+message SingleLogEntry{
+  int64 id = 1;
+  bytes payload = 2;
+}
+
+message BatchLogEntry{
+  repeated SingleLogEntry log_entries = 1;
+}
+
+message LogTrimEntry{
+  int64 id = 1;
+  string replica_id = 2;
+  int64 snapshot_id = 3;
+}
+
+message TransactionalLogEntry{
+  oneof entry{
+    SingleLogEntry single_log_entry = 1;
+    BatchLogEntry batch_log_entry = 2;
+  }
+
+  enum Status{
+    PREPARE = 0;
+    COMMIT = 1;
+  }
+}
+
+message LogEntry_1{
+  oneof entry{
+    SingleLogEntry single_log_entry = 1;
+    BatchLogEntry batch_log_entry = 2;
+    TransactionalLogEntry transactional_log_entry = 3;
+    LogTrimEntry log_trim_entry = 4;
+  }
+}
+
+message LogTrimView{
+  map<string, LogTrimEntry> entries = 1;
+}

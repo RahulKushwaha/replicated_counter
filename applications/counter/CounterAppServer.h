@@ -9,8 +9,18 @@
 #include "applications/counter/CounterHealthCheck.h"
 #include "log/impl/FailureDetectorImpl.h"
 #include "log/server/LogServer.h"
+#include "persistence/KVStoreLite.h"
+#include "statemachine/Factory.h"
+#include "statemachine/LogTrimApplicator.h"
+#include "statemachine/LogTrimStateMachine.h"
+#include "statemachine/VirtualLogStateMachine.h"
+#include "statemachine/include/StateMachine.h"
 
 namespace rk::projects::counter_app {
+
+using StateMachineReturnType =
+    std::variant<std::vector<CounterKeyValue>, folly::Unit>;
+using namespace state_machine;
 
 class CounterAppServer {
 public:
@@ -27,13 +37,18 @@ public:
     co_await state.logServer->start();
     LOG(INFO) << "Starting App";
 
-    state.stateMachine = std::make_shared<CounterAppStateMachine>(
-        state.logServer->getVirtualLog());
+    auto stateMachineStack = makeStateMachineStack<StateMachineReturnType>(
+        nullptr, state.logServer->getVirtualLog());
 
-    state.counterApp = std::make_shared<CounterApp>(state.stateMachine);
+    state.appStateMachine =
+        std::make_shared<CounterAppStateMachine>(stateMachineStack);
+
+    state.counterApp = std::make_shared<CounterApp>(state.appStateMachine);
 
     state.counterApplicator =
         std::make_shared<CounterApplicator>(state.counterApp);
+
+    stateMachineStack->setUpstreamApplicator(state.counterApplicator);
 
     state.failureDetectorPool =
         std::make_shared<folly::CPUThreadPoolExecutor>(4);
@@ -49,7 +64,7 @@ public:
     co_return;
   }
 
-  folly::coro::Task<void> stop() {}
+  folly::coro::Task<void> stop() { co_return; }
 
 private:
   struct State {
@@ -57,7 +72,7 @@ private:
     std::shared_ptr<rk::projects::durable_log::server::LogServer> logServer;
 
     std::shared_ptr<CounterApp> counterApp;
-    std::shared_ptr<CounterAppStateMachine> stateMachine;
+    std::shared_ptr<CounterAppStateMachine> appStateMachine;
     std::shared_ptr<CounterApplicator> counterApplicator;
 
     std::shared_ptr<folly::CPUThreadPoolExecutor> failureDetectorPool;

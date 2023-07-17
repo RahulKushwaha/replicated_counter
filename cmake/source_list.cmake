@@ -102,5 +102,9 @@ set(
         statemachine/RocksTxnApplicator.h
         statemachine/MetadataStoreStateMachine.h
         statemachine/MetadataStoreApplicator.h
+        statemachine/LogTrimApplicator.h
+        statemachine/LogTrimStateMachine.h
+        statemachine/VirtualLogStateMachine.h
+        statemachine/Factory.h
         statemachine/Common.h
 )

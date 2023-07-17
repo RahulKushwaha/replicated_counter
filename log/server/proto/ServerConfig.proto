@@ -17,11 +17,15 @@ message SequencerServerConfig{
 message ReplicaServerConfig{
   string id = 1;
   IpAddress ip_address = 2;
+
+  string data_directory = 3;
 }
 
 message MetadataServerConfig {
   string id = 1;
   IpAddress ip_address = 2;
+
+  string data_directory = 3;
 }
 
 message AdminServerConfig{

@@ -8,7 +8,7 @@ namespace rk::projects::counter_app {
 
 CounterApp::CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine)
     : stateMachine_{std::move(stateMachine)}, lastAppliedEntry_{0},
-      mtx_{std::make_unique<std::mutex>()}, lookup_{} {}
+      lastSnapshotId_{0}, mtx_{std::make_unique<std::mutex>()}, lookup_{} {}
 
 folly::coro::Task<std::int64_t>
 CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
@@ -42,17 +42,12 @@ folly::coro::Task<std::int64_t> CounterApp::getValue(std::string key) {
 folly::coro::Task<std::vector<CounterKeyValue>>
 CounterApp::batchUpdate(std::vector<Operation> operations) {
   std::lock_guard lk{*mtx_};
-  std::vector<std::int64_t> result;
-
-  std::vector<CounterKeyValue> counterValues =
-      co_await stateMachine_->append(serialize(operations));
-
-  co_return counterValues;
+  co_return co_await stateMachine_->append(serialize(operations));
 }
 
-CounterLogEnteries
+CounterLogEntries
 CounterApp::serialize(const std::vector<Operation> &operations) {
-  CounterLogEnteries entries{};
+  CounterLogEntries entries{};
 
   for (auto op : operations) {
     if (std::holds_alternative<CounterApp::IncrOperation>(op)) {
@@ -62,7 +57,7 @@ CounterApp::serialize(const std::vector<Operation> &operations) {
           std::get<CounterApp::IncrOperation>(op);
       entry.set_key(std::move(incrOperation.key));
       entry.set_val(incrOperation.incrBy);
-      entries.mutable_enteries()->Add(std::move(entry));
+      entries.mutable_entries()->Add(std::move(entry));
     } else if (std::holds_alternative<CounterApp::DecrOperation>(op)) {
       CounterLogEntry entry;
       entry.set_commandtype(CounterLogEntry_CommandType_DECR);
@@ -70,7 +65,7 @@ CounterApp::serialize(const std::vector<Operation> &operations) {
           std::get<CounterApp::DecrOperation>(op);
       entry.set_key(std::move(decrOperation.key));
       entry.set_val(decrOperation.decrBy);
-      entries.mutable_enteries()->Add(std::move(entry));
+      entries.mutable_entries()->Add(std::move(entry));
     }
   }
 
@@ -78,24 +73,23 @@ CounterApp::serialize(const std::vector<Operation> &operations) {
 }
 
 std::vector<CounterKeyValue>
-CounterApp::apply(const CounterLogEnteries &counterLogEntries) {
-
+CounterApp::apply(const CounterLogEntries &counterLogEntries) {
   std::vector<CounterKeyValue> counterValues;
-  for (const auto &counterLogEntry : counterLogEntries.enteries()) {
+  for (const auto &counterLogEntry : counterLogEntries.entries()) {
     auto &val = lookup_[counterLogEntry.key()];
 
     CounterKeyValue counterValue;
 
     if (counterLogEntry.commandtype() ==
         CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR) {
-      val.store(val + counterLogEntry.val());
+      val = val + counterLogEntry.val();
       counterValue.key = counterLogEntry.key();
       counterValue.val = val;
       counterValues.emplace_back(std::move(counterValue));
 
     } else if (counterLogEntry.commandtype() ==
                CounterLogEntry_CommandType::CounterLogEntry_CommandType_DECR) {
-      val.store(val - counterLogEntry.val());
+      val = val - counterLogEntry.val();
       counterValue.key = counterLogEntry.key();
       counterValue.val = val;
       counterValues.emplace_back(std::move(counterValue));
@@ -106,5 +100,25 @@ CounterApp::apply(const CounterLogEnteries &counterLogEntries) {
   }
   return counterValues;
 }
+
+coro<CounterAppSnapshot> CounterApp::snapshot() {
+  std::lock_guard lock{*mtx_};
+  CounterAppSnapshot counterAppSnapshot{};
+  counterAppSnapshot.set_log_id(lastAppliedEntry_);
+  counterAppSnapshot.mutable_values()->insert(lookup_.begin(), lookup_.end());
+  auto result = co_await kvStore_->put("COUNTER_APP_SNAPSHOT",
+                                       counterAppSnapshot.SerializeAsString());
+  if (result) {
+    auto fsyncResult = co_await kvStore_->flushWal();
+    if (fsyncResult) {
+      lastSnapshotId_ = lastAppliedEntry_;
+      co_return counterAppSnapshot;
+    }
+  }
+
+  throw std::runtime_error{"could not save snapshot"};
+}
+
+LogId CounterApp::getLastSnapshotId() const { return lastSnapshotId_; }
 
 } // namespace rk::projects::counter_app

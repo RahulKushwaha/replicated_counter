@@ -9,16 +9,17 @@
 #include "applications/counter/CounterAppStateMachine.h"
 #include "applications/counter/proto/CounterEntry.pb.h"
 #include "folly/experimental/coro/Task.h"
+#include "persistence/RocksKVStoreLite.h"
 
 namespace rk::projects::counter_app {
 template <typename T> using coro = folly::coro::Task<T>;
+
+using namespace rk::projects::durable_log;
 
 struct CounterKeyValue {
   std::string key;
   std::int64_t val;
 };
-
-using namespace rk::projects::durable_log;
 
 class CounterApp {
 public:
@@ -42,17 +43,23 @@ public:
   batchUpdate(std::vector<Operation> operations);
 
   std::vector<CounterKeyValue>
-  apply(const CounterLogEnteries &counterLogEntries);
+  apply(const CounterLogEntries &counterLogEntries);
+
+  coro<CounterAppSnapshot> snapshot();
+
+  LogId getLastSnapshotId() const;
 
 private:
-  static CounterLogEnteries serialize(const std::vector<Operation> &operations);
+  static CounterLogEntries serialize(const std::vector<Operation> &operations);
 
 private:
   std::shared_ptr<CounterAppStateMachine> stateMachine_;
+  std::shared_ptr<persistence::KVStoreLite> kvStore_;
   LogId lastAppliedEntry_;
+  LogId lastSnapshotId_;
   std::unique_ptr<std::mutex> mtx_;
 
-  std::unordered_map<std::string, std::atomic_int64_t> lookup_;
+  std::unordered_map<std::string, std::int64_t> lookup_;
 };
 
 } // namespace rk::projects::counter_app

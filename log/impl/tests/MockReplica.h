@@ -24,6 +24,9 @@ public:
   MOCK_METHOD(coro<LogId>, getCommitIndex, (VersionId versionId), (override));
 
   MOCK_METHOD(coro<LogId>, seal, (VersionId versionId), (override));
+
+  MOCK_METHOD(coro<LogId>, trim, (VersionId versionId, LogId logId),
+              (override));
 };
 
 } // namespace rk::projects::durable_log

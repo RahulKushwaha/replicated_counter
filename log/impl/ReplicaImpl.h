@@ -35,6 +35,8 @@ public:
 
   coro<LogId> seal(VersionId versionId) override;
 
+  coro<LogId> trim(VersionId versionId, LogId logId) override;
+
   ~ReplicaImpl() override = default;
 
 private:

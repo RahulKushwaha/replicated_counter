@@ -15,6 +15,8 @@ service ReplicaService {
   rpc getLocalCommitIndex(GetLocalCommitIndexRequest) returns (LogIdResponse){}
 
   rpc seal(SealRequest) returns (LogIdResponse){}
+
+  rpc trim(TrimRequest) returns(TrimResponse){}
 }
 
 message GetLogEntryRequest{
@@ -47,4 +49,12 @@ message GetLogEntryResponse{
 
   optional LOG_READ_ERROR log_read_error = 10;
   LogEntry log_entry = 11;
+}
+
+message TrimRequest{
+  int64 version_id = 1;
+  int64 log_id = 2;
+}
+
+message TrimResponse{
 }

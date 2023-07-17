@@ -23,6 +23,7 @@ public:
   getLogEntry(LogId logId) = 0;
   virtual coro<LogId> seal() = 0;
   virtual coro<LogId> getLocalCommitIndex() = 0;
+  virtual coro<LogId> trim(LogId logId) = 0;
 
   virtual LogId getStartIndex() = 0;
   virtual LogId getEndIndex() = 0;

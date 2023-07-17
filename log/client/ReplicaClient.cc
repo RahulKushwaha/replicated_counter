@@ -139,4 +139,22 @@ folly::SemiFuture<LogId> ReplicaClient::seal(VersionId versionId) {
   return folly::makeSemiFuture<LogId>(std::move(err));
 }
 
+coro<LogId> ReplicaClient::trim(VersionId versionId, LogId logId) {
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
+
+  server::TrimRequest trimRequest{};
+  trimRequest.set_version_id(versionId);
+  trimRequest.set_log_id(logId);
+
+  server::TrimResponse trimResponse{};
+  grpc::Status status = stub_->trim(&context, trimRequest, &trimResponse);
+
+  if (status.ok()) {
+    co_return logId;
+  }
+
+  throw std::runtime_error{status.error_message()};
+}
+
 } // namespace rk::projects::durable_log::client

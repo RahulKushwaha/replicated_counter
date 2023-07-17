@@ -108,4 +108,18 @@ coro<LogId> ReplicaImpl::seal(VersionId versionId) {
   throw NanoLogLogNotAvailable{};
 }
 
+coro<LogId> ReplicaImpl::trim(VersionId versionId, LogId logId) {
+  std::shared_ptr<NanoLog> nanoLog;
+  {
+    std::lock_guard lk{*mtx_};
+    nanoLog = nanoLogStore_->getNanoLog(versionId);
+  }
+
+  if (nanoLog) {
+    co_return co_await nanoLog->trim(logId);
+  }
+
+  throw std::runtime_error{"nanolog not present"};
+}
+
 } // namespace rk::projects::durable_log

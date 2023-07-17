@@ -26,6 +26,7 @@ public:
 
   virtual coro<LogId> getCommitIndex(VersionId versionId) = 0;
   virtual coro<LogId> seal(VersionId versionId) = 0;
+  virtual coro<LogId> trim(VersionId versionId, LogId logId) = 0;
 
   virtual ~Replica() = default;
 };

@@ -11,7 +11,17 @@ CounterApplicator::CounterApplicator(std::shared_ptr<CounterApp> app)
 
 folly::coro::Task<applicatorOutput_t>
 CounterApplicator::apply(applicatorInput_t t) {
-  co_return app_->apply(t);
+  if (t.has_single_log_entry()) {
+    CounterLogEntries entries{};
+    auto parseResult = entries.ParseFromString(t.single_log_entry().payload());
+    if (!parseResult) {
+      throw std::runtime_error{"log entry could not be parsed"};
+    }
+
+    co_return app_->apply(entries);
+  }
+
+  throw std::runtime_error{"unknown type of entry to apply"};
 }
 
 } // namespace rk::projects::counter_app

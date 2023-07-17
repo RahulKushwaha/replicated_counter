@@ -38,6 +38,10 @@ public:
     co_return co_await applicator_->apply(std::move(txn));
   }
 
+  folly::coro::Task<RocksTxnResult> apply(RocksTxn txn) override {
+    throw std::runtime_error{"not implemented error"};
+  }
+
   void setApplicator(std::shared_ptr<applicator_t> applicator) override {
     applicator_ = std::move(applicator);
   }
