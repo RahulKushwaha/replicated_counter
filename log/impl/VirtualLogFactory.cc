@@ -62,11 +62,25 @@ makeReplica(std::string id, std::string name,
       NanoLogType::InMemory);
 }
 
+std::unique_ptr<Replica>
+makeRocksReplica(std::string id, std::string name,
+                 std::shared_ptr<NanoLogStore> nanoLogStore,
+                 std::shared_ptr<MetadataStore> metadataStore,
+                 persistence::RocksDbFactory::RocksDbConfig rocksDbConfig) {
+  auto nanoLogFactory =
+      std::make_shared<NanoLogFactory>(std::move(rocksDbConfig));
+
+  return std::make_unique<ReplicaImpl>(
+      std::move(id), std::move(name), std::move(nanoLogStore),
+      std::move(metadataStore), std::move(nanoLogFactory),
+      NanoLogType::InMemory);
+}
+
 std::unique_ptr<Sequencer>
 makeSequencer(std::string sequencerId,
               std::vector<std::shared_ptr<Replica>> replicaSet) {
-  return std::make_unique<SequencerImpl>(sequencerId, std::move(replicaSet), 1,
-                                         1);
+  return std::make_unique<SequencerImpl>(std::move(sequencerId),
+                                         std::move(replicaSet), 1, 1);
 }
 
 std::unique_ptr<Registry> makeRegistry() {

@@ -7,37 +7,37 @@
 namespace rk::projects::counter_app {
 
 CounterAppStateMachine::CounterAppStateMachine(
-    std::shared_ptr<durable_log::VirtualLog> virtualLog)
-    : lastAppliedLogId_{0}, virtualLog_{std::move(virtualLog)},
+    std::shared_ptr<
+        state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
+        downstreamStateMachine)
+    : lastAppliedLogId_{0},
+      downstreamStateMachine_{std::move(downstreamStateMachine)},
       applicator_{nullptr} {}
 
 folly::coro::Task<std::vector<CounterKeyValue>>
-CounterAppStateMachine::append(CounterLogEnteries t) {
-  auto logId = co_await virtualLog_->append(t.SerializeAsString());
-  while (lastAppliedLogId_ <= logId) {
-    auto nextLog = co_await virtualLog_->getLogEntry(logId);
-    if (std::holds_alternative<durable_log::LogReadError>(nextLog)) {
-      auto logReadError = std::get<durable_log::LogReadError>(nextLog);
-      throw std::runtime_error{"log read error"};
-    }
+CounterAppStateMachine::append(CounterLogEntries t) {
+  durable_log::LogEntry_1 logEntry{};
+  durable_log::SingleLogEntry singleLogEntry{};
+  singleLogEntry.set_payload(t.SerializeAsString());
+  logEntry.mutable_single_log_entry()->CopyFrom(singleLogEntry);
 
-    auto logEntry = std::get<durable_log::LogEntry>(nextLog);
-    CounterLogEnteries entries{};
-    auto parseResult = entries.ParseFromString(logEntry.payload);
-    if (!parseResult) {
-      throw std::runtime_error{"protobuf parse result"};
-    }
+  auto result = co_await append(logEntry);
 
-    auto applyResult = co_await applicator_->apply(entries);
-    lastAppliedLogId_ = logEntry.logId;
-    if (lastAppliedLogId_ == logId) {
-      co_return applyResult;
-    }
+  if (std::holds_alternative<std::vector<CounterKeyValue>>(result)) {
+    co_return std::get<std::vector<CounterKeyValue>>(result);
   }
 
-  co_return co_await folly::coro::makeErrorTask<std::vector<CounterKeyValue>>(
-      folly::exception_wrapper{std::runtime_error{
-          "reached end of loop. should not happen. un-recoverable error."}});
+  throw std::runtime_error{"unknown result type"};
+}
+
+folly::coro::Task<ReturnType>
+CounterAppStateMachine::append(rk::projects::durable_log::LogEntry_1 t) {
+  co_return co_await downstreamStateMachine_->append(std::move(t));
+}
+
+folly::coro::Task<ReturnType>
+CounterAppStateMachine::apply(rk::projects::durable_log::LogEntry_1 t) {
+  co_return co_await applicator_->apply(std::move(t));
 }
 
 void CounterAppStateMachine::setApplicator(
@@ -46,7 +46,7 @@ void CounterAppStateMachine::setApplicator(
 }
 
 folly::coro::Task<void> CounterAppStateMachine::sync() {
-  co_await virtualLog_->sync();
+  co_await downstreamStateMachine_->sync();
 }
 
 } // namespace rk::projects::counter_app

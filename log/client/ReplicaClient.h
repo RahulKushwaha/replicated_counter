@@ -24,6 +24,7 @@ public:
   getLogEntry(VersionId versionId, LogId logId);
   folly::SemiFuture<LogId> getLocalCommitIndex(VersionId versionId);
   folly::SemiFuture<LogId> seal(VersionId versionId);
+  coro<LogId> trim(VersionId versionId, LogId logId);
 
 private:
   std::unique_ptr<server::ReplicaService::Stub> stub_;

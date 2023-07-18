@@ -6,6 +6,7 @@
 #include "applications/counter/CounterAppStateMachine.h"
 #include "applications/counter/CounterApplicator.h"
 #include "applications/counter/test/InMemoryFakeVirtualLog.h"
+#include "statemachine/Factory.h"
 #include <gtest/gtest.h>
 
 namespace rk::projects::counter_app {
@@ -14,12 +15,15 @@ using namespace testing;
 namespace {
 std::shared_ptr<CounterApp> makeCounterApp() {
   auto mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
-  auto stateMachine =
-      std::make_shared<CounterAppStateMachine>(std::move(mockVirtualLog));
-  auto counterApp = std::make_shared<CounterApp>(stateMachine);
-  auto applicator = std::make_shared<CounterApplicator>(counterApp);
-  stateMachine->setApplicator(std::move(applicator));
+  auto stateMachineStack =
+      state_machine::makeStateMachineStack<ReturnType>(nullptr, mockVirtualLog);
 
+  auto appStateMachine =
+      std::make_shared<CounterAppStateMachine>(stateMachineStack);
+  auto counterApp = std::make_shared<CounterApp>(appStateMachine);
+  auto applicator = std::make_shared<CounterApplicator>(counterApp);
+  appStateMachine->setApplicator(std::move(applicator));
+  stateMachineStack->setUpstreamStateMachine(appStateMachine);
   return counterApp;
 }
 } // namespace

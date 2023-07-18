@@ -14,6 +14,11 @@ message CounterLogEntry{
   string description = 4;
 }
 
-message CounterLogEnteries {
-  repeated CounterLogEntry enteries = 1;
+message CounterLogEntries {
+  repeated CounterLogEntry entries = 1;
+}
+
+message CounterAppSnapshot{
+  int64 log_id = 1;
+  map<string, int64> values = 2;
 }

@@ -82,4 +82,6 @@ coro<LogId> InMemoryNanoLog::getLocalCommitIndex() {
   co_return completionQueue_.getCurrentIndex();
 }
 
+coro<LogId> InMemoryNanoLog::trim(LogId logId) { co_return logId; }
+
 } // namespace rk::projects::durable_log

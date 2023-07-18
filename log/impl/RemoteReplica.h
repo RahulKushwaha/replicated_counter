@@ -40,6 +40,10 @@ public:
     co_return co_await replicaClient_->seal(versionId);
   }
 
+  coro<LogId> trim(VersionId versionId, LogId logId) override {
+    co_return co_await replicaClient_->trim(versionId, logId);
+  }
+
 private:
   std::shared_ptr<client::ReplicaClient> replicaClient_;
 };

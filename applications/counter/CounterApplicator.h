@@ -5,6 +5,7 @@
 #pragma once
 #include "applications/counter/proto/CounterEntry.pb.h"
 #include "folly/experimental/coro/Task.h"
+#include "log/proto/LogEntry.pb.h"
 #include "statemachine/include/StateMachine.h"
 
 namespace rk::projects::counter_app {
@@ -12,8 +13,9 @@ namespace rk::projects::counter_app {
 class CounterApp;
 class CounterKeyValue;
 
-using applicatorInput_t = CounterLogEnteries;
-using applicatorOutput_t = std::vector<CounterKeyValue>;
+using applicatorInput_t = durable_log::LogEntry_1;
+using applicatorOutput_t =
+    state_machine::ReturnType<std::vector<CounterKeyValue>, folly::Unit>;
 
 class CounterApplicator
     : public state_machine::Applicator<applicatorInput_t, applicatorOutput_t> {

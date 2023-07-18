@@ -162,4 +162,15 @@ coro<bool> RocksNanoLog::co_setEndIndex(LogId endIndex) {
   co_return true;
 }
 
+coro<LogId> RocksNanoLog::trim(LogId logId) {
+  auto startKey = fmt::format(formatter.logKey(), versionId_, 0);
+  auto endKey = fmt::format(formatter.logKey(), versionId_, logId);
+  auto deleteResult = co_await kvStore_->deleteRange(startKey, endKey);
+  if (deleteResult) {
+    co_return logId;
+  }
+
+  throw std::runtime_error{"log trim failed"};
+}
+
 } // namespace rk::projects::durable_log

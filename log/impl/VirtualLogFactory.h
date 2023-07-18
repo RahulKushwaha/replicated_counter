@@ -24,6 +24,12 @@ makeReplica(std::string id, std::string name,
             std::shared_ptr<NanoLogStore> nanoLogStore,
             std::shared_ptr<MetadataStore> metadataStore);
 
+std::unique_ptr<Replica>
+makeRocksReplica(std::string id, std::string name,
+                 std::shared_ptr<NanoLogStore> nanoLogStore,
+                 std::shared_ptr<MetadataStore> metadataStore,
+                 persistence::RocksDbFactory::RocksDbConfig rocksDbConfig);
+
 std::unique_ptr<Sequencer>
 makeSequencer(std::string sequencerId,
               std::vector<std::shared_ptr<Replica>> replicaSet);

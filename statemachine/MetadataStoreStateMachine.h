@@ -86,6 +86,11 @@ public:
     co_return result;
   }
 
+  folly::coro::Task<ApplicationResult>
+  apply(durable_log::MetadataConfig config) override {
+    throw std::runtime_error{"not implemented exception"};
+  }
+
   void setApplicator(std::shared_ptr<
                      Applicator<durable_log::MetadataConfig, ApplicationResult>>
                          applicator) override {

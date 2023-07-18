@@ -28,6 +28,7 @@ public:
   coro<std::variant<LogEntry, LogReadError>> getLogEntry(LogId logId) override;
   coro<LogId> seal() override;
   coro<LogId> getLocalCommitIndex() override;
+  coro<LogId> trim(LogId logId) override;
 
   LogId getStartIndex() override;
   LogId getEndIndex() override;
