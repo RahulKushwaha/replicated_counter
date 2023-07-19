@@ -13,8 +13,9 @@ QueryExecutor::QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks)
 void QueryExecutor::insert(const InternalTable &internalTable,
                            InsertOptions option) {
   if (option == InsertOptions::REPLACE) {
-    // Delete the row first.
+
     auto rawTableRows = RowSerializer::serialize(internalTable);
+    // Delete the row first.
     std::vector<RawTableRow::Key> keysToDelete;
     for (auto &keyValue : rawTableRows) {
       for (auto &[k, v] : keyValue.keyValues) {
@@ -25,10 +26,12 @@ void QueryExecutor::insert(const InternalTable &internalTable,
     rocks_->del(keysToDelete);
     // Insert the row.
     rocks_->write(rawTableRows);
+    return;
   }
-
   assert(option == InsertOptions::MERGE);
 }
+
+// Make it asynchronous later
 
 InternalTable QueryExecutor::get(const InternalTable &internalTable) {
   auto keys = RowSerializer::serializePrimaryKeys(internalTable);
@@ -36,6 +39,8 @@ InternalTable QueryExecutor::get(const InternalTable &internalTable) {
   return RowSerializer::deserialize(internalTable.schema, kvRows);
 }
 
+// Pagination is missing
+//
 InternalTable QueryExecutor::tableScan(InternalTable internalTable,
                                        IndexQueryOptions indexQueryOptions) {
 
@@ -53,9 +58,10 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
 
     auto kvRows = rocks_->scan(key, indexQueryOptions.direction);
 
-    auto primaryKeys = RowSerializer::deserialize(internalTable.schema, kvRows);
-
-    return primaryKeys;
+    // Raw Primary key
+    auto primarykeys = RowSerializer::deserializeSecondaryIndexKeys(
+        internalTable.schema, kvRows, indexQueryOptions.indexId);
+    return get(primarykeys);
   }
 };
 

@@ -71,6 +71,8 @@ std::vector<RawTableRow> RocksReaderWriter::scan(std::string prefix,
   RawTableRow row;
   while (itr->Valid()) {
     LOG(INFO) << itr->key().ToString();
+    LOG(INFO) << itr->value().ToString();
+
     if (itr->key().starts_with(prevKey)) {
 
     } else if (itr->key().starts_with(prefix)) {

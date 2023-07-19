@@ -25,9 +25,8 @@ public:
       : table_{std::move(table)} {
     for (auto &col : table_->columns()) {
       std::string_view columnName = col.name();
-      columnIdToName_[col.id()] = columnName;
-      columnNameToId_[columnName] = col.id();
-      columnTypes_[col.id()] = col.column_type();
+      columnIdToColLookup_[col.id()] = col;
+      columnNameToColLookup_[columnName] = col;
     }
 
     for (auto &col : table_->primary_key_index().column_ids()) {
@@ -39,26 +38,32 @@ public:
         secondaryKeyColumns_[idx.id()].insert(col);
         colIdToSecondaryIdx_[col].insert(idx.id());
       }
+
+      indexLookup_[idx.id()] = idx;
     }
   }
 
   inline TableSchemaType::ColumnIdType getColumnId(const std::string &colName) {
-    return columnNameToId_.at(colName);
+    return columnNameToColLookup_.at(colName).id();
   }
 
   inline std::string_view getColumnName(TableSchemaType::ColumnIdType colId) {
-    return columnIdToName_.at(colId);
+    return columnIdToColLookup_.at(colId).name();
+  }
+
+  inline internal::Column &getColumn(TableSchemaType::ColumnIdType colId) {
+    return columnIdToColLookup_.at(colId);
   }
 
   inline Table &rawTable() { return *table_; }
 
   inline bool isPrimaryKeyColumn(const std::string &colName) {
-    auto colItr = columnNameToId_.find(colName);
-    if (colItr == columnNameToId_.end()) {
+    auto colItr = columnNameToColLookup_.find(colName);
+    if (colItr == columnNameToColLookup_.end()) {
       return false;
     }
 
-    return isPrimaryKeyColumn(colItr->second);
+    return isPrimaryKeyColumn(colItr->second.id());
   }
 
   inline bool isPrimaryKeyColumn(TableSchemaType::ColumnIdType colId) {
@@ -89,22 +94,26 @@ public:
 
   inline std::optional<internal::Column_COLUMN_TYPE>
   getColumnType(TableSchemaType::ColumnIdType colId) {
-    if (auto itr = columnTypes_.find(colId); itr != columnTypes_.end()) {
-      return itr->second;
+    auto colItr = columnIdToColLookup_.find(colId);
+    if (colItr != columnIdToColLookup_.end()) {
+      return colItr->second.column_type();
     }
 
     return {};
   }
 
+  inline SecondaryIndex &
+  getSecondaryIndexById(TableSchemaType::TableIdType idxId) {
+    return indexLookup_.at(idxId);
+  }
+
 private:
   std::shared_ptr<Table> table_;
-  std::unordered_map<TableSchemaType::ColumnIdType, std::string_view>
-      columnIdToName_;
-  std::unordered_map<std::string_view, TableSchemaType::ColumnIdType>
-      columnNameToId_;
-  std::unordered_map<TableSchemaType::ColumnIdType,
-                     internal::Column_COLUMN_TYPE>
-      columnTypes_;
+  std::unordered_map<TableSchemaType::ColumnIdType, internal::Column>
+      columnIdToColLookup_;
+  std::unordered_map<std::string_view, internal::Column> columnNameToColLookup_;
+  std::unordered_map<TableSchemaType::TableIdType, internal::SecondaryIndex>
+      indexLookup_;
   std::unordered_set<TableSchemaType::ColumnIdType> primaryKeyColumns_;
   std::unordered_map<TableSchemaType::ColumnIdType,
                      std::unordered_set<TableSchemaType::ColumnIdType>>

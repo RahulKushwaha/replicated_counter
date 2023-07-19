@@ -113,7 +113,7 @@ set(
         ${BACKWARD_ENABLE}
 )
 
-option(MYDB "ENABLE mydb" OFF)
+option(MYDB "ENABLE mydb" ON)
 if (MYDB)
     find_package(Arrow REQUIRED)
 

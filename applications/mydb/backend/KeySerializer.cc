@@ -10,6 +10,8 @@
 
 namespace rk::projects::mydb::prefix {
 
+// This method add extra escape character
+// text/text -> text//text
 std::string escapeString(const std::string &input, char escapeCharacter) {
   std::stringstream ss;
   for (const auto c : input) {
@@ -36,11 +38,14 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
   TokenType current{TokenType::DB_ID};
   bool indexKeyPartsColId = true;
   KeyFragments keyFragments;
+  internal::SecondaryIndex secondaryIndex;
 
   auto length = key.size();
   std::size_t i = 0;
   while (i < length) {
+
     auto token = parse(key, i, DEFAULT_ESCAPE_CHARACTER);
+
     switch (current) {
     case TokenType::DB_ID: {
       keyFragments.dbId = folly::to<TableSchemaType::DbIdType>(token);
@@ -60,11 +65,18 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
         current = TokenType::PRIMARY_KEY_PARTS;
       } else {
         keyFragments.secondaryIndex = {KeyFragments::Index{indexId}};
+        for (const auto &idx : table.secondary_index()) {
+          if (idx.id() == indexId) {
+            secondaryIndex = idx;
+            break;
+          }
+        }
         current = TokenType::SECONDARY_INDEX_KEY_PARTS;
       }
     } break;
 
     case TokenType::PRIMARY_KEY_PARTS: {
+      // Fetch all primary key and primary key value combination
       if (!indexKeyPartsColId) {
         keyFragments.primaryIndex->values.emplace_back(std::move(token));
       }
@@ -87,6 +99,12 @@ KeyFragments parseKey(const internal::Table &table, const std::string &key) {
       }
 
       indexKeyPartsColId = !indexKeyPartsColId;
+
+      if (keyFragments.secondaryIndex->values.size() ==
+          secondaryIndex.column_ids().size()) {
+        keyFragments.primaryIndex = {KeyFragments::Index{0}};
+        current = TokenType::PRIMARY_KEY_PARTS;
+      }
     } break;
 
     default:
@@ -153,7 +171,8 @@ std::string columnKey(const std::string &primaryKey, std::uint32_t colId) {
 
 std::string secondaryIndexKey(const internal::Table &table,
                               std::uint32_t indexId,
-                              const std::vector<ColumnValue> &values) {
+                              const std::vector<ColumnValue> &values,
+                              const std::vector<ColumnValue> &primaryValues) {
   for (const auto &secondaryIndex : table.secondary_index()) {
     if (secondaryIndex.id() == indexId) {
       assert(secondaryIndex.column_ids().size() == values.size());
@@ -165,6 +184,13 @@ std::string secondaryIndexKey(const internal::Table &table,
         ss << DEFAULT_ESCAPE_CHARACTER << secondaryIndex.column_ids(index)
            << DEFAULT_ESCAPE_CHARACTER
            << escapeString(mydb::toString(values[index]));
+      }
+
+      for (std::int32_t index = 0; index < primaryValues.size(); index++) {
+        ss << DEFAULT_ESCAPE_CHARACTER
+           << table.primary_key_index().column_ids(index)
+           << DEFAULT_ESCAPE_CHARACTER
+           << escapeString(mydb::toString(primaryValues[index]));
       }
 
       return ss.str();

@@ -48,6 +48,7 @@ TEST_P(PrefixTestsSuite, secondaryIndexKey) {
   auto table = GetParam();
   for (const auto &index : table.secondary_index()) {
     auto key = prefix::secondaryIndexKey(table, index.id(),
+                                         std::vector<ColumnValue>{5000},
                                          std::vector<ColumnValue>{5000});
     TableSchemaOutput schema = parse(key);
 
