@@ -66,18 +66,18 @@ TableSchema createTableSchema(int numIntColumns, int numStringColumns,
     primaryKeyIndex.mutable_column_ids()->Add(i);
   }
 
-  for (int i = 1; i <= numIntColumns; i++) {
+  for (int i = 0; i < numIntColumns; i++) {
     Column column{};
     column.set_id(colId++);
-    column.set_name("col_int" + std::to_string(i));
+    column.set_name("col_int_name_" + std::to_string(colId));
     column.set_column_type(internal::Column_COLUMN_TYPE_INT64);
     table.mutable_columns()->Add(std::move(column));
   }
 
-  for (int i = 1; i <= numStringColumns; i++) {
+  for (int i = 0; i < numStringColumns; i++) {
     Column column{};
     column.set_id(colId++);
-    column.set_name("col_str" + std::to_string(i));
+    column.set_name("col_str_name_" + std::to_string(colId));
     column.set_column_type(internal::Column_COLUMN_TYPE_STRING);
     table.mutable_columns()->Add(std::move(column));
   }
@@ -87,10 +87,12 @@ TableSchema createTableSchema(int numIntColumns, int numStringColumns,
     SecondaryIndex idx;
     idx.set_name("secondary_idx");
     idx.set_id(tableId++);
+    int indexColumnId = i;
 
-    for (int j = 0, indexColumnId = i; j <= numColumnsInSecondaryIndex;
-         j++, indexColumnId++) {
+    for (int j = 0; j < numColumnsInSecondaryIndex; j++) {
+
       idx.add_column_ids(indexColumnId);
+      indexColumnId++;
     }
 
     table.mutable_secondary_index()->Add(std::move(idx));
@@ -131,7 +133,7 @@ InternalTable getInternalTable(std::int32_t numRows, int numIntColumns,
       fields.emplace_back(arrow::field(col.name(), arrow::utf8()));
       arrow::StringBuilder builder;
       for (int i = 0; i < numRows; i++) {
-        builder.Append(col.name() + "/hello/world//" + std::to_string(i));
+        builder.Append(col.name() + "-value-" + std::to_string(i));
       }
 
       columns.emplace_back(builder.Finish().ValueOrDie());

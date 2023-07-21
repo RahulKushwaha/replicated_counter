@@ -44,6 +44,7 @@ std::string columnKey(const std::string &primaryKey, std::uint32_t colId);
 
 std::string secondaryIndexKey(const internal::Table &table,
                               std::uint32_t indexId,
-                              const std::vector<ColumnValue> &values);
+                              const std::vector<ColumnValue> &values,
+                              const std::vector<ColumnValue> &primaryvalues);
 
 } // namespace rk::projects::mydb::prefix

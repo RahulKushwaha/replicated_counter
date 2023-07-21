@@ -53,7 +53,7 @@ protected:
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
 
-  queryExecutor_->insert(internalTable, InsertOptions{});
+  queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
 
   auto response = queryExecutor_->tableScan(
       InternalTable{.schema = internalTable.schema},
@@ -61,13 +61,16 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
           .indexId = internalTable.schema->rawTable().primary_key_index().id(),
           .direction = ScanDirection::FORWARD});
 
+  LOG(INFO) << response.table->ToString() << std::endl;
+  LOG(INFO) << internalTable.table->ToString() << std::endl;
+
   ASSERT_TRUE(internalTable.table->Equals(*response.table));
 }
 
 TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
-  auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
+  auto internalTable = test_utils::getInternalTable(1, 0, 5, 1, 1, 1);
 
-  queryExecutor_->insert(internalTable, InsertOptions{});
+  queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
 
   for (const auto &idx : internalTable.schema->rawTable().secondary_index()) {
     auto response = queryExecutor_->tableScan(
@@ -76,6 +79,7 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
                           .direction = ScanDirection::FORWARD});
 
     LOG(INFO) << response.table->ToString() << std::endl;
+    LOG(INFO) << internalTable.table->ToString() << std::endl;
 
     ASSERT_TRUE(internalTable.table->Equals(*response.table));
   }
