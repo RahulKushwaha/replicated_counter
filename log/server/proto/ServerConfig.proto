@@ -1,44 +1,41 @@
 syntax = "proto3";
 
-package rk.projects.server;
+import "common/proto/Common.proto";
 
-message IpAddress{
-  string host = 1;
-  int32 port = 2;
-}
+package rk.projects.server;
 
 message SequencerServerConfig{
   string id = 1;
-  IpAddress ip_address = 2;
+  common.IpAddress ip_address = 2;
 
   optional int64 seed_seq_num = 3;
 }
 
 message ReplicaServerConfig{
   string id = 1;
-  IpAddress ip_address = 2;
+  common.IpAddress ip_address = 2;
 
   string data_directory = 3;
 }
 
 message MetadataServerConfig {
   string id = 1;
-  IpAddress ip_address = 2;
+  common.IpAddress ip_address = 2;
 
   string data_directory = 3;
 }
 
 message AdminServerConfig{
-  IpAddress ip_address = 1;
+  common.IpAddress ip_address = 1;
 }
 
 message MetricServerConfig{
-  IpAddress ip_address = 1;
+  common.IpAddress ip_address = 1;
 }
 
 message RemoteSequencerConfig{
   string id = 1;
-  IpAddress ip_address = 2;
+  common.IpAddress ip_address = 2;
 }
 
 message ServerConfig{

@@ -24,13 +24,15 @@ public:
   folly::coro::Task<ApplicationResult>
   apply(durable_log::MetadataConfig metadataConfig) override {
     try {
-      co_await metadataStore_->compareAndAppendRange(metadataConfig);
+      co_await metadataStore_->compareAndAppendRange(std::move(metadataConfig));
       co_return std::true_type{};
     } catch (durable_log::OptimisticConcurrencyException &e) {
+      LOG(INFO) << e.what();
       co_return ApplicationErrors{std::move(e)};
     } catch (...) {
       auto exceptionWrapper =
           folly::exception_wrapper{std::current_exception()};
+      LOG(INFO) << exceptionWrapper.what();
       co_return exceptionWrapper;
     }
   }

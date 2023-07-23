@@ -28,9 +28,6 @@ public:
         }
       }
 
-      (*logTrimView.mutable_entries())[logTrimEntry.replica_id()] =
-          logTrimEntry;
-
       logTrimView.mutable_entries()->emplace(logTrimEntry.replica_id(),
                                              logTrimEntry);
 

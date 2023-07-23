@@ -41,6 +41,11 @@ InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
 
 coro<std::optional<MetadataConfig>>
 InMemoryMetadataStore::getConfig(VersionId versionId) {
+  // TODO(RAHUL): Remove this hack.
+  if (versionId == 0) {
+    co_return MetadataConfig{};
+  }
+
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   if (auto itr = state_->configs_.find(versionId);

@@ -1,0 +1,67 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "wor/paxos/proto/PaxosMessage.proto";
+
+package rk.projects.paxos.server;
+
+service Acceptor{
+  rpc getId(google.protobuf.Empty) returns(IdResponse){}
+  rpc prepare(PrepareRequest) returns(PrepareResponse){}
+  rpc accept(AcceptRequest) returns(AcceptResponse){}
+  rpc commit(CommitRequest) returns (CommitResponse){}
+
+  rpc getAcceptedValue(GetAcceptedValueRequest) returns (GetAcceptedValueResponse){}
+  rpc getCommittedValue(GetCommittedValueRequest) returns (GetCommittedValueResponse){}
+}
+
+message IdResponse{
+  string id = 1;
+}
+
+message PrepareRequest{
+  string paxos_instance_id = 1;
+  internal.BallotId ballot_id = 2;
+}
+
+message PrepareResponse{
+  oneof response {
+    internal.Promise promise = 1;
+    PrepareFailed prepare_failed = 2;
+  }
+}
+
+message PrepareFailed{}
+
+message AcceptRequest{
+  string paxos_instance_id = 1;
+  internal.Proposal proposal = 2;
+}
+
+message AcceptResponse{
+  bool result = 1;
+}
+
+message CommitRequest{
+  string paxos_instance_id = 1;
+  internal.BallotId ballot_id = 2;
+}
+
+message CommitResponse{
+  bool result = 1;
+}
+
+message GetAcceptedValueRequest{
+  string paxos_instance_id = 1;
+}
+
+message GetAcceptedValueResponse{
+  optional internal.Promise promise = 1;
+}
+
+message GetCommittedValueRequest{
+  string paxos_instance_id = 1;
+}
+
+message GetCommittedValueResponse{
+  optional bytes value = 1;
+}

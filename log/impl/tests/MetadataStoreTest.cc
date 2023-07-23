@@ -18,11 +18,37 @@ enum class MetadataStoreType {
   PaxosWor,
 };
 
+std::vector<ReplicaConfig> getReplicaConfigs() {
+  std::vector<ReplicaConfig> replicaConfig;
+
+  for (int i = 0; i < 5; i++) {
+    ReplicaConfig config{};
+    config.set_id(fmt::format("REPLICA_ID_{}", i));
+    config.mutable_ip_address()->set_host("127.0.0.1");
+    config.mutable_ip_address()->set_port(10002);
+    config.set_local(true);
+
+    replicaConfig.emplace_back(std::move(config));
+  }
+
+  return replicaConfig;
 }
+
+} // namespace
 
 class MetadataStoreTests : public testing::TestWithParam<MetadataStoreType> {
 protected:
   static std::unique_ptr<MetadataStore> getStore() {
+    MetadataConfig config{};
+    config.set_version_id(0);
+    config.set_previous_version_id(-1);
+    config.set_start_index(0);
+    config.set_end_index(0);
+
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
+
     auto metadataStoreType = GetParam();
     switch (metadataStoreType) {
     case MetadataStoreType::InMemory: {
@@ -33,14 +59,14 @@ protected:
       auto chain = wor::makeChainUsingInMemoryWor();
       auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
       return std::make_unique<PersistentMetadataStore>(
-          std::move(inMemoryMetadataStore));
+          config, std::move(inMemoryMetadataStore));
     }
 
     case MetadataStoreType::PaxosWor: {
       auto chain = wor::makeChainUsingPaxosWor();
       auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
       return std::make_unique<PersistentMetadataStore>(
-          std::move(inMemoryMetadataStore));
+          config, std::move(inMemoryMetadataStore));
     }
     default:
       throw std::runtime_error{"unknown metadata store type"};
@@ -48,9 +74,15 @@ protected:
   }
 };
 
-TEST_P(MetadataStoreTests, getFromEmptyStore) {
+TEST_P(MetadataStoreTests, getVersionId0) {
   auto store = getStore();
   auto result = store->getConfig(0).semi().get();
+  ASSERT_EQ(MetadataConfig{}.DebugString(), result.value().DebugString());
+}
+
+TEST_P(MetadataStoreTests, getFromEmptyStore) {
+  auto store = getStore();
+  auto result = store->getConfig(1).semi().get();
 
   ASSERT_FALSE(result.has_value());
 }
@@ -64,8 +96,11 @@ TEST_P(MetadataStoreTests, addToEmptyStore) {
   // Adding first entry should always have version_id as 0;
   {
     auto store = getStore();
+    auto replicaConfigs = getReplicaConfigs();
     MetadataConfig config;
     config.set_previous_version_id(4);
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
     ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
   }
@@ -88,6 +123,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStore) {
     config.set_previous_version_id(0);
     config.set_start_index(500);
     config.set_end_index(1000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -99,6 +137,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStore) {
     config.set_previous_version_id(1);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -110,6 +151,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStore) {
     config.set_previous_version_id(2);
     config.set_start_index(4500);
     config.set_end_index(5000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -124,6 +168,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSameConfig) {
     config.set_previous_version_id(0);
     config.set_start_index(500);
     config.set_end_index(1000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -135,6 +182,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSameConfig) {
     config.set_previous_version_id(1);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -146,6 +196,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSameConfig) {
     config.set_previous_version_id(1);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
@@ -161,6 +214,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSkippingConfigs) {
     config.set_previous_version_id(0);
     config.set_start_index(500);
     config.set_end_index(1000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -172,6 +228,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSkippingConfigs) {
     config.set_previous_version_id(1);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -183,6 +242,9 @@ TEST_P(MetadataStoreTests, addToAlreadyExistingStoreSkippingConfigs) {
     config.set_previous_version_id(2);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_THROW(store->compareAndAppendRange(config).semi().get(),
                  OptimisticConcurrencyException);
@@ -198,6 +260,9 @@ TEST_P(MetadataStoreTests, getUsingLogId) {
     config.set_previous_version_id(0);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -233,6 +298,9 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
     config.set_previous_version_id(0);
     config.set_start_index(1500);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -243,6 +311,9 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
     config.set_previous_version_id(1);
     config.set_start_index(2000);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -253,6 +324,9 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
     config.set_previous_version_id(2);
     config.set_start_index(2000);
     config.set_end_index(2000);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }
@@ -268,6 +342,9 @@ TEST_P(MetadataStoreTests, getUsingLogIdWhenEmptyConfigsArePresent) {
     config.set_previous_version_id(3);
     config.set_start_index(2000);
     config.set_end_index(2001);
+    auto replicaConfigs = getReplicaConfigs();
+    config.mutable_replica_set_config()->Add(replicaConfigs.begin(),
+                                             replicaConfigs.end());
 
     ASSERT_NO_THROW(store->compareAndAppendRange(config).semi().get());
   }

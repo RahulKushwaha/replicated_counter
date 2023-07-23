@@ -6,9 +6,11 @@
 
 namespace rk::projects::counter_app {
 
-CounterApp::CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine)
-    : stateMachine_{std::move(stateMachine)}, lastAppliedEntry_{0},
-      lastSnapshotId_{0}, mtx_{std::make_unique<std::mutex>()}, lookup_{} {}
+CounterApp::CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine,
+                       std::shared_ptr<persistence::KVStoreLite> kvStore)
+    : stateMachine_{std::move(stateMachine)}, kvStore_{std::move(kvStore)},
+      lastAppliedEntry_{0}, lastSnapshotId_{0},
+      mtx_{std::make_unique<std::mutex>()}, lookup_{} {}
 
 folly::coro::Task<std::int64_t>
 CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {

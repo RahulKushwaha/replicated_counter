@@ -61,7 +61,7 @@ VirtualLogImpl::getLogEntry(LogId logId) {
 
   return folly::futures::retrying(
       [maxRetries = state_->replicaSet.size(),
-       versionId = state_->metadataConfig.version_id()](
+          versionId = state_->metadataConfig.version_id()](
           std::size_t count, const folly::exception_wrapper &) {
         if (count < maxRetries) {
           return folly::makeSemiFuture(true);
@@ -76,8 +76,8 @@ VirtualLogImpl::getLogEntry(LogId logId) {
             .semi()
             .via(&folly::InlineExecutor::instance())
             .then([logId, retryAttempt](
-                      folly::Try<std::variant<LogEntry, LogReadError>>
-                          &&logEntryResult) {
+                folly::Try<std::variant<LogEntry, LogReadError>>
+                &&logEntryResult) {
               if (logEntryResult.hasException()) {
                 LOG(ERROR) << logEntryResult.exception().what();
                 LOG(INFO) << "Failed to find the logId: [" << logId
@@ -116,7 +116,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   replicaSet.resize(majorityCount);
 
   LogId minLogId = HighestNonExistingLogId, maxLogId = LowestNonExistingLogId;
-  for (auto &replica : replicaSet) {
+  for (auto &replica: replicaSet) {
     auto endLogId = co_await replica->seal(versionId);
 
     minLogId = std::min(minLogId, endLogId);
@@ -127,13 +127,13 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
   // Re-replicate all the entries from minLogId to MaxLogId
   for (LogId logId = minLogId; logId < maxLogId; logId++) {
     std::vector<folly::SemiFuture<LogEntry>> futures;
-    for (auto &replica : replicaSet) {
+    for (auto &replica: replicaSet) {
       auto future =
           replica->getLogEntry(versionId, logId)
               .semi()
               .via(&folly::InlineExecutor::instance())
               .then([](folly::Try<std::variant<LogEntry, LogReadError>>
-                           &&result) {
+                       &&result) {
                 if (result.hasValue() &&
                     std::holds_alternative<LogEntry>(result.value())) {
                   return std::get<LogEntry>(result.value());
@@ -163,7 +163,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
             });
     LOG(INFO) << "found log entry";
     std::vector<folly::SemiFuture<folly::Unit>> appendFutures;
-    for (auto &replica : state_->replicaSet) {
+    for (auto &replica: state_->replicaSet) {
       folly::SemiFuture<folly::Unit> appendFuture =
           replica->append({}, versionId, logEntry.logId, logEntry.payload, true)
               .semi()
@@ -178,7 +178,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
         .then([](folly::Try<folly::Unit> &&result) {
           if (result.hasException()) {
             if (auto *exception = result.template tryGetExceptionObject<
-                                  utils::MultipleExceptions>();
+                  utils::MultipleExceptions>();
                 exception) {
               LOG(ERROR) << exception->getDebugString();
             }
@@ -227,7 +227,7 @@ VirtualLogImpl::reconfigure(MetadataConfig targetMetadataConfig) {
 
   auto newVersionId = co_await metadataStore_->getCurrentVersionId();
 
-  setState(newVersionId);
+  co_await setState(newVersionId);
   co_return *(co_await metadataStore_->getConfig(newVersionId));
 }
 

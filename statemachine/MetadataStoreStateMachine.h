@@ -37,7 +37,7 @@ public:
     while (!successfullyWritten) {
       auto nextWorId = lastAppliedWorId_ + 1;
 
-      auto wor = wor::makePaxosWor(nextWorId, currentConfig_);
+      auto wor = wor::makePaxosWor(nextWorId, {currentConfig_});
       bool worIterationComplete{false};
       while (!worIterationComplete) {
         auto lockId = co_await wor->lock();
@@ -48,7 +48,6 @@ public:
         auto writeResponse = co_await wor->write(lockId.value(), payload);
         if (writeResponse) {
           successfullyWritten = true;
-          break;
         }
 
         auto readValue = co_await wor->read();
@@ -71,7 +70,7 @@ public:
               std::runtime_error{"protobuf parse error"}};
         }
 
-        result = co_await applicator_->apply(metadataConfig);
+        result = co_await apply(metadataConfig);
         currentConfig_ = co_await currentConfigSupplier_();
         lastAppliedWorId_ = nextWorId;
 
@@ -88,7 +87,7 @@ public:
 
   folly::coro::Task<ApplicationResult>
   apply(durable_log::MetadataConfig config) override {
-    throw std::runtime_error{"not implemented exception"};
+    co_return co_await applicator_->apply(std::move(config));
   }
 
   void setApplicator(std::shared_ptr<

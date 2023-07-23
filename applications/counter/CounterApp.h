@@ -34,7 +34,8 @@ public:
 
   using Operation = std::variant<IncrOperation, DecrOperation>;
 
-  explicit CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine);
+  explicit CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine,
+                      std::shared_ptr<persistence::KVStoreLite> kvStore);
 
   coro<std::int64_t> incrementAndGet(std::string key, std::int64_t incrBy);
   coro<std::int64_t> decrementAndGet(std::string key, std::int64_t decrBy);
