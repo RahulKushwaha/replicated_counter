@@ -10,35 +10,6 @@
 
 namespace rk::projects::mydb::prefix {
 
-namespace {
-enum class TokenType {
-  DB_ID,
-  TBL_ID,
-  INDEX_ID,
-  PRIMARY_KEY_PARTS,
-  COL_ID,
-  SECONDARY_INDEX_KEY_PARTS,
-};
-
-std::string_view to_string(TokenType tokenType) {
-  switch (tokenType) {
-    using enum TokenType;
-  case DB_ID:
-    return "DB_ID";
-  case TBL_ID:
-    return "TBL_ID";
-  case INDEX_ID:
-    return "INDEX_ID";
-  case PRIMARY_KEY_PARTS:
-    return "PRIMARY_KEY_PARTS";
-  case COL_ID:
-    return "COL_ID";
-  case SECONDARY_INDEX_KEY_PARTS:
-    return "SECONDARY_INDEX_KEY_PARTS";
-  }
-}
-} // namespace
-
 // This method add extra escape character
 // text/text -> text//text
 std::string escapeString(const std::string &input, char escapeCharacter) {
@@ -55,6 +26,15 @@ std::string escapeString(const std::string &input, char escapeCharacter) {
 }
 
 KeyFragments parseKey(const internal::Table &table, const std::string &key) {
+  enum class TokenType {
+    DB_ID,
+    TBL_ID,
+    INDEX_ID,
+    PRIMARY_KEY_PARTS,
+    COL_ID,
+    SECONDARY_INDEX_KEY_PARTS,
+  };
+
   TokenType current{TokenType::DB_ID};
   bool indexKeyPartsColId = true;
   KeyFragments keyFragments;
