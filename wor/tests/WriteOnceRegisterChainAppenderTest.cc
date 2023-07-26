@@ -26,13 +26,12 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteToChain) {
 }
 
 TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
-  std::string valueFmt{"hello world {}"};
   std::shared_ptr<WriteOnceRegisterChain> chain = makeChainUsingInMemoryWor();
   WriteOnceRegisterChainAppender<std::string> appender{chain};
 
   std::vector<std::string> values;
   for (int i = 0; i < 100; i++) {
-    auto value = fmt::format(valueFmt, i);
+    auto value = fmt::format("hello world {}", i);
     auto worId = appender.append(value).semi().get();
     ASSERT_NE(worId, -1);
 

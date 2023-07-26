@@ -14,12 +14,10 @@ struct TestUtils {
       std::int32_t count = 10, std::int32_t writeKeyValueSetCount = 10,
       std::int32_t readSetCount = 10, std::int32_t deleteSetCount = 10) {
 
-    std::string keyFormat{"Write key {}"};
-    std::string valueFormat{"Write value {}"};
-
-    std::string readKeyFormat{"Read key {}"};
-
-    std::string deleteKeyFormat{"Delete key {}"};
+    auto constexpr keyFormat = "Write key {}";
+    auto constexpr valueFormat{"Write value {}"};
+    auto constexpr readKeyFormat{"Read key {}"};
+    auto constexpr deleteKeyFormat{"Delete key {}"};
 
     auto txnIdCounter{std::int64_t{0}};
     std::vector<RocksTxn> result;

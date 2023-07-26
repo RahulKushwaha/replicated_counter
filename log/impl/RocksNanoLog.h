@@ -42,13 +42,12 @@ private:
   coro<bool> co_setEndIndex(LogId endIndex);
 
   struct KeyFormat {
-    std::string logKey() { return "VERSION_ID|{}|LOG_ID|{}"; }
-    std::string sealKey() { return "VERSION_ID|{}|SEAL|"; }
-    std::string startIndexKey() { return "VERSION_ID|{}|START_INDEX|"; }
-    std::string endIndexKey() { return "VERSION_ID|{}|END_INDEX|"; }
+    static constexpr std::string_view logKey = "VERSION_ID|{}|LOG_ID|{}";
+    static constexpr std::string_view sealKey = "VERSION_ID|{}|SEAL|";
+    static constexpr std::string_view startIndexKey =
+        "VERSION_ID|{}|START_INDEX|";
+    static constexpr std::string_view endIndexKey = "VERSION_ID|{}|END_INDEX|";
   };
-
-  KeyFormat formatter;
 
 private:
   std::string id_;

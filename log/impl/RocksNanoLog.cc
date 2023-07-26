@@ -2,7 +2,6 @@
 // Created by Rahul  Kushwaha on 7/2/23.
 //
 
-#pragma once
 #include "RocksNanoLog.h"
 #include "folly/Conv.h"
 #include "log/include/NanoLog.h"
@@ -21,11 +20,11 @@ RocksNanoLog::RocksNanoLog(std::string id, std::string name,
       kvStore_{std::move(kvStore)}, mtx_{std::make_unique<std::mutex>()} {}
 
 coro<void> RocksNanoLog::init() {
-  co_await kvStore_->put(fmt::format(formatter.startIndexKey(), versionId_),
+  co_await kvStore_->put(fmt::format(KeyFormat::startIndexKey, versionId_),
                          std::to_string(startIndex_));
-  co_await kvStore_->put(fmt::format(formatter.endIndexKey(), versionId_),
+  co_await kvStore_->put(fmt::format(KeyFormat::endIndexKey, versionId_),
                          std::to_string(startIndex_));
-  co_await kvStore_->put(fmt::format(formatter.sealKey(), versionId_),
+  co_await kvStore_->put(fmt::format(KeyFormat::sealKey, versionId_),
                          sealed_ ? "TRUE" : "FALSE");
   co_return;
 }
@@ -42,7 +41,7 @@ coro<LogId> RocksNanoLog::append(std::optional<LogId> globalCommitIndex,
     throw NanoLogSealedException(versionId_);
   }
 
-  auto logKey = fmt::format(formatter.logKey(), versionId_, logId);
+  auto logKey = fmt::format(KeyFormat::logKey, versionId_, logId);
   auto append = co_await kvStore_->putIfNotExists(logKey, logEntryPayload);
   if (!append) {
     throw NanoLogLogPositionAlreadyOccupied();
@@ -72,7 +71,7 @@ coro<std::variant<LogEntry, LogReadError>>
 RocksNanoLog::getLogEntry(LogId logId) {
   try {
     auto log = co_await kvStore_->get(
-        fmt::format(formatter.logKey(), versionId_, logId));
+        fmt::format(KeyFormat::logKey, versionId_, logId));
 
     if (log.has_value()) {
       co_return {LogEntry{.logId = logId, .payload = log.value()}};
@@ -103,7 +102,7 @@ bool RocksNanoLog::isSealed() { return co_isSealed().semi().get(); };
 coro<bool> RocksNanoLog::co_isSealed() {
   if (sealDirty_) {
     auto optionalSealed =
-        co_await kvStore_->get(fmt::format(formatter.sealKey(), versionId_));
+        co_await kvStore_->get(fmt::format(KeyFormat::sealKey, versionId_));
 
     if (optionalSealed.has_value()) {
       sealed_ = folly::to<bool>(optionalSealed.value());
@@ -118,7 +117,7 @@ coro<bool> RocksNanoLog::co_isSealed() {
 coro<bool> RocksNanoLog::co_setSeal() {
   sealDirty_ = true;
 
-  auto key = fmt::format(formatter.sealKey(), versionId_);
+  auto key = fmt::format(KeyFormat::sealKey, versionId_);
   auto result = co_await kvStore_->put(key, "TRUE");
   auto fsyncResult = co_await kvStore_->flushWal();
 
@@ -132,8 +131,8 @@ coro<bool> RocksNanoLog::co_setSeal() {
 
 coro<LogId> RocksNanoLog::co_getEndIndex() {
   if (endIndexDirty_) {
-    auto optionalEndIndex = co_await kvStore_->get(
-        fmt::format(formatter.endIndexKey(), versionId_));
+    auto optionalEndIndex =
+        co_await kvStore_->get(fmt::format(KeyFormat::endIndexKey, versionId_));
 
     if (optionalEndIndex.has_value()) {
       endIndex_ = folly::to<LogId>(optionalEndIndex.value());
@@ -148,7 +147,7 @@ coro<LogId> RocksNanoLog::co_getEndIndex() {
 coro<bool> RocksNanoLog::co_setEndIndex(LogId endIndex) {
   endIndexDirty_ = true;
 
-  auto key = fmt::format(formatter.endIndexKey(), versionId_);
+  auto key = fmt::format(KeyFormat::endIndexKey, versionId_);
   auto result = co_await kvStore_->put(key, std::to_string(endIndex));
   auto fsyncResult = co_await kvStore_->flushWal();
 
@@ -163,8 +162,8 @@ coro<bool> RocksNanoLog::co_setEndIndex(LogId endIndex) {
 }
 
 coro<LogId> RocksNanoLog::trim(LogId logId) {
-  auto startKey = fmt::format(formatter.logKey(), versionId_, 0);
-  auto endKey = fmt::format(formatter.logKey(), versionId_, logId);
+  auto startKey = fmt::format(KeyFormat::logKey, versionId_, 0);
+  auto endKey = fmt::format(KeyFormat::logKey, versionId_, logId);
   auto deleteResult = co_await kvStore_->deleteRange(startKey, endKey);
   if (deleteResult) {
     co_return logId;

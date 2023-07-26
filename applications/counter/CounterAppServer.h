@@ -48,7 +48,7 @@ public:
     state.counterApplicator =
         std::make_shared<CounterApplicator>(state.counterApp);
 
-    stateMachineStack->setUpstreamApplicator(state.counterApplicator);
+    stateMachineStack->setUpstreamStateMachine(state.appStateMachine);
 
     state.failureDetectorPool =
         std::make_shared<folly::CPUThreadPoolExecutor>(4);
