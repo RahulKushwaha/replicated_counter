@@ -110,14 +110,15 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
   bool result = rocksReaderWriter_->write(rawTableRows);
   ASSERT_TRUE(result);
 
-  auto key = prefix::minimumIndexKey(
+  auto prefix = prefix::minimumIndexKey(
       internalTable.schema->rawTable(),
       internalTable.schema->rawTable().primary_key_index().id());
 
-  ScanOptions scanOptions;
-  scanOptions.direction = ScanDirection::FORWARD;
-
-  auto response = rocksReaderWriter_->scan(key, scanOptions);
+  ScanOptions scanOptions {
+      .direction = ScanDirection::FORWARD,
+      .prefix = prefix
+  };
+  auto response = rocksReaderWriter_->scan(scanOptions);
 
   auto responseTable =
       RowSerializer::deserialize(internalTable.schema, response);

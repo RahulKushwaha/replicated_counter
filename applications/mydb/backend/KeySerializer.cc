@@ -168,6 +168,7 @@ std::string maximumIndexKey(const internal::Table &table,
                             std::vector<ColumnValue> values) {
   if (table.primary_key_index().id() == indexId) {
     std::stringstream ss;
+    // Todo: AMAN Add the logic of replacing ZZZZZ  with something better.
     ss << primaryKey(table, values) << DEFAULT_ESCAPE_CHARACTER
        <<"ZZZZZZ";
 

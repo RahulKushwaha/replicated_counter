@@ -47,21 +47,9 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
       indexQueryOptions.indexId) {
 
     auto prefix = [&internalTable, &indexQueryOptions]() {
-      //   if (indexQueryOptions.startFromKey.empty()) {
       return prefix::minimumIndexKey(
           internalTable.schema->rawTable(),
           internalTable.schema->rawTable().primary_key_index().id());
-      //}
-
-      /*// total number of values present in the startKey should be equal to
-      // the number of columns in primary prefix.
-      assert(indexQueryOptions.startFromKey.size()
-             ==
-      internalTable.schema->rawTable().primary_key_index().column_ids().size());
-
-      return prefix::maximumIndexKey(internalTable.schema->rawTable(),
-                                     indexQueryOptions.indexId,
-                                     indexQueryOptions.startFromKey);*/
     }();
 
     auto seekPosition = [&internalTable, &indexQueryOptions]() {
@@ -84,22 +72,21 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
                                      indexQueryOptions.startFromKey);
     }();
 
-    LOG(INFO) << "Scan Table Key: " << prefix;
-    LOG(INFO) << "Seek Key" << seekPosition;
-    auto kvRows = rocks_->scan(
-        prefix, {.direction = indexQueryOptions.direction,
-                 .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize,
-                 .prefix = prefix,
-                 .seekPosition = seekPosition});
+    auto kvRows =
+        rocks_->scan({.direction = indexQueryOptions.direction,
+                      .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize,
+                      .prefix = prefix,
+                      .seekPosition = seekPosition});
 
     return RowSerializer::deserialize(internalTable.schema, kvRows);
   } else {
-    auto key = prefix::minimumIndexKey(internalTable.schema->rawTable(),
-                                       indexQueryOptions.indexId);
+    auto prefix = prefix::minimumIndexKey(internalTable.schema->rawTable(),
+                                          indexQueryOptions.indexId);
 
     auto kvRows = rocks_->scan(
-        key, {.direction = indexQueryOptions.direction,
-              .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize});
+        {.direction = indexQueryOptions.direction,
+         .prefix = prefix,
+         .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize});
 
     auto primaryKeys = RowSerializer::deserializeSecondaryIndexKeys(
         internalTable.schema, kvRows, indexQueryOptions.indexId);

@@ -60,8 +60,7 @@ RocksReaderWriter::read(std::vector<RawTableRow::Key> keys) {
   return rows;
 }
 
-std::vector<RawTableRow> RocksReaderWriter::scan(std::string prefix,
-                                                 ScanOptions scanOptions) {
+std::vector<RawTableRow> RocksReaderWriter::scan(ScanOptions scanOptions) {
   std::vector<RawTableRow> rows;
 
   auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
@@ -76,7 +75,7 @@ std::vector<RawTableRow> RocksReaderWriter::scan(std::string prefix,
     if (itr->key().starts_with(prevKey)) {
 
 
-    } else if (itr->key().starts_with(prefix)) {
+    } else if (itr->key().starts_with(scanOptions.prefix)) {
 
       if (rows.size() == scanOptions.maxRowsReturnSize) {
         break;

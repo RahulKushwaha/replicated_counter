@@ -50,7 +50,7 @@ protected:
   }
 };
 
-/*
+
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
 
@@ -88,7 +88,7 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
   }
 }
 
-*/
+
 
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndexWithBatchSize) {
   auto totalRows = 10;
