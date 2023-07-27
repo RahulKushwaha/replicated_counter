@@ -114,7 +114,10 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
       internalTable.schema->rawTable(),
       internalTable.schema->rawTable().primary_key_index().id());
 
-  auto response = rocksReaderWriter_->scan(key, ScanDirection::FORWARD);
+  ScanOptions scanOptions;
+  scanOptions.direction = ScanDirection::FORWARD;
+
+  auto response = rocksReaderWriter_->scan(key, scanOptions);
 
   auto responseTable =
       RowSerializer::deserialize(internalTable.schema, response);

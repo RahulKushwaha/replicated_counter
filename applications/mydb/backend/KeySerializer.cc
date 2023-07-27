@@ -163,6 +163,20 @@ std::string minimumIndexKey(const internal::Table &table,
   return ss.str();
 }
 
+std::string maximumIndexKey(const internal::Table &table,
+                            TableSchemaType::TableIdType indexId,
+                            std::vector<ColumnValue> values) {
+  if (table.primary_key_index().id() == indexId) {
+    std::stringstream ss;
+    ss << primaryKey(table, values) << DEFAULT_ESCAPE_CHARACTER
+       <<"ZZZZZZ";
+
+    return ss.str();
+  }
+
+  throw std::runtime_error{"i should not be here"};
+}
+
 std::string columnKey(const std::string &primaryKey, std::uint32_t colId) {
   std::stringstream ss;
   ss << primaryKey << DEFAULT_ESCAPE_CHARACTER << colId;
