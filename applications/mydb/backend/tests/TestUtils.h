@@ -34,4 +34,6 @@ InternalTable getInternalTable(std::int32_t numRows = 10, int numIntColumns = 5,
                                int numSecondaryIndex = 2,
                                int numColumnsInSecondaryIndex = 1);
 
+std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable);
+
 } // namespace rk::projects::mydb::test_utils

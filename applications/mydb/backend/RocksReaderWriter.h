@@ -19,7 +19,7 @@ public:
 
   bool del(std::vector<RawTableRow::Key> keys);
 
-  std::vector<RawTableRow> scan(std::string prefix, ScanDirection direction);
+  std::vector<RawTableRow> scan(ScanOptions scanOptions);
 
   std::unique_ptr<rocksdb::ManagedSnapshot> createSnapshot();
 

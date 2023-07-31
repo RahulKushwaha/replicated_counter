@@ -97,7 +97,7 @@ public:
         std::vector<ColumnValue> primaryIdxValues;
 
         for (auto colId : rawTable.primary_key_index().column_ids()) {
-          auto col = rawTable.columns(colId); // buggy
+          auto col = internalTable.schema->getColumn(colId);
           auto arrowCol =
               arrowTable.GetColumnByName(col.name())->chunk(chunkIdx);
           ColumnValue columnValue;
