@@ -95,6 +95,9 @@ set(
         wor/paxos/PaxosWriteOnceRegister.h
         wor/WORFactory.h
         wor/WORFactory.cc
+        wor/paxos/server/Acceptor.h
+        wor/paxos/client/AcceptorClient.h
+        wor/paxos/RemoteAcceptor.h
 
         statemachine/include/StateMachine.h
         statemachine/RocksStateMachine.h

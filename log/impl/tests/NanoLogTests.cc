@@ -21,7 +21,12 @@ protected:
 
 protected:
   void SetUp() override { nanoLogType_ = GetParam(); }
-  void TearDown() override {}
+  void TearDown() override {
+    if (rocks_) {
+      auto s = rocksdb::DestroyDB(config_.path, rocksdb::Options{});
+      LOG(INFO) << "db destroy: " << config_.path << ", " << s.ToString();
+    }
+  }
 
   std::shared_ptr<NanoLog> makeLog(std::string id, std::string name,
                                    std::string metadataVersionId,

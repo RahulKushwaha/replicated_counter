@@ -10,14 +10,19 @@ namespace rk::projects::paxos {
 
 class AcceptorTests : public testing::TestWithParam<std::string> {
 protected:
+  std::shared_ptr<rocksdb::DB> rocks_;
   std::shared_ptr<persistence::KVStoreLite> kvStore_;
   persistence::RocksDbFactory::RocksDbConfig config_{.path = "/tmp/paxos_tests",
                                                      .createIfMissing = true};
 
   void SetUp() override {
-    auto rocks = persistence::RocksDbFactory::provideSharedPtr(config_);
-    kvStore_ =
-        std::make_shared<persistence::RocksKVStoreLite>(std::move(rocks));
+    rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
+    kvStore_ = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
+  }
+
+  void TearDown() override {
+    auto s = rocksdb::DestroyDB(config_.path, rocksdb::Options{});
+    LOG(INFO) << "db destroy: " << config_.path << ", " << s.ToString();
   }
 };
 

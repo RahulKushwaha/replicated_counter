@@ -41,7 +41,11 @@ auto main(int argc, char *argv[]) -> int {
 
   LOG(INFO) << "Server Config: " << srv1Config.DebugString();
 
-  rk::projects::counter_app::CounterAppServer appServer{srv1Config};
+  rk::projects::counter_app::CounterAppConfig appConfig{};
+  appConfig.set_name("COUNTER_APP");
+  appConfig.set_data_directory("/tmp/COUNTER_APP/");
+
+  rk::projects::counter_app::CounterAppServer appServer{appConfig, srv1Config};
 
   appServer.start().semi().get();
 

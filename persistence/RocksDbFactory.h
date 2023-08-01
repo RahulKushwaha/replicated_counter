@@ -37,13 +37,11 @@ public:
   static std::shared_ptr<rocksdb::DB>
   provideSharedPtr(const RocksDbConfig &config) {
     auto *ptr = provide(config);
-    return std::shared_ptr<rocksdb::DB>{
-        ptr, [config](rocksdb::DB *db) {
-          auto s = db->Close();
-          LOG(INFO) << "db close: " << s.ToString();
-          s = rocksdb::DestroyDB(config.path, rocksdb::Options{});
-          LOG(INFO) << "db destroy: " << config.path << ", " << s.ToString();
-        }};
+    return std::shared_ptr<rocksdb::DB>{ptr, [config](rocksdb::DB *db) {
+                                          auto s = db->Close();
+                                          LOG(INFO)
+                                              << "db close: " << s.ToString();
+                                        }};
   }
 };
 

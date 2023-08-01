@@ -10,7 +10,8 @@
 
 namespace rk::projects::durable_log {
 std::shared_ptr<state_machine::MetadataStoreStateMachine>
-makeMetadataStoreStateMachine(std::shared_ptr<MetadataStore> metadataStore) {
+makeMetadataStoreStateMachine(MetadataConfig bootstrapConfig,
+                              std::shared_ptr<MetadataStore> metadataStore) {
   auto currentConfigSupplier =
       [metadataStore]() -> folly::SemiFuture<MetadataConfig> {
     return metadataStore->getCurrentVersionId().semi().deferValue(
@@ -28,24 +29,22 @@ makeMetadataStoreStateMachine(std::shared_ptr<MetadataStore> metadataStore) {
           return std::move(f);
         });
   };
-  auto bootstrapConfigId = metadataStore->getCurrentVersionId().semi().get();
-  auto bootstrapConfig =
-      metadataStore->getConfig(bootstrapConfigId).semi().get();
-  assert(bootstrapConfig.has_value());
 
   auto applicator = std::make_shared<state_machine::MetadataStoreApplicator>(
       std::move(metadataStore));
   auto stateMachine =
       std::make_shared<state_machine::MetadataStoreStateMachine>(
-          std::move(applicator), std::move(bootstrapConfig.value()),
+          std::move(applicator), std::move(bootstrapConfig),
           std::move(currentConfigSupplier));
   return stateMachine;
 }
 
 class PersistentMetadataStore : public MetadataStore {
 public:
-  explicit PersistentMetadataStore(std::shared_ptr<MetadataStore> metadataStore)
-      : stateMachine_{makeMetadataStoreStateMachine(metadataStore)},
+  explicit PersistentMetadataStore(MetadataConfig bootstrapConfig,
+                                   std::shared_ptr<MetadataStore> metadataStore)
+      : stateMachine_{makeMetadataStoreStateMachine(std::move(bootstrapConfig),
+                                                    metadataStore)},
         delegate_{std::move(metadataStore)} {}
 
   coro<std::optional<MetadataConfig>> getConfig(VersionId versionId) override {
@@ -62,7 +61,18 @@ public:
   }
 
   coro<void> compareAndAppendRange(MetadataConfig newMetadataConfig) override {
-    co_await stateMachine_->append(std::move(newMetadataConfig));
+    auto result = co_await stateMachine_->append(std::move(newMetadataConfig));
+    if (std::holds_alternative<std::true_type>(result)) {
+      co_return;
+    }
+
+    if (std::holds_alternative<state_machine::ApplicationErrors>(result)) {
+      auto ex = std::get<state_machine::ApplicationErrors>(result);
+
+      throw std::get<OptimisticConcurrencyException>(ex);
+    }
+
+    throw std::get<folly::exception_wrapper>(result);
   }
 
   void printConfigChain() override { delegate_->printConfigChain(); }

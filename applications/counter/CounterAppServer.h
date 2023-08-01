@@ -10,6 +10,7 @@
 #include "log/impl/FailureDetectorImpl.h"
 #include "log/server/LogServer.h"
 #include "persistence/KVStoreLite.h"
+#include "persistence/RocksDbFactory.h"
 #include "statemachine/Factory.h"
 #include "statemachine/LogTrimApplicator.h"
 #include "statemachine/LogTrimStateMachine.h"
@@ -24,8 +25,10 @@ using namespace state_machine;
 
 class CounterAppServer {
 public:
-  explicit CounterAppServer(rk::projects::server::ServerConfig logServerConfig)
-      : logServerConfig_{std::move(logServerConfig)} {}
+  explicit CounterAppServer(CounterAppConfig appConfig,
+                            rk::projects::server::ServerConfig logServerConfig)
+      : appConfig_{std::move(appConfig)},
+        logServerConfig_{std::move(logServerConfig)} {}
 
   folly::coro::Task<void> start() {
     State state{.logServerConfig = logServerConfig_};
@@ -37,13 +40,24 @@ public:
     co_await state.logServer->start();
     LOG(INFO) << "Starting App";
 
+    auto rocks = persistence::RocksDbFactory::provideSharedPtr(
+        persistence::RocksDbFactory::RocksDbConfig{
+            .path = appConfig_.data_directory(),
+            .createIfMissing = true,
+            .manualWALFlush = true,
+        });
+
+    state.kvStore =
+        std::make_shared<persistence::RocksKVStoreLite>(std::move(rocks));
+
     auto stateMachineStack = makeStateMachineStack<StateMachineReturnType>(
         nullptr, state.logServer->getVirtualLog());
 
     state.appStateMachine =
         std::make_shared<CounterAppStateMachine>(stateMachineStack);
 
-    state.counterApp = std::make_shared<CounterApp>(state.appStateMachine);
+    state.counterApp =
+        std::make_shared<CounterApp>(state.appStateMachine, state.kvStore);
 
     state.counterApplicator =
         std::make_shared<CounterApplicator>(state.counterApp);
@@ -71,6 +85,8 @@ private:
     rk::projects::server::ServerConfig logServerConfig;
     std::shared_ptr<rk::projects::durable_log::server::LogServer> logServer;
 
+    std::shared_ptr<persistence::KVStoreLite> kvStore;
+
     std::shared_ptr<CounterApp> counterApp;
     std::shared_ptr<CounterAppStateMachine> appStateMachine;
     std::shared_ptr<CounterApplicator> counterApplicator;
@@ -79,6 +95,7 @@ private:
     std::shared_ptr<FailureDetector> failureDetector;
   };
 
+  CounterAppConfig appConfig_;
   rk::projects::server::ServerConfig logServerConfig_;
   std::shared_ptr<State> state_;
 };

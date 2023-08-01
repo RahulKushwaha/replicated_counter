@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package rk.projects.common;
+
+message IpAddress{
+  string host = 1;
+  int32 port = 2;
+}

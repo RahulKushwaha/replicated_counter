@@ -20,7 +20,7 @@ std::shared_ptr<CounterApp> makeCounterApp() {
 
   auto appStateMachine =
       std::make_shared<CounterAppStateMachine>(stateMachineStack);
-  auto counterApp = std::make_shared<CounterApp>(appStateMachine);
+  auto counterApp = std::make_shared<CounterApp>(appStateMachine, nullptr);
   auto applicator = std::make_shared<CounterApplicator>(counterApp);
   appStateMachine->setApplicator(std::move(applicator));
   stateMachineStack->setUpstreamStateMachine(appStateMachine);

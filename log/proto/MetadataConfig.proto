@@ -1,13 +1,21 @@
 syntax = "proto3";
 
+import "common/proto/Common.proto";
+
 package rk.projects.durable_log;
 
 message SequencerConfig{
   string id = 1;
+
+  common.IpAddress ip_address = 2;
 }
 
 message ReplicaConfig{
   string id = 1;
+  common.IpAddress ip_address = 2;
+
+  // added just for testing purposed. remove once a better way is found.
+  bool local = 3;
 }
 
 message MetadataConfig{

@@ -17,7 +17,7 @@ auto main() -> int {
   config.set_start_index(1);
   config.set_end_index(1000);
 
-  metadataStore->compareAndAppendRange(0, config);
+  metadataStore->compareAndAppendRange(config).semi().get();
 
   std::shared_ptr<rk::projects::durable_log::server::MetadataServer> server =
       std::make_shared<rk::projects::durable_log::server::MetadataServer>(
