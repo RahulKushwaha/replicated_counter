@@ -12,8 +12,8 @@ auto main() -> int {
       std::make_shared<rk::projects::durable_log::InMemoryMetadataStore>();
 
   rk::projects::durable_log::MetadataConfig config{};
-  config.set_version_id(0);
-  config.set_previous_version_id(-1);
+  config.set_version_id(1);
+  config.set_previous_version_id(0);
   config.set_start_index(1);
   config.set_end_index(1000);
 
@@ -27,7 +27,7 @@ auto main() -> int {
       std::make_shared<folly::CPUThreadPoolExecutor>(2);
 
   rk::projects::durable_log::server::runRPCServer(
-      metadataServerAddress, server.get(), executor.get(), "Metadata Server")
+      metadataServerAddress, {server.get()}, executor.get(), "Metadata Server")
       .get();
 
   std::this_thread::sleep_for(

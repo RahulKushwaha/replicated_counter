@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "../include/Registry.h"
-#include "../include/Sequencer.h"
+#include "log/include/Registry.h"
+#include "log/include/Sequencer.h"
 
 #include <unordered_map>
 

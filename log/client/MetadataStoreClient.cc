@@ -80,7 +80,8 @@ MetadataStoreClient::compareAndAppendRange(MetadataConfig newMetadataConfig) {
   }
 
   return folly::makeSemiFuture<folly::Unit>(
-      folly::make_exception_wrapper<std::exception>());
+      folly::make_exception_wrapper<std::runtime_error>(
+          "debug string: " + context.debug_error_string()));
 }
 
 folly::coro::Task<void> MetadataStoreClient::printConfigChain() {
@@ -96,7 +97,7 @@ folly::coro::Task<void> MetadataStoreClient::printConfigChain() {
   }
 
   throw folly::make_exception_wrapper<std::runtime_error>(
-      context.debug_error_string());
+      "debug string: " + context.debug_error_string());
 }
 
 } // namespace rk::projects::durable_log::client

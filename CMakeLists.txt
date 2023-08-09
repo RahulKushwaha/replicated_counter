@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
+include(FetchContent)
 
 include(cmake/uuid_generator.cmake)
 include(cmake/source_list.cmake)
@@ -35,7 +36,7 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/applications/counter/server/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/backend/proto/*.proto"
         "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/client/proto/*.proto"
-        )
+)
 
 find_package(Protobuf REQUIRED)
 find_package(grpc REQUIRED)

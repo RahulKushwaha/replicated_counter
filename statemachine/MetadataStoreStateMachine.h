@@ -2,11 +2,13 @@
 // Created by Rahul  Kushwaha on 7/8/23.
 //
 #pragma once
+#include "MetadataStoreApplicator.h"
 #include "statemachine/Common.h"
 #include "statemachine/include/StateMachine.h"
 #include "wor/WORFactory.h"
 #include "wor/WriteOnceRegisterChainAppender.h"
 #include "wor/include/WriteOnceRegister.h"
+#include "wor/paxos/include/Registry.h"
 
 namespace rk::projects::state_machine {
 
@@ -21,11 +23,14 @@ public:
   explicit MetadataStoreStateMachine(
       std::shared_ptr<applicator_t> applicator,
       durable_log::MetadataConfig bootstrapConfig,
-      currentConfigSupplier_t currentConfigSupplier)
-      : applicator_{std::move(applicator)},
+      currentConfigSupplier_t currentConfigSupplier,
+      std::shared_ptr<paxos::Registry> registry)
+      : mtx_{std::make_unique<std::mutex>()},
+        applicator_{std::move(applicator)},
         currentConfig_{std::move(bootstrapConfig)},
         lastAppliedWorId_{currentConfig_.start_index()},
-        currentConfigSupplier_{std::move(currentConfigSupplier)} {}
+        currentConfigSupplier_{std::move(currentConfigSupplier)},
+        registry_{std::move(registry)} {}
 
   folly::coro::Task<ApplicationResult>
   append(durable_log::MetadataConfig config) override {
@@ -37,7 +42,11 @@ public:
     while (!successfullyWritten) {
       auto nextWorId = lastAppliedWorId_ + 1;
 
-      auto wor = wor::makePaxosWor(nextWorId, {currentConfig_});
+      // TODO(Rahul): Stop making vector every time.
+      auto wor = wor::makePaxosWor(nextWorId,
+                                   {currentConfig_.replica_set_config().begin(),
+                                    currentConfig_.replica_set_config().end()},
+                                   registry_);
       bool worIterationComplete{false};
       while (!worIterationComplete) {
         auto lockId = co_await wor->lock();
@@ -90,6 +99,42 @@ public:
     co_return co_await applicator_->apply(std::move(config));
   }
 
+  // A better way to implement sync is to contact quorum.
+  coro<void> sync() override {
+    while (true) {
+      auto nextWorId = lastAppliedWorId_ + 1;
+      LOG(INFO) << "next wor id: " << nextWorId;
+      auto wor = wor::makePaxosWor(nextWorId,
+                                   {currentConfig_.replica_set_config().begin(),
+                                    currentConfig_.replica_set_config().end()},
+                                   registry_);
+
+      auto readResult = co_await wor->read();
+      if (std::holds_alternative<wor::WriteOnceRegister::ReadError>(
+              readResult)) {
+        auto readError =
+            std::get<wor::WriteOnceRegister::ReadError>(readResult);
+
+        if (readError == wor::WriteOnceRegister::ReadError::NOT_WRITTEN) {
+          co_return;
+        }
+
+        LOG(INFO) << "wor status could not be determined. continue probing";
+      } else {
+        auto worValue = std::get<std::string>(readResult);
+        auto metadataConfig = durable_log::MetadataConfig{};
+        bool parseResult = metadataConfig.ParseFromString(worValue);
+        if (!parseResult) {
+          throw std::runtime_error{"protobuf parse error"};
+        }
+
+        co_await apply(metadataConfig);
+        currentConfig_ = co_await currentConfigSupplier_();
+        lastAppliedWorId_ = nextWorId;
+      }
+    }
+  }
+
   void setApplicator(std::shared_ptr<
                      Applicator<durable_log::MetadataConfig, ApplicationResult>>
                          applicator) override {
@@ -97,10 +142,13 @@ public:
   }
 
 private:
+  // TODO(rahul): Refactor out lock. Handle somewhere else.
+  std::unique_ptr<std::mutex> mtx_;
   durable_log::MetadataConfig currentConfig_;
   wor::WorId lastAppliedWorId_;
   std::shared_ptr<applicator_t> applicator_;
   currentConfigSupplier_t currentConfigSupplier_;
+  std::shared_ptr<paxos::Registry> registry_;
 };
 
 } // namespace rk::projects::state_machine

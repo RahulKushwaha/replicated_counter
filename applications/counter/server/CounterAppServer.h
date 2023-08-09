@@ -15,40 +15,50 @@ public:
 
   grpc::Status IncrementAndGet(::grpc::ServerContext *context,
                                const IncrementRequest *request,
-                               CounterKeyValue *response) override {
+                               CounterValue *response) override {
     LOG(INFO) << "Server Request: IncrementAndGet";
 
     response->set_value(
         counterApp_->incrementAndGet(request->key(), request->incr_by())
             .semi()
             .get());
+    response->set_key(request->key());
+
     return grpc::Status::OK;
   }
 
   grpc::Status DecrementAndGet(::grpc::ServerContext *context,
                                const DecrementRequest *request,
-                               CounterKeyValue *response) override {
+                               CounterValue *response) override {
     LOG(INFO) << "Server Request: DecrementAndGet";
 
     response->set_value(
         counterApp_->decrementAndGet(request->key(), request->decr_by())
             .semi()
             .get());
+    response->set_key(request->key());
+
     return grpc::Status::OK;
   }
 
   grpc::Status GetCounterValue(::grpc::ServerContext *context,
                                const GetCounterValueRequest *request,
-                               CounterKeyValue *response) override {
+                               CounterValue *response) override {
     LOG(INFO) << "Server Request: GetCounterValue";
 
     response->set_value(counterApp_->getValue(request->key()).semi().get());
+    response->set_key(request->key());
+
     return grpc::Status::OK;
   }
 
   grpc::Status BatchUpdate(::grpc::ServerContext *context,
                            const BatchUpdateRequest *request,
-                           BatchUpdateResponse *response) override {}
+                           BatchUpdateResponse *response) override {
+    LOG(INFO) << "Server Request: BatchUpdate";
+    // TODO(Rahul): Add batch operation here
+    return grpc::Status::OK;
+  }
 
   ~CounterAppService() override = default;
 

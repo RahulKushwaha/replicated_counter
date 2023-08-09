@@ -9,6 +9,9 @@ namespace rk::projects::paxos::server {
 
 class AcceptorServer : public Acceptor::Service {
 public:
+  explicit AcceptorServer(std::shared_ptr<paxos::Acceptor> acceptor)
+      : acceptor_{std::move(acceptor)} {}
+
   grpc::Status getId(::grpc::ServerContext *context,
                      const ::google::protobuf::Empty *request,
                      IdResponse *response) override {

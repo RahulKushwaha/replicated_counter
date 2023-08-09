@@ -22,7 +22,9 @@ grpc::Status SequencerServer::append(::grpc::ServerContext *context,
     auto logId = sequencer_->append(request->payload()).get();
     response->set_log_id(logId);
   } catch (const std::exception &e) {
-    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+    return grpc::Status{grpc::StatusCode::UNKNOWN,
+                        "method name: SequencerServer::append, error: " +
+                            std::string{e.what()}};
   }
 
   return grpc::Status::OK;
@@ -35,7 +37,10 @@ SequencerServer::latestAppendPosition(::grpc::ServerContext *context,
   try {
     response->set_log_id(sequencer_->latestAppendPosition().get());
   } catch (const std::exception &e) {
-    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+    return grpc::Status{
+        grpc::StatusCode::UNKNOWN,
+        "method name: SequencerServer::latestAppendPosition, error: " +
+            std::string{e.what()}};
   }
 
   return grpc::Status::OK;
@@ -47,7 +52,9 @@ grpc::Status SequencerServer::isAlive(::grpc::ServerContext *context,
   try {
     response->set_is_alive(sequencer_->isAlive());
   } catch (const std::exception &e) {
-    return grpc::Status{grpc::StatusCode::UNKNOWN, e.what()};
+    return grpc::Status{grpc::StatusCode::UNKNOWN,
+                        "method name: SequencerServer::isAlive, error: " +
+                            std::string{e.what()}};
   }
 
   return grpc::Status::OK;

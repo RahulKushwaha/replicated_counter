@@ -18,11 +18,14 @@ public:
   };
 
   static rocksdb::DB *provide(const RocksDbConfig &config) {
+    LOG(INFO) << config.path;
     rocksdb::DB *db;
-
     rocksdb::Options options;
     options.create_if_missing = config.createIfMissing;
     options.manual_wal_flush = config.manualWALFlush;
+
+    auto destroyStatus = rocksdb::DestroyDB(config.path, options);
+    assert(destroyStatus.ok());
 
     rocksdb::Status status = rocksdb::DB::Open(options, config.path, &db);
 

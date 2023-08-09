@@ -7,11 +7,13 @@
 #include "statemachine/MetadataStoreApplicator.h"
 #include "statemachine/MetadataStoreStateMachine.h"
 #include "wor/include/WriteOnceRegisterChain.h"
+#include "wor/paxos/include/Registry.h"
 
 namespace rk::projects::durable_log {
 std::shared_ptr<state_machine::MetadataStoreStateMachine>
 makeMetadataStoreStateMachine(MetadataConfig bootstrapConfig,
-                              std::shared_ptr<MetadataStore> metadataStore) {
+                              std::shared_ptr<MetadataStore> metadataStore,
+                              std::shared_ptr<paxos::Registry> registry) {
   auto currentConfigSupplier =
       [metadataStore]() -> folly::SemiFuture<MetadataConfig> {
     return metadataStore->getCurrentVersionId().semi().deferValue(
@@ -35,29 +37,33 @@ makeMetadataStoreStateMachine(MetadataConfig bootstrapConfig,
   auto stateMachine =
       std::make_shared<state_machine::MetadataStoreStateMachine>(
           std::move(applicator), std::move(bootstrapConfig),
-          std::move(currentConfigSupplier));
+          std::move(currentConfigSupplier), std::move(registry));
   return stateMachine;
 }
 
 class PersistentMetadataStore : public MetadataStore {
 public:
   explicit PersistentMetadataStore(MetadataConfig bootstrapConfig,
-                                   std::shared_ptr<MetadataStore> metadataStore)
-      : stateMachine_{makeMetadataStoreStateMachine(std::move(bootstrapConfig),
-                                                    metadataStore)},
+                                   std::shared_ptr<MetadataStore> metadataStore,
+                                   std::shared_ptr<paxos::Registry> registry)
+      : stateMachine_{makeMetadataStoreStateMachine(
+            std::move(bootstrapConfig), metadataStore, std::move(registry))},
         delegate_{std::move(metadataStore)} {}
 
   coro<std::optional<MetadataConfig>> getConfig(VersionId versionId) override {
-    return delegate_->getConfig(versionId);
+    co_await stateMachine_->sync();
+    co_return co_await delegate_->getConfig(versionId);
   }
 
   coro<std::optional<MetadataConfig>>
   getConfigUsingLogId(LogId logId) override {
-    return delegate_->getConfigUsingLogId(logId);
+    co_await stateMachine_->sync();
+    co_return co_await delegate_->getConfigUsingLogId(logId);
   }
 
   coro<VersionId> getCurrentVersionId() override {
-    return delegate_->getCurrentVersionId();
+    co_await stateMachine_->sync();
+    co_return co_await delegate_->getCurrentVersionId();
   }
 
   coro<void> compareAndAppendRange(MetadataConfig newMetadataConfig) override {
@@ -75,7 +81,10 @@ public:
     throw std::get<folly::exception_wrapper>(result);
   }
 
-  void printConfigChain() override { delegate_->printConfigChain(); }
+  void printConfigChain() override {
+    stateMachine_->sync().semi().get();
+    delegate_->printConfigChain();
+  }
 
   ~PersistentMetadataStore() override = default;
 

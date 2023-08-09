@@ -1,5 +1,4 @@
 #include <iostream>
-#include <utility>
 
 #include "applications/counter/CounterApp.h"
 #include "applications/counter/CounterAppEnsembleNode.h"
@@ -7,7 +6,6 @@
 #include "applications/counter/server/CounterAppServer.h"
 #include "log/impl/VirtualLogFactory.h"
 #include <folly/executors/CPUThreadPoolExecutor.h>
-#include <folly/experimental/coro/BlockingWait.h>
 #include <folly/experimental/coro/Task.h>
 
 const char *SERVER_NAME = R"(
