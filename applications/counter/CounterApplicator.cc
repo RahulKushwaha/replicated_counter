@@ -18,6 +18,7 @@ CounterApplicator::apply(applicatorInput_t t) {
       throw std::runtime_error{"log entry could not be parsed"};
     }
 
+    LOG(INFO) << "Applying Log Entry";
     co_return app_->apply(entries);
   }
 

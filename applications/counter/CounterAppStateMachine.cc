@@ -32,11 +32,15 @@ CounterAppStateMachine::append(CounterLogEntries t) {
 
 folly::coro::Task<ReturnType>
 CounterAppStateMachine::append(rk::projects::durable_log::LogEntry_1 t) {
+  assert(downstreamStateMachine_ != nullptr);
+
   co_return co_await downstreamStateMachine_->append(std::move(t));
 }
 
 folly::coro::Task<ReturnType>
 CounterAppStateMachine::apply(rk::projects::durable_log::LogEntry_1 t) {
+  assert(applicator_ != nullptr);
+
   co_return co_await applicator_->apply(std::move(t));
 }
 

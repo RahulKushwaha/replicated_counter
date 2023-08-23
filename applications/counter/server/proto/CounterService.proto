@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
+import "common/proto/Common.proto";
 
 package rk.projects.counter_app;
 
@@ -60,4 +61,5 @@ message CounterValue {
 message CounterAppConfig{
   string name = 1;
   string data_directory = 2;
+  common.IpAddress ip_address = 3;
 }

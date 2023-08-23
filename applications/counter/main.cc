@@ -18,32 +18,54 @@ auto main(int argc, char *argv[]) -> int {
     return 1;
   }
 
-  std::string fileName{argv[1]};
-  std::ifstream file(fileName);
-
-  if (!file) {
-    LOG(INFO) << "file could not be opened";
-    return 1;
-  }
-
-  std::ostringstream ss;
-  ss << file.rdbuf();
-  std::string fileContents = ss.str();
-
   ServerConfig srv1Config{};
-  auto result =
-      google::protobuf::TextFormat::ParseFromString(fileContents, &srv1Config);
+  {
+    std::string fileName{argv[1]};
+    std::ifstream file(fileName);
 
-  if (!result) {
-    LOG(INFO) << "failed to parse config. quitting";
-    return 1;
+    if (!file) {
+      LOG(INFO) << "file could not be opened";
+      return 1;
+    }
+
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    std::string fileContents = ss.str();
+
+    auto result = google::protobuf::TextFormat::ParseFromString(fileContents,
+                                                                &srv1Config);
+
+    if (!result) {
+      LOG(INFO) << "failed to parse config. quitting";
+      return 1;
+    }
   }
 
   LOG(INFO) << "Server Config: " << srv1Config.DebugString();
 
   rk::projects::counter_app::CounterAppConfig appConfig{};
-  appConfig.set_name("COUNTER_APP");
-  appConfig.set_data_directory("/tmp/COUNTER_APP/");
+  {
+    std::string fileName{argv[2]};
+    std::ifstream file(fileName);
+
+    if (!file) {
+      LOG(INFO) << "file could not be opened";
+      return 1;
+    }
+
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    std::string fileContents = ss.str();
+
+    auto result =
+        google::protobuf::TextFormat::ParseFromString(fileContents, &appConfig);
+
+    if (!result) {
+      LOG(INFO) << "failed to parse config. quitting";
+      return 1;
+    }
+  }
+  LOG(INFO) << "App Config: " << appConfig.DebugString();
 
   rk::projects::counter_app::CounterAppServer appServer{appConfig, srv1Config};
 

@@ -43,6 +43,10 @@ metric_server_config{
   }
 }
 
+paxos_config{
+  data_directory: "/tmp/data/PAXOS_04/"
+}
+
 replica_set[
   {
     id: "REPLICA_00"

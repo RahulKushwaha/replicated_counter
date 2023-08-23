@@ -21,7 +21,8 @@ SequencerImpl::SequencerImpl(std::string id,
       versionId_{versionId},
       quorumSize_{(std::int32_t)replicaSet_.size() / 2 + 1}, isAlive_{isAlive},
       mtx_{std::make_unique<std::mutex>()} {
-  LOG(INFO) << "Sequencer Initialized with seed: " << sequenceNum_;
+  LOG(INFO) << "Sequencer ID: " << id_
+            << " Initialized with seed: " << sequenceNum_;
 }
 
 std::string SequencerImpl::getId() { return id_; }
@@ -86,6 +87,9 @@ void SequencerImpl::start(VersionId versionId, LogId sequenceNum) {
   globalCommitIndex_.store(sequenceNum);
   versionId_ = versionId;
   isAlive_ = true;
+
+  LOG(INFO) << "Sequencer ID: " << id_
+            << " started with seed: " << sequenceNum_;
 }
 
 bool SequencerImpl::isAlive() { return isAlive_; }

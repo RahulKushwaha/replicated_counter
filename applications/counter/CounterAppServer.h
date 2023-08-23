@@ -7,8 +7,10 @@
 #include "applications/counter/CounterAppStateMachine.h"
 #include "applications/counter/CounterApplicator.h"
 #include "applications/counter/CounterHealthCheck.h"
+#include "applications/counter/server/CounterAppServer.h"
 #include "log/impl/FailureDetectorImpl.h"
 #include "log/server/LogServer.h"
+#include "log/utils/GrpcServerFactory.h"
 #include "persistence/KVStoreLite.h"
 #include "persistence/RocksDbFactory.h"
 #include "statemachine/Factory.h"
@@ -51,7 +53,7 @@ public:
         std::make_shared<persistence::RocksKVStoreLite>(std::move(rocks));
 
     auto stateMachineStack = makeStateMachineStack<StateMachineReturnType>(
-        nullptr, state.logServer->getVirtualLog());
+        state.kvStore, state.logServer->getVirtualLog());
 
     state.appStateMachine =
         std::make_shared<CounterAppStateMachine>(stateMachineStack);
@@ -62,23 +64,41 @@ public:
     state.counterApplicator =
         std::make_shared<CounterApplicator>(state.counterApp);
 
+    state.appStateMachine->setApplicator(state.counterApplicator);
+
     stateMachineStack->setUpstreamStateMachine(state.appStateMachine);
+
+    state.counterAppService =
+        std::make_shared<CounterAppService>(state.counterApp);
+
+    state.counterAppGRPCServer =
+        durable_log::server::runRPCServer(
+            fmt::format("{}:{}", appConfig_.ip_address().host(),
+                        appConfig_.ip_address().port()),
+            {state.counterAppService.get()},
+            state.logServer->getThreadPool().get(), "COUNTER_APP_GRPC_SERVER")
+            .get();
 
     state.failureDetectorPool =
         std::make_shared<folly::CPUThreadPoolExecutor>(4);
 
     std::shared_ptr<HealthCheck> healthCheck =
         std::make_shared<CounterHealthCheck>(state.counterApp);
-
-    state.failureDetector = std::make_shared<FailureDetectorImpl>(
-        std::move(healthCheck), state.logServer->getVirtualLog(),
-        state.failureDetectorPool, state.logServerConfig);
+    if (appConfig_.name() == "COUNTER_APP_1") {
+      state.failureDetector = std::make_shared<FailureDetectorImpl>(
+          std::move(healthCheck), state.logServer->getVirtualLog(),
+          state.failureDetectorPool, state.logServerConfig);
+    }
 
     state_ = std::make_shared<State>(std::move(state));
+    LOG(INFO) << "finished creating counter app";
     co_return;
   }
 
-  folly::coro::Task<void> stop() { co_return; }
+  folly::coro::Task<void> stop() {
+    state_->failureDetectorPool->stop();
+    co_return;
+  }
 
 private:
   struct State {
@@ -90,6 +110,9 @@ private:
     std::shared_ptr<CounterApp> counterApp;
     std::shared_ptr<CounterAppStateMachine> appStateMachine;
     std::shared_ptr<CounterApplicator> counterApplicator;
+
+    std::shared_ptr<CounterAppService> counterAppService;
+    std::shared_ptr<grpc::Server> counterAppGRPCServer;
 
     std::shared_ptr<folly::CPUThreadPoolExecutor> failureDetectorPool;
     std::shared_ptr<FailureDetector> failureDetector;

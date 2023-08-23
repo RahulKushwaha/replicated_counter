@@ -1,4 +1,3 @@
-include(FetchContent)
 FetchContent_Declare(
         uuid
         GIT_REPOSITORY https://github.com/mariusbancila/stduuid.git

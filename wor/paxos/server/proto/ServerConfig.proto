@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package rk.projects.paxos.server;
+
+message ServerConfig{
+  string data_directory = 1;
+}

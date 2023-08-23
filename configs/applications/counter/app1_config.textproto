@@ -1,0 +1,9 @@
+# proto-file: applications/counter/server/proto/CounterService.proto
+# proto-message: CounterAppConfig
+
+name: "COUNTER_APP_1"
+data_directory: "/tmp/COUNTER_APP_1/"
+ip_address: {
+  host: "127.0.0.1",
+  port: 10098,
+}

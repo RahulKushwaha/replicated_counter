@@ -2,13 +2,13 @@
 // Created by Rahul  Kushwaha on 3/26/23.
 //
 #pragma once
-
 #include "ReplicaServer.h"
 #include "SequencerServer.h"
 #include "fmt/format.h"
 #include "folly/executors/CPUThreadPoolExecutor.h"
 #include "folly/experimental/coro/Task.h"
 #include "log/impl/NullSequencer.h"
+#include "log/impl/PersistentMetadataStore.h"
 #include "log/impl/RegistryImpl.h"
 #include "log/impl/RemoteMetadataStore.h"
 #include "log/impl/RemoteReplica.h"
@@ -18,11 +18,17 @@
 #include "log/impl/VirtualLogImpl.h"
 #include "log/include/NanoLogStore.h"
 #include "log/proto/Options.pb.h"
+#include "log/server/MetadataServer.h"
 #include "log/server/proto/ServerConfig.pb.h"
 #include "log/utils/GrpcServerFactory.h"
 #include "log/utils/UuidGenerator.h"
 #include "metrics/MetricsRegistry.h"
 #include "prometheus/exposer.h"
+#include "wor/paxos/LocalAcceptor.h"
+#include "wor/paxos/RegistryImpl.h"
+#include "wor/paxos/RemoteAcceptor.h"
+#include "wor/paxos/client/AcceptorClient.h"
+#include "wor/paxos/server/Acceptor.h"
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 #include <utility>
@@ -32,6 +38,7 @@ namespace rk::projects::durable_log::server {
 using namespace prometheus;
 
 constexpr std::string_view GRPC_SVC_ADDRESS_FORMAT = {"{}:{}"};
+constexpr bool USE_PERSISTENT_METADATA_STORE = true;
 
 class LogServer {
 public:
@@ -50,13 +57,15 @@ public:
     state.makeMetricExposer();
 
     state.registry = std::make_shared<RegistryImpl>();
+    state.paxosRegistry = std::make_shared<paxos::RegistryImpl>();
     state.threadPoolExecutor =
-        std::make_shared<folly::CPUThreadPoolExecutor>(16);
+        std::make_shared<folly::CPUThreadPoolExecutor>(24);
     state.nanoLogStore = std::make_shared<NanoLogStoreImpl>();
 
     state.makeRemoteMetadataStore();
     state.makeReplicaServer();
     state.makeReplicaSet();
+    state.makeAcceptorSet();
     state.makeSequencerServer();
     state.registerSequencers();
     state.makeVirtualLog();
@@ -85,6 +94,9 @@ public:
   }
 
   std::shared_ptr<VirtualLog> getVirtualLog() { return state_->virtualLog; }
+  std::shared_ptr<folly::CPUThreadPoolExecutor> getThreadPool() {
+    return state_->threadPoolExecutor;
+  }
 
 private:
   struct State {
@@ -94,21 +106,32 @@ private:
 
     std::shared_ptr<Registry> registry;
 
+    std::shared_ptr<paxos::RegistryImpl> paxosRegistry;
+
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
 
     std::shared_ptr<NanoLogStore> nanoLogStore;
 
-    std::shared_ptr<RemoteMetadataStore> metadataStore;
+    std::shared_ptr<MetadataStore> metadataStore;
 
     std::vector<std::shared_ptr<Replica>> replicaSet;
 
     std::shared_ptr<Replica> replica;
     std::shared_ptr<ReplicaServer> replicaServer;
+
+    std::shared_ptr<paxos::Acceptor> acceptor;
+    std::shared_ptr<paxos::server::AcceptorServer> acceptorServer;
+
     std::shared_ptr<grpc::Server> replicaGRPCServer;
 
     std::shared_ptr<Sequencer> sequencer;
     std::shared_ptr<SequencerServer> sequencerServer;
     std::shared_ptr<grpc::Server> sequencerGRPCServer;
+
+    std::shared_ptr<MetadataStore> persistentMetadataStore;
+
+    std::shared_ptr<server::MetadataServer> metadataServer;
+    std::shared_ptr<grpc::Server> metadataGRPCServer;
 
     std::shared_ptr<VirtualLog> virtualLog;
 
@@ -122,16 +145,53 @@ private:
     }
 
     void makeRemoteMetadataStore() {
-      const auto address = fmt::format(
-          GRPC_SVC_ADDRESS_FORMAT, config.metadata_config().ip_address().host(),
-          config.metadata_config().ip_address().port());
+      if (USE_PERSISTENT_METADATA_STORE) {
 
-      std::shared_ptr<client::MetadataStoreClient> metadataStoreClient =
-          std::make_shared<client::MetadataStoreClient>(
-              grpc::CreateChannel(address, grpc::InsecureChannelCredentials()));
+        MetadataConfig metadataConfig{};
+        metadataConfig.set_start_index(0);
+        metadataConfig.set_end_index(1);
+        metadataConfig.set_version_id(0);
+        metadataConfig.set_previous_version_id(-1);
 
-      metadataStore =
-          std::make_shared<RemoteMetadataStore>(metadataStoreClient);
+        for (const auto &replicaServerConfig : config.replica_set()) {
+          ReplicaConfig replicaConfig{};
+          replicaConfig.set_id(replicaServerConfig.id());
+          replicaConfig.mutable_ip_address()->CopyFrom(
+              replicaServerConfig.ip_address());
+          replicaConfig.set_local(false);
+
+          metadataConfig.mutable_replica_set_config()->Add(
+              std::move(replicaConfig));
+        }
+
+        metadataStore = std::make_shared<PersistentMetadataStore>(
+            std::move(metadataConfig),
+            std::make_unique<InMemoryMetadataStore>(), paxosRegistry);
+        metadataServer =
+            std::make_shared<server::MetadataServer>(metadataStore);
+
+        const auto address =
+            fmt::format(GRPC_SVC_ADDRESS_FORMAT,
+                        config.metadata_config().ip_address().host(),
+                        config.metadata_config().ip_address().port());
+
+        metadataGRPCServer = durable_log::server::runRPCServer(
+                                 address, {metadataServer.get()},
+                                 threadPoolExecutor.get(), "MetadataServer")
+                                 .get();
+      } else {
+        const auto address =
+            fmt::format(GRPC_SVC_ADDRESS_FORMAT,
+                        config.metadata_config().ip_address().host(),
+                        config.metadata_config().ip_address().port());
+
+        std::shared_ptr<client::MetadataStoreClient> metadataStoreClient =
+            std::make_shared<client::MetadataStoreClient>(grpc::CreateChannel(
+                address, grpc::InsecureChannelCredentials()));
+
+        metadataStore =
+            std::make_shared<RemoteMetadataStore>(metadataStoreClient);
+      }
     }
 
     void makeReplicaServer() {
@@ -152,10 +212,53 @@ private:
 
       replicaServer = std::make_shared<server::ReplicaServer>(replica);
 
+      // Replica port is also used for acceptor.
+      // TODO: Run all GRPC services on a single port.
+      {
+        auto paxosRocksConfig = persistence::RocksDbFactory::RocksDbConfig{
+            .path = config.paxos_config().data_directory(),
+            .createIfMissing = true,
+            .manualWALFlush = true,
+        };
+
+        auto paxosRocks =
+            persistence::RocksDbFactory::provideSharedPtr(paxosRocksConfig);
+        auto paxosKVStore = std::make_shared<persistence::RocksKVStoreLite>(
+            std::move(paxosRocks));
+        acceptor =
+            std::make_shared<paxos::LocalAcceptor>("", std::move(paxosKVStore));
+        acceptorServer =
+            std::make_shared<paxos::server::AcceptorServer>(acceptor);
+      }
+
       replicaGRPCServer =
-          durable_log::server::runRPCServer(address, replicaServer.get(),
-                                            threadPoolExecutor.get(), "Replica")
+          durable_log::server::runRPCServer(
+              address, {replicaServer.get(), acceptorServer.get()},
+              threadPoolExecutor.get(), "Replica")
               .get();
+
+      paxosRegistry->registerAcceptor(config.replica_config().id(), acceptor);
+    }
+
+    void makeAcceptorSet() {
+      for (const auto &remoteReplicaConfig : config.replica_set()) {
+        const auto remoteAcceptorClientAddress = fmt::format(
+            GRPC_SVC_ADDRESS_FORMAT, remoteReplicaConfig.ip_address().host(),
+            remoteReplicaConfig.ip_address().port());
+        auto acceptorClient = std::make_shared<paxos::client::AcceptorClient>(
+            grpc::CreateChannel(remoteAcceptorClientAddress,
+                                grpc::InsecureChannelCredentials()));
+
+        auto remoteAcceptor =
+            std::make_shared<paxos::RemoteAcceptor>(std::move(acceptorClient));
+
+        if (remoteReplicaConfig.id() != replica->getId()) {
+          paxosRegistry->registerAcceptor(remoteReplicaConfig.id(),
+                                          remoteAcceptor);
+        }
+      }
+
+      CHECK(replicaSet.size() == config.replica_set().size());
     }
 
     void makeReplicaSet() {
@@ -190,10 +293,11 @@ private:
 
       sequencerServer = std::make_shared<server::SequencerServer>(sequencer);
 
-      sequencerGRPCServer = durable_log::server::runRPCServer(
-                                sequencerAddress, sequencerServer.get(),
-                                threadPoolExecutor.get(), "Sequencer")
-                                .get();
+      sequencerGRPCServer =
+          durable_log::server::runRPCServer(
+              sequencerAddress, {sequencerServer.get()},
+              threadPoolExecutor.get(), config.sequencer_config().id())
+              .get();
     }
 
     void makeVirtualLog() {

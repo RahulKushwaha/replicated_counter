@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "Replica.h"
-#include "Sequencer.h"
+#include "log/include/Replica.h"
+#include "log/include/Sequencer.h"
 
 namespace rk::projects::durable_log {
 

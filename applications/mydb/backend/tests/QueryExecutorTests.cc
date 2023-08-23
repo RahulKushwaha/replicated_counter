@@ -50,7 +50,6 @@ protected:
   }
 };
 
-
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
 
@@ -78,7 +77,7 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
     auto response = queryExecutor_->tableScan(
         InternalTable{.schema = internalTable.schema},
         IndexQueryOptions{.indexId = idx.id(),
-                          .maxRowsReturnSize= 100,
+                          .maxRowsReturnSize = 100,
                           .direction = ScanDirection::FORWARD});
 
     LOG(INFO) << response.table->ToString() << std::endl;
@@ -87,8 +86,6 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
     ASSERT_TRUE(internalTable.table->Equals(*response.table));
   }
 }
-
-
 
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndexWithBatchSize) {
   auto totalRows = 10;
@@ -102,20 +99,18 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndexWithBatchSize) {
   for (auto i = 0; i < totalRows / batchSize; i++) {
     LOG(INFO) << "Iteration: " << i << " started";
     auto startOffset = i * batchSize;
-    IndexQueryOptions queryOptions
-        {
-            .indexId = internalTable.schema->rawTable().primary_key_index().id(),
-            .direction = ScanDirection::FORWARD,
-            .startFromKey = primaryKeyValues,
-            .maxRowsReturnSize = 2,
-        };
+    IndexQueryOptions queryOptions{
+        .indexId = internalTable.schema->rawTable().primary_key_index().id(),
+        .direction = ScanDirection::FORWARD,
+        .startFromKey = primaryKeyValues,
+        .maxRowsReturnSize = 2,
+    };
 
-    auto response =
-        queryExecutor_->tableScan(InternalTable{.schema = internalTable.schema},
-                                  queryOptions);
+    auto response = queryExecutor_->tableScan(
+        InternalTable{.schema = internalTable.schema}, queryOptions);
 
     auto slice = internalTable.table->Slice(startOffset, batchSize);
-   //LOG(INFO) << slice->ToString();
+    // LOG(INFO) << slice->ToString();
     LOG(INFO) << response.table->ToString();
 
     ASSERT_TRUE(slice->Equals(*response.table));
@@ -124,8 +119,7 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndexWithBatchSize) {
 
     auto lastRow = response.table->Slice(batchSize - 1, 1);
     auto keyValues =
-        RowSerializer::serialize(InternalTable{internalTable.schema,
-                                               lastRow});
+        RowSerializer::serialize(InternalTable{internalTable.schema, lastRow});
     ASSERT_EQ(keyValues.size(), 1);
     primaryKeyValues =
         test_utils::parsePrimaryKeyValues({internalTable.schema, lastRow});

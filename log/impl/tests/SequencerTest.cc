@@ -32,7 +32,8 @@ TEST(SequencerTest, appendLogEntryWithMajorityFailing) {
   auto sequencer = sequencerCreationResult.sequencer;
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto goodReplicaSet = sequencerCreationResult.goodReplicaSet;
-  auto versionId = sequencerCreationResult.metadataStore->getCurrentVersionId().semi().get();
+  auto versionId =
+      sequencerCreationResult.metadataStore->getCurrentVersionId().semi().get();
 
   std::string logEntry{"Hello World"};
   ASSERT_THROW(sequencer->append(logEntry).get(), std::exception);

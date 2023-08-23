@@ -1,6 +1,8 @@
 syntax = "proto3";
 
 import "common/proto/Common.proto";
+import "log/proto/MetadataConfig.proto";
+import "wor/paxos/server/proto/ServerConfig.proto";
 
 package rk.projects.server;
 
@@ -23,6 +25,7 @@ message MetadataServerConfig {
   common.IpAddress ip_address = 2;
 
   string data_directory = 3;
+  durable_log.MetadataConfig metadata_config = 4;
 }
 
 message AdminServerConfig{
@@ -47,7 +50,8 @@ message ServerConfig{
   AdminServerConfig admin_server_config = 6;
 
   MetricServerConfig metric_server_config = 7;
+  paxos.server.ServerConfig paxos_config = 8;
 
-  repeated ReplicaServerConfig replica_set = 8;
-  repeated RemoteSequencerConfig remote_sequencer_set = 9;
+  repeated ReplicaServerConfig replica_set = 9;
+  repeated RemoteSequencerConfig remote_sequencer_set = 10;
 }

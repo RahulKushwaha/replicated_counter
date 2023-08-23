@@ -86,8 +86,10 @@ set(
         wor/inmemory/InMemoryWriteOnceRegister.h
         wor/inmemory/InMemoryWriteOnceRegisterChain.h
 
+        wor/paxos/include/Registry.h
         wor/paxos/include/Acceptor.h
         wor/paxos/include/Proposer.h
+        wor/paxos/RegistryImpl.h
         wor/paxos/LocalAcceptor.h
         wor/paxos/LocalAcceptor.cc
         wor/paxos/Common.h

@@ -114,10 +114,8 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
       internalTable.schema->rawTable(),
       internalTable.schema->rawTable().primary_key_index().id());
 
-  ScanOptions scanOptions {
-      .direction = ScanDirection::FORWARD,
-      .prefix = prefix
-  };
+  ScanOptions scanOptions{.direction = ScanDirection::FORWARD,
+                          .prefix = prefix};
   auto response = rocksReaderWriter_->scan(scanOptions);
 
   auto responseTable =

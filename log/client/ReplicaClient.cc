@@ -24,7 +24,8 @@ folly::SemiFuture<std::string> ReplicaClient::getId() {
   }
 
   return folly::makeSemiFuture<std::string>(
-      folly::make_exception_wrapper<std::exception>());
+      folly::make_exception_wrapper<std::runtime_error>(
+          "failed to get replica id"));
 }
 
 folly::SemiFuture<folly::Unit>

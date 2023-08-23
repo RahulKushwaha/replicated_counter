@@ -115,8 +115,8 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
         std::make_shared<rk::projects::durable_log::server::ReplicaServer>(
             localReplica);
 
-    durable_log::server::runRPCServer(replicaAddress, localReplicaServer.get(),
-                                      executor, "Replica")
+    durable_log::server::runRPCServer(
+        replicaAddress, {localReplicaServer.get()}, executor, "Replica")
         .get();
 
     registry->registerReplica(remoteReplica);

@@ -74,7 +74,6 @@ std::vector<RawTableRow> RocksReaderWriter::scan(ScanOptions scanOptions) {
 
     if (itr->key().starts_with(prevKey)) {
 
-
     } else if (itr->key().starts_with(scanOptions.prefix)) {
 
       if (rows.size() == scanOptions.maxRowsReturnSize) {
@@ -82,9 +81,9 @@ std::vector<RawTableRow> RocksReaderWriter::scan(ScanOptions scanOptions) {
       }
 
       // TODO(AMAN): Fix this hack.
-     if (!row.keyValues.empty()) {
+      if (!row.keyValues.empty()) {
         rows.emplace_back(std::move(row));
-     }
+      }
       row = RawTableRow{};
       prevKey = itr->key().ToString();
     } else {
@@ -99,7 +98,6 @@ std::vector<RawTableRow> RocksReaderWriter::scan(ScanOptions scanOptions) {
   if (rows.size() < scanOptions.maxRowsReturnSize && !row.keyValues.empty()) {
     rows.emplace_back(std::move(row));
   }
-
 
   return rows;
 }

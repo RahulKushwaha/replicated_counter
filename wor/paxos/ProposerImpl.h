@@ -111,7 +111,7 @@ public:
 
   coro<std::optional<std::string>>
   getCommittedValue(std::string paxosInstanceId) override {
-    for (auto &acceptor : proposeAcceptors_) {
+    for (auto &acceptor : prepareAcceptors_) {
       if (auto committedValue =
               co_await acceptor->getCommittedValue(paxosInstanceId);
           committedValue.has_value()) {
