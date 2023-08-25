@@ -19,7 +19,8 @@ enum class ScanDirection {
 struct IndexQueryOptions {
   TableSchemaType::TableIdType indexId;
   ScanDirection direction;
-  std::vector<ColumnValue> startFromKey;
+  std::vector<ColumnValue> secondaryKeyValues;
+  std::vector<ColumnValue> primaryKeyValues;
   std::int32_t maxRowsReturnSize;
 };
 

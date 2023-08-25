@@ -53,7 +53,7 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
     }();
 
     auto seekPosition = [&internalTable, &indexQueryOptions]() {
-      if (indexQueryOptions.startFromKey.empty()) {
+      if (indexQueryOptions.primaryKeyValues.empty()) {
         return prefix::minimumIndexKey(
             internalTable.schema->rawTable(),
             internalTable.schema->rawTable().primary_key_index().id());
@@ -61,7 +61,7 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
 
       // total number of values present in the startKey should be equal to
       // the number of columns in primary prefix.
-      assert(indexQueryOptions.startFromKey.size() ==
+      assert(indexQueryOptions.primaryKeyValues.size() ==
              internalTable.schema->rawTable()
                  .primary_key_index()
                  .column_ids()
@@ -69,7 +69,7 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
 
       return prefix::maximumIndexKey(internalTable.schema->rawTable(),
                                      indexQueryOptions.indexId,
-                                     indexQueryOptions.startFromKey);
+                                     indexQueryOptions.primaryKeyValues);
     }();
 
     auto kvRows =
@@ -83,9 +83,30 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
     auto prefix = prefix::minimumIndexKey(internalTable.schema->rawTable(),
                                           indexQueryOptions.indexId);
 
+    auto seekPosition = [&internalTable, &indexQueryOptions]() {
+      if (indexQueryOptions.primaryKeyValues.empty()) {
+        return prefix::minimumIndexKey(internalTable.schema->rawTable(),
+                                       indexQueryOptions.indexId);
+      }
+
+      // total number of values present in the startKey should be equal to
+      // the number of columns in primary prefix.
+      assert(indexQueryOptions.primaryKeyValues.size() ==
+              internalTable.schema->rawTable()
+                  .primary_key_index()
+                  .column_ids()
+                  .size());
+
+      return prefix::maximumSecondaryIndexKey(
+          internalTable.schema->rawTable(), indexQueryOptions.indexId,
+          indexQueryOptions.primaryKeyValues,
+          indexQueryOptions.secondaryKeyValues);
+    }();
+
     auto kvRows = rocks_->scan(
         {.direction = indexQueryOptions.direction,
          .prefix = prefix,
+         .seekPosition = seekPosition,
          .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize});
 
     auto primaryKeys = RowSerializer::deserializeSecondaryIndexKeys(

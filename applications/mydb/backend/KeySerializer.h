@@ -24,6 +24,8 @@ struct KeyFragments {
   std::optional<Index> primaryIndex;
   std::optional<TableSchemaType::ColumnIdType> colId;
   std::optional<Index> secondaryIndex;
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const KeyFragments &fragments);
 };
 
 KeyFragments parseKey(const internal::Table &table, const std::string &key);
@@ -43,6 +45,13 @@ std::string minimumIndexKey(const internal::Table &table,
 std::string maximumIndexKey(const internal::Table &table,
                             TableSchemaType::TableIdType indexId,
                             std::vector<ColumnValue> values);
+
+
+std::string
+maximumSecondaryIndexKey(const internal::Table &table,
+                         TableSchemaType::TableIdType indexId,
+                         std::vector<ColumnValue> primaryKeyValues,
+                         std::vector<ColumnValue> secondaryKeyValues);
 
 std::string columnKey(const std::string &primaryKey, std::uint32_t colId);
 

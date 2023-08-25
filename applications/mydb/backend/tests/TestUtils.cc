@@ -190,4 +190,48 @@ std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable) {
   return {};
 }
 
+
+std::vector<ColumnValue> parseSecondaryKeyValues(InternalTable internalTable, int secondarykeyIndex) {
+  auto &arrowTable = *internalTable.table;
+  auto &rawTable = internalTable.schema->rawTable();
+
+  for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows();
+       rowIdx++) {
+    auto totalChunks = arrowTable.columns().front()->num_chunks();
+    for (int chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+      std::vector<ColumnValue> secondaryIdxValues;
+      LOG(INFO) << "ToTAL COlS: "
+                << rawTable.primary_key_index().column_ids().size();
+
+      for (auto colId: rawTable.secondary_index(0).column_ids()) {
+        auto col = internalTable.schema->getColumn(colId);
+        auto arrowCol =
+            arrowTable.GetColumnByName(col.name())->chunk(chunkIdx);
+        ColumnValue columnValue;
+
+        if (col.column_type()
+            == mydb::Column_COLUMN_TYPE::Column_COLUMN_TYPE_INT64) {
+          auto chunk = std::static_pointer_cast<arrow::Int64Array>(arrowCol);
+          auto val = chunk->Value(rowIdx);
+          LOG(INFO) << val;
+          columnValue = {val};
+        } else if (col.column_type()
+                   == mydb::Column_COLUMN_TYPE::Column_COLUMN_TYPE_STRING) {
+          auto chunk = std::static_pointer_cast<arrow::StringArray>(arrowCol);
+          auto val = chunk->Value(rowIdx);
+          LOG(INFO) << val;
+          columnValue = {std::string{val}};
+        }
+
+        secondaryIdxValues.emplace_back(std::move(columnValue));
+      }
+
+      return secondaryIdxValues;
+    }
+  }
+
+  return {};
+}
+
+
 } // namespace rk::projects::mydb::test_utils

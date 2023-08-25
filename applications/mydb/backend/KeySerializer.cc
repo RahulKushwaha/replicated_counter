@@ -193,6 +193,25 @@ std::string maximumIndexKey(const internal::Table &table,
 
     return ss.str();
   }
+  throw std::runtime_error{"i should not be here"};
+}
+
+std::string
+maximumSecondaryIndexKey(const internal::Table &table,
+                         TableSchemaType::TableIdType indexId,
+                         std::vector<ColumnValue> primaryKeyValues,
+                         std::vector<ColumnValue> secondaryKeyValues) {
+
+  for (int i = 0; i < table.secondary_index_size(); i++) {
+    if (indexId == table.secondary_index(i).id()) {
+      std::stringstream ss;
+      ss << secondaryIndexKey(table, indexId, secondaryKeyValues,
+                              primaryKeyValues)
+         << DEFAULT_ESCAPE_CHARACTER << "ZZZZZZ";
+      LOG(INFO)<<ss.str();
+      return ss.str();
+    }
+  }
 
   throw std::runtime_error{"i should not be here"};
 }
@@ -233,4 +252,18 @@ std::string secondaryIndexKey(const internal::Table &table,
 
   assert(false);
 }
+
+std::ostream &operator<<(std::ostream &os, const KeyFragments &fragments) {
+  os << "dbId: " << fragments.dbId << " tableId: " << fragments.tableId
+     << " primaryIndex: "
+     << (fragments.primaryIndex.has_value() ? "NON_EMPTY_PRIMARY_INDEX"
+                                            : "EMPTY_PRIMARY_INDEX")
+     << " colId: "
+     << (fragments.colId.has_value() ? "NON_EMPTY_COL_ID" : "MPTY_COL_ID")
+     << " secondaryIndex: "
+     << (fragments.secondaryIndex.has_value() ? "NON_EMPTY_SEC_INDEX"
+                                              : "EMPTY_SEC_INDEX");
+  return os;
+}
+
 } // namespace rk::projects::mydb::prefix
