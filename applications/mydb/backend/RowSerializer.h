@@ -252,7 +252,6 @@ public:
                   std::static_pointer_cast<arrow::StringBuilder>(builder);
 
               assert(stringBuilder->Append(value).ok());
-              LOG(INFO) << "here" << key << " ";
             } break;
             default:
               assert(false);
