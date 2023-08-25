@@ -11,6 +11,7 @@ set(
         log/utils/tests/FutureUtilsTest.cc
         log/utils/tests/OrderedCompletionQueueTests.cc
         log/utils/tests/UuidGeneratorTest.cc
+        log/utils/tests/FlatMapSequentialTest.cc
 
         applications/counter/test/InMemoryFakeVirtualLog.h
         applications/counter/test/CounterAppTest.cc
