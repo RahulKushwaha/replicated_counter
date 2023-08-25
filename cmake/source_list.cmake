@@ -73,6 +73,7 @@ set(
         log/utils/GrpcServerFactory.h
         log/utils/OrderedCompletionQueue.h
         log/utils/UuidGenerator.h
+        log/utils/FlatMapSequential.h
 
         metrics/MetricsRegistry.h
 

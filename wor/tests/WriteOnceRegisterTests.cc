@@ -40,11 +40,11 @@ std::shared_ptr<PaxosWriteOnceRegister> createPaxosRegister() {
   return paxosRegister;
 }
 
-class WorTests
-    : public testing::TestWithParam<std::shared_ptr<WriteOnceRegister>> {};
+class WorTests : public testing::TestWithParam<
+                     std::function<std::shared_ptr<WriteOnceRegister>()>> {};
 
 TEST_P(WorTests, LockIdsAreIncreme) {
-  auto wor = GetParam();
+  auto wor = GetParam()();
 
   std::vector<LockId> lockIds;
   for (int i = 0; i < 100; i++) {
@@ -57,7 +57,7 @@ TEST_P(WorTests, LockIdsAreIncreme) {
 }
 
 TEST_P(WorTests, ReadFromUnCommittedReturnsError) {
-  auto wor = GetParam();
+  auto wor = GetParam()();
   auto result = wor->read().semi().get();
 
   ASSERT_TRUE(std::holds_alternative<WriteOnceRegister::ReadError>(result));
@@ -67,7 +67,7 @@ TEST_P(WorTests, ReadFromUnCommittedReturnsError) {
 }
 
 TEST_P(WorTests, WriteWithHigherLockValueSucceeds) {
-  auto wor = GetParam();
+  auto wor = GetParam()();
 
   // Acquire a bunch of locks.
   std::vector<LockId> lockIds;
@@ -101,7 +101,7 @@ TEST_P(WorTests, WriteWithHigherLockValueSucceeds) {
 
 TEST_P(WorTests, WriteIsAllowedOnlyOnce) {
   auto payload{"Hello World"};
-  auto wor = GetParam();
+  auto wor = GetParam()();
   auto lockId = wor->lock().semi().get();
   ASSERT_TRUE(lockId.has_value());
 
@@ -125,9 +125,12 @@ TEST_P(WorTests, WriteIsAllowedOnlyOnce) {
   }
 }
 
+// TODO(Rahul): Refactor to use setup method of test to create test. Temporary
+// hack to use lambda for lazy evaluation.
 INSTANTIATE_TEST_SUITE_P(
     WorParameterizedTests, WorTests,
-    testing::Values(std::make_shared<InMemoryWriteOnceRegister>(),
-                    createPaxosRegister()));
+    testing::Values(
+        []() { return std::make_shared<InMemoryWriteOnceRegister>(); },
+        []() { return createPaxosRegister(); }));
 
 } // namespace rk::projects::wor
