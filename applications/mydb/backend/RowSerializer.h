@@ -184,7 +184,7 @@ public:
     }
 
     auto recordBatch =
-        arrow::RecordBatch::Make(arrowSchema, arrays.size(), arrays);
+        arrow::RecordBatch::Make(arrowSchema, arrays[0]->length(), arrays);
     auto table = arrow::Table::FromRecordBatches({recordBatch}).ValueOrDie();
 
     return {schema, table};
@@ -227,15 +227,18 @@ public:
     auto arrowSchema = arrow::schema(std::move(fields));
 
     for (auto &row : rows) {
+      int i = 0;
+      i++;
       for (auto &[key, _] : row.keyValues) {
+
         auto keyFragments = prefix::parseKey(schema->rawTable(), key);
-        std::int32_t indexValueItr = 0;
 
         if (keyFragments.primaryIndex.has_value()) {
-          auto value =
-              keyFragments.primaryIndex.value().values[indexValueItr++];
-          LOG(INFO) << value;
+          std::int32_t indexValueItr = 0;
           for (auto &[colId, builder] : colBuilder) {
+            LOG(INFO) << "colBuilder size: " << colBuilder.size();
+            auto value =
+                keyFragments.primaryIndex.value().values[indexValueItr++];
             switch (*schema->getColumnType(colId)) {
             case internal::Column_COLUMN_TYPE_INT64: {
               auto intBuilder =
@@ -263,9 +266,8 @@ public:
       auto result = builder->Finish();
       arrays.emplace_back(result.ValueOrDie());
     }
-
     auto recordBatch =
-        arrow::RecordBatch::Make(arrowSchema, arrays.size(), arrays);
+        arrow::RecordBatch::Make(arrowSchema, arrays[0]->length(), arrays);
     auto table = arrow::Table::FromRecordBatches({recordBatch}).ValueOrDie();
 
     return {schema, table};
