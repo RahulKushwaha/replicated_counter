@@ -43,22 +43,26 @@ public:
 
       assert(listElement.has_value());
 
-      auto result = co_await std::move(listElement.value());
-      co_yield std::move(result);
+      co_yield co_await std::move(listElement.value());
     }
 
     co_return;
   }
 
-  void add(std::function<T()> func) {
+  void add(std::function<folly::coro::Task<T>()> func) {
     auto [promise, future] = folly::makePromiseContract<T>();
 
-    auto lambda = [f = std::move(func), p = std::move(promise)]() mutable {
-      auto result = f();
+    auto lambda =
+        [f = std::move(func),
+         p = std::move(promise)]() mutable -> folly::coro::Task<void> {
+      auto result = co_await folly::coro::co_invoke(f);
       p.setValue(std::move(result));
+      co_return;
     };
 
-    executor_->add(std::move(lambda));
+    std::move(folly::coro::co_invoke(std::move(lambda)))
+        .semi()
+        .via(executor_.get());
 
     {
       std::lock_guard lg{*mtx_};
@@ -76,7 +80,7 @@ public:
     condVar_->notify_one();
   }
 
-  ~FlatMapSequential() { LOG(INFO) << "destruction"; }
+  ~FlatMapSequential() = default;
 
 private:
   std::unique_ptr<std::mutex> mtx_;
