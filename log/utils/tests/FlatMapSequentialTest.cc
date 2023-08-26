@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 namespace rk::projects::utils {
+
 namespace {
 
 folly::coro::Task<std::vector<int>>
@@ -26,9 +27,9 @@ TEST(FlatMapSequentialTest, addOneTask) {
       std::make_shared<folly::CPUThreadPoolExecutor>(5);
   FlatMapSequential<int> flatMapSequential{executor};
   auto generator = flatMapSequential.getGenerator();
-  flatMapSequential.add([]() {
+  flatMapSequential.add([]() -> folly::coro::Task<int> {
     LOG(INFO) << "Task Executed";
-    return 1;
+    co_return 1;
   });
 
   flatMapSequential.stop();
@@ -46,10 +47,10 @@ TEST(FlatMapSequentialTest, addMultipleTask) {
   auto &&generator = flatMapSequential.getGenerator();
   // Add 10 tasks. Each with decreasing sleep time.
   for (int i = 0; i < totalSize; i++) {
-    flatMapSequential.add([i]() {
-      std::this_thread::sleep_for(std::chrono::milliseconds{(10 - i) * 10});
+    flatMapSequential.add([i]() -> folly::coro::Task<int> {
+      std::this_thread::sleep_for(std::chrono::milliseconds{(10 - i) * 100});
       LOG(INFO) << "Task Executed: " << i;
-      return i;
+      co_return i;
     });
     LOG(INFO) << "Added: " << i;
   }
