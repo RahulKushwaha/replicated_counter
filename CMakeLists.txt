@@ -72,8 +72,8 @@ add_link_options(-fsanitize=undefined)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-find_package(Rocksdb REQUIRED)
-set(ROCKS_DB_LIB /opt/homebrew/Cellar/rocksdb/8.0.0/lib/librocksdb.a)
+find_package(RocksDB CONFIG REQUIRED)
+set(ROCKS_DB_LIB RocksDB::rocksdb)
 
 set(
         SERVER_LIBS
