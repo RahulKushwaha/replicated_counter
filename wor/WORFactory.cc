@@ -16,6 +16,10 @@ std::unique_ptr<WriteOnceRegister>
 makePaxosWor(WorId worId,
              const std::vector<durable_log::ReplicaConfig> &replicaConfigs,
              const std::shared_ptr<paxos::Registry> &registry) {
+  if (registry == nullptr) {
+    throw std::runtime_error{"null wor registry"};
+  }
+
   LOG(INFO) << "making paxos wor, replicaCount: " << replicaConfigs.size();
   std::vector<std::shared_ptr<paxos::Acceptor>> acceptors;
   for (const auto &replicaConfig : replicaConfigs) {
@@ -24,6 +28,7 @@ makePaxosWor(WorId worId,
 
   auto proposer =
       std::make_shared<paxos::ProposerImpl>(replicaConfigs.size(), acceptors);
+
   return std::make_unique<paxos::PaxosWriteOnceRegister>(worId,
                                                          std::move(proposer));
 }
