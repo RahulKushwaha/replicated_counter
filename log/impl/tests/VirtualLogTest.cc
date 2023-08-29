@@ -212,11 +212,12 @@ TEST(VirtualLogTests, ReconfigureOnSegmentMultipleTimes) {
 }
 
 TEST(VirtualLogTests, MajorityReplicaWithHoles) {
+  auto timeout = std::chrono::milliseconds(200);
   auto sequencerCreationResult = createSequencer(0, 11);
   auto replicaSet = sequencerCreationResult.replicaSet;
   auto metadataStore = sequencerCreationResult.metadataStore;
   auto sequencer = sequencerCreationResult.sequencer;
-  auto versionId = metadataStore->getCurrentVersionId().semi().get();
+  auto versionId = metadataStore->getCurrentVersionId().semi().get(timeout);
 
   std::vector<std::vector<int>> logEntriesOrder{
       {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
@@ -234,19 +235,19 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
           ->append({}, versionId, logEntry,
                    "Log_Entry" + std::to_string(logEntry))
           .semi()
-          .get();
+          .get(timeout);
     }
 
     logEntriesIndex++;
   }
 
-  ASSERT_EQ(replicaSet[0]->getCommitIndex(versionId).semi().get(), 11);
-  ASSERT_EQ(replicaSet[1]->getCommitIndex(versionId).semi().get(), 11);
+  ASSERT_EQ(replicaSet[0]->getCommitIndex(versionId).semi().get(timeout), 11);
+  ASSERT_EQ(replicaSet[1]->getCommitIndex(versionId).semi().get(timeout), 11);
   // Replica 2,3,4 have holes. Therefore, they cannot ack to the entries after
   // the holes.
-  ASSERT_EQ(replicaSet[2]->getCommitIndex(versionId).semi().get(), 5);
-  ASSERT_EQ(replicaSet[3]->getCommitIndex(versionId).semi().get(), 6);
-  ASSERT_EQ(replicaSet[4]->getCommitIndex(versionId).semi().get(), 7);
+  ASSERT_EQ(replicaSet[2]->getCommitIndex(versionId).semi().get(timeout), 5);
+  ASSERT_EQ(replicaSet[3]->getCommitIndex(versionId).semi().get(timeout), 6);
+  ASSERT_EQ(replicaSet[4]->getCommitIndex(versionId).semi().get(timeout), 7);
 
   std::shared_ptr<VirtualLog> log = std::make_shared<VirtualLogImpl>(
       "virtual_log_id", "virtual_log_name", sequencerCreationResult.sequencer,
@@ -254,7 +255,6 @@ TEST(VirtualLogTests, MajorityReplicaWithHoles) {
       sequencerCreationResult.initialMetadataConfig.version_id(),
       sequencerCreationResult.registry);
 
-  ASSERT_NO_THROW(
-      log->append("Hello World").get(std::chrono::milliseconds(1000)));
+  ASSERT_NO_THROW(log->append("Hello World").get(timeout));
 }
 } // namespace rk::projects::durable_log
