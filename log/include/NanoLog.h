@@ -41,14 +41,14 @@ public:
 
 class NanoLogLogPositionAlreadyOccupied : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override {
+  const char *what() const noexcept override {
     return "there is already a log entry at that position.";
   }
 };
 
 class NanoLogLogNotAvailable : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override {
+  const char *what() const noexcept override {
     return "NanoLog is not available.";
   }
 };

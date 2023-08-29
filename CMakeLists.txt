@@ -2,27 +2,20 @@ cmake_minimum_required(VERSION 3.21)
 project(LogStorage)
 set(CMAKE_CXX_STANDARD 20)
 
-
 set(CMAKE_VERBOSE_MAKEFILE ON)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
 include(FetchContent)
+
+find_package(OpenSSL MODULE REQUIRED)
 
 include(cmake/uuid_generator.cmake)
 include(cmake/source_list.cmake)
 include(cmake/test_files_list.cmake)
 include(cmake/gtest.cmake)
 include(cmake/prometheus.cmake)
-include(cmake/openssl.cmake)
 include(cmake/backward.cmake)
 include(cmake/fmt.cmake)
-
-set(ENV{OPENSSL_ROOT_DIR} ${OPENSSL_INSTALL_DIR})
-find_package(OpenSSL 1.1.1 MODULE)
-if ("${OpenSSL_FOUND}" STREQUAL "FALSE")
-    message(WARNING "folly cannot be included. pls build openssl first")
-else ()
-    include(cmake/folly.cmake)
-endif ()
+include(cmake/folly.cmake)
 
 file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/common/proto/*.proto"
@@ -38,8 +31,9 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/client/proto/*.proto"
 )
 
+find_package(gRPC CONFIG REQUIRED)
 find_package(Protobuf REQUIRED)
-find_package(grpc REQUIRED)
+
 add_library(proto-objects STATIC ${PROTO_SOURCES})
 set_target_properties(proto-objects PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -77,6 +71,7 @@ set(ROCKS_DB_LIB RocksDB::rocksdb)
 
 set(
         SERVER_LIBS
+
         folly
         proto-objects
         ${PROTOBUF_LIBRARIES}

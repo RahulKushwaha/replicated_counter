@@ -24,7 +24,7 @@ int main() {
   {
     std::string key{"TEST_KEY"};
     std::shared_ptr<VirtualLog> log = makeVirtualLog("CounterApplication");
-    auto counterApp = std::make_shared<CounterApp>(log);
+    auto counterApp = std::make_shared<CounterApp>(nullptr, nullptr);
 
     std::string serverAddress{"localhost:8080"};
     auto future = runServer(serverAddress, counterApp);
