@@ -6,7 +6,7 @@
 #include "folly/Conv.h"
 #include <arrow/array.h>
 #include <arrow/builder.h>
-#include <arrow/compute/exec/exec_plan.h>
+//#include <arrow/compute/exec/exec_plan.h>
 #include <arrow/dataset/dataset.h>
 #include <arrow/table.h>
 #include <cstdint>

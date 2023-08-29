@@ -50,26 +50,26 @@ inline std::ostream &operator<<(std::ostream &os, LogReadError &readError) {
 
 class NonRecoverableError : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override { return "NonRecoverableError"; }
+  const char *what() const noexcept override { return "NonRecoverableError"; }
 };
 
 class NullSequencerException : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override {
+  const char *what() const noexcept override {
     return "Null Sequencer cannot answer.";
   }
 };
 
 class NotImplementedException : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override {
+  const char *what() const noexcept override {
     return "Method Not Implmented";
   }
 };
 
 class MetadataBlockNotFound : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override {
+  const char *what() const noexcept override {
     return "metadatablock not found";
   }
 };

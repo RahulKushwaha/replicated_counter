@@ -7,4 +7,4 @@ FetchContent_Declare(
         GIT_TAG v2023.07.24.00
 )
 
-fetchcontent_makeavailable(folly)
+FetchContent_MakeAvailable(folly)

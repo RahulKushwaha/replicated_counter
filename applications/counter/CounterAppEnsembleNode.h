@@ -168,7 +168,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
     ensembleNode.sequencer = localSequencerServer;
 
     durable_log::server::runRPCServer(
-        sequencerAddress, localSequencerServer.get(), executor, "Sequencer")
+        sequencerAddress, {localSequencerServer.get()}, executor, "Sequencer")
         .get();
 
     registry->registerSequencer(remoteSequencer);

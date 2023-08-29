@@ -33,7 +33,7 @@ public:
 
 class MetadataBlockNotPresent : public std::exception {
 public:
-  const char *what() const _NOEXCEPT override {
+  const char *what() const noexcept override {
     return "MetadataBlock containing the log_id is not present.";
   }
 };

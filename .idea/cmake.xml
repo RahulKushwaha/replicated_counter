@@ -2,7 +2,8 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCMAKE_PREFIX_PATH=/opt/homebrew/ -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang" BUILD_OPTIONS="-- -j 12" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang" BUILD_OPTIONS="-- -j 12" />
+      <configuration PROFILE_NAME="Docker" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Docker" GENERATION_OPTIONS="-DCMAKE_PREFIX_PATH=/opt/abseil;/opt/grpc; -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang --log-level=DEBUG" BUILD_OPTIONS="-- -j 12" />
     </configurations>
   </component>
 </project>
