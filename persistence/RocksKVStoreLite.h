@@ -5,6 +5,7 @@
 
 #include "KVStoreLite.h"
 #include "rocksdb/db.h"
+#include "rocksdb/utilities/checkpoint.h"
 #include "rocksdb/utilities/write_batch_with_index.h"
 
 namespace rk::projects::persistence {
@@ -80,6 +81,23 @@ public:
     }
 
     co_return s.ok();
+  }
+
+  folly::coro::Task<void>
+  checkpoint(const std::string &checkpointDir) override {
+    rocksdb::Checkpoint *checkpoint;
+    auto status = rocksdb::Checkpoint::Create(rocks_.get(), &checkpoint);
+    if (!status.ok()) {
+      LOG(INFO) << "failed to create checkpoint object" << status.ToString();
+    }
+
+    status = checkpoint->CreateCheckpoint(checkpointDir);
+
+    if (!status.ok()) {
+      LOG(INFO) << "failed to create checkpoint" << status.ToString();
+    }
+
+    co_return;
   }
 
 private:
