@@ -59,11 +59,3 @@ RUN make -j 8
 RUN make install
 
 RUN apt install -y libgoogle-glog-dev openssl
-
-# ABSEIL
-WORKDIR /tmp
-RUN git clone --depth 1 https://github.com/abseil/abseil-cpp.git
-RUN mkdir -p /tmp/abseil-cpp/build
-WORKDIR /tmp/abseil-cpp/build
-RUN cmake -DCMAKE_INSTALL_PREFIX=/opt/abseil ..
-RUN make -j 8 && make install

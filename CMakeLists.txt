@@ -31,8 +31,8 @@ file(GLOB PROTO_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/applications/mydb/client/proto/*.proto"
 )
 
+find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-find_package(Protobuf REQUIRED)
 
 add_library(proto-objects STATIC ${PROTO_SOURCES})
 set_target_properties(proto-objects PROPERTIES LINKER_LANGUAGE CXX)
@@ -42,6 +42,7 @@ target_link_libraries(proto-objects PUBLIC protobuf::libprotobuf gRPC::grpc++_un
 set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(PROTO_IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/proto")
 
+find_package(Protobuf REQUIRED)
 protobuf_generate(
         TARGET proto-objects
         OUT_VAR PROTO_GENERATED_FILES
