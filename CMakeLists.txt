@@ -150,6 +150,11 @@ if (MYDB)
             applications/mydb/backend/SchemaStore.h
             applications/mydb/backend/TableRow.cc
             applications/mydb/backend/TableRow.h
+            applications/mydb/backend/QueryParser.h
+            applications/mydb/backend/QueryParser.cc
+            applications/mydb/backend/QueryPlanner.h
+            applications/mydb/backend/QueryPlanner.cc
+            applications/mydb/backend/QueryPlan.h
 
             applications/mydb/backend/tests/TestUtils.h
             applications/mydb/backend/tests/TestUtils.cc
