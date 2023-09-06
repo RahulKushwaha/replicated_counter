@@ -46,7 +46,6 @@ std::string maximumIndexKey(const internal::Table &table,
                             TableSchemaType::TableIdType indexId,
                             std::vector<ColumnValue> values);
 
-
 std::string
 maximumSecondaryIndexKey(const internal::Table &table,
                          TableSchemaType::TableIdType indexId,

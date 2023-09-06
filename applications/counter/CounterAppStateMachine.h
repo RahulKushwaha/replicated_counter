@@ -39,6 +39,11 @@ public:
   void setApplicator(std::shared_ptr<applicator_t> applicator) override;
   folly::coro::Task<void> sync() override;
 
+  void setUpstreamStateMachine(
+      std::shared_ptr<
+          state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
+          upstreamStateMachine_) override;
+
 private:
   durable_log::LogId lastAppliedLogId_;
   std::shared_ptr<

@@ -46,6 +46,13 @@ public:
     applicator_ = std::move(applicator);
   }
 
+  void setUpstreamStateMachine(
+      std::shared_ptr<StateMachine<RocksTxn, RocksTxnResult>>
+          upstreamStateMachine) override {
+    throw std::runtime_error{"rocksStateMachine state machine does not require "
+                             "upstream state machine"};
+  }
+
 private:
   wor::WorId lastAppliedWorId_;
   std::shared_ptr<applicator_t> applicator_;

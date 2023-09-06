@@ -208,7 +208,7 @@ maximumSecondaryIndexKey(const internal::Table &table,
       ss << secondaryIndexKey(table, indexId, secondaryKeyValues,
                               primaryKeyValues)
          << DEFAULT_ESCAPE_CHARACTER << "ZZZZZZ";
-      LOG(INFO)<<ss.str();
+      LOG(INFO) << ss.str();
       return ss.str();
     }
   }

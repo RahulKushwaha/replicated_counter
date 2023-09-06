@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "log/proto/LogEntry.pb.h"
+#include "statemachine/NullStateMachine.h"
 #include "statemachine/include/StateMachine.h"
 
 namespace rk::projects::state_machine {
@@ -17,7 +18,8 @@ public:
       std::shared_ptr<StateMachine<LogEntry_1, R>> downstreamStateMachine)
       : applicator_{std::move(applicator)},
         downstreamStateMachine_{std::move(downstreamStateMachine)},
-        upstreamStateMachine_{nullptr} {}
+        upstreamStateMachine_{
+            std::make_shared<NullStateMachine<LogEntry_1, R>>()} {}
 
   coro<R> append(rk::projects::durable_log::LogEntry_1 t) override {
     co_return co_await downstreamStateMachine_->append(std::move(t));

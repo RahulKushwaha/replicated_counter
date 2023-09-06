@@ -49,6 +49,14 @@ void CounterAppStateMachine::setApplicator(
   applicator_ = std::move(applicator);
 }
 
+void CounterAppStateMachine::setUpstreamStateMachine(
+    std::shared_ptr<
+        state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
+        upstreamStateMachine_) {
+  throw std::runtime_error{
+      "counterapp state machine does not require upstream state machine"};
+}
+
 folly::coro::Task<void> CounterAppStateMachine::sync() {
   co_await downstreamStateMachine_->sync();
 }

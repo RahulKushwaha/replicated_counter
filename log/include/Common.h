@@ -62,9 +62,7 @@ public:
 
 class NotImplementedException : public std::exception {
 public:
-  const char *what() const noexcept override {
-    return "Method Not Implmented";
-  }
+  const char *what() const noexcept override { return "Method Not Implmented"; }
 };
 
 class MetadataBlockNotFound : public std::exception {
