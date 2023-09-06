@@ -6,7 +6,7 @@
 #include "folly/Conv.h"
 #include <arrow/array.h>
 #include <arrow/builder.h>
-//#include <arrow/compute/exec/exec_plan.h>
+// #include <arrow/compute/exec/exec_plan.h>
 #include <arrow/dataset/dataset.h>
 #include <arrow/table.h>
 #include <cstdint>
@@ -36,6 +36,7 @@ InternalTable getInternalTable(std::int32_t numRows = 10, int numIntColumns = 5,
 
 std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable);
 
-std::vector<ColumnValue> parseSecondaryKeyValues(InternalTable internalTable, int secondaryKeyIndex);
+std::vector<ColumnValue> parseSecondaryKeyValues(InternalTable internalTable,
+                                                 int secondaryKeyIndex);
 
 } // namespace rk::projects::mydb::test_utils

@@ -103,6 +103,7 @@ set(
         wor/paxos/RemoteAcceptor.h
 
         statemachine/include/StateMachine.h
+        statemachine/NullStateMachine.h
         statemachine/RocksStateMachine.h
         statemachine/ConflictDetector.h
         statemachine/RocksTxnApplicator.h

@@ -4,6 +4,7 @@
 #pragma once
 #include "log/include/VirtualLog.h"
 #include "log/proto/LogEntry.pb.h"
+#include "statemachine/NullStateMachine.h"
 #include "statemachine/include/StateMachine.h"
 
 namespace rk::projects::state_machine {
@@ -13,9 +14,12 @@ using namespace rk::projects::durable_log;
 template <typename R>
 class VirtualLogStateMachine : public StateMachine<LogEntry_1, R> {
 public:
-  explicit VirtualLogStateMachine(std::shared_ptr<VirtualLog> virtualLog)
-      : virtualLog_{std::move(virtualLog)}, upstreamStateMachine_{nullptr},
-        lastAppliedLogId_{0} {}
+  explicit VirtualLogStateMachine(std::shared_ptr<VirtualLog> virtualLog,
+                                  LogId lastAppliedLogId = 0)
+      : virtualLog_{std::move(virtualLog)},
+        upstreamStateMachine_{
+            std::make_shared<NullStateMachine<LogEntry_1, R>>()},
+        lastAppliedLogId_{lastAppliedLogId} {}
 
   coro<R> append(LogEntry_1 t) override {
     auto logId = co_await virtualLog_->append(t.SerializeAsString());

@@ -141,6 +141,14 @@ public:
     applicator_ = std::move(applicator);
   }
 
+  void setUpstreamStateMachine(
+      std::shared_ptr<
+          StateMachine<durable_log::MetadataConfig, ApplicationResult>>
+          upstreamStateMachine) override {
+    throw std::runtime_error{
+        "metadata state machine does not require upstream state machine"};
+  }
+
 private:
   // TODO(rahul): Refactor out lock. Handle somewhere else.
   std::unique_ptr<std::mutex> mtx_;

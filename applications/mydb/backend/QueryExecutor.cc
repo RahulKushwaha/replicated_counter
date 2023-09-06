@@ -92,10 +92,10 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
       // total number of values present in the startKey should be equal to
       // the number of columns in primary prefix.
       assert(indexQueryOptions.primaryKeyValues.size() ==
-              internalTable.schema->rawTable()
-                  .primary_key_index()
-                  .column_ids()
-                  .size());
+             internalTable.schema->rawTable()
+                 .primary_key_index()
+                 .column_ids()
+                 .size());
 
       return prefix::maximumSecondaryIndexKey(
           internalTable.schema->rawTable(), indexQueryOptions.indexId,

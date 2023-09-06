@@ -25,7 +25,7 @@ public:
   virtual void setApplicator(std::shared_ptr<Applicator<T, R>> applicator) = 0;
 
   virtual void setUpstreamStateMachine(
-      std::shared_ptr<StateMachine<T, R>> upstreamStateMachine) {}
+      std::shared_ptr<StateMachine<T, R>> upstreamStateMachine) = 0;
 };
 
 } // namespace rk::projects::state_machine
