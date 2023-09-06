@@ -129,7 +129,7 @@ TEST_P(ReplicaTests,
   ASSERT_NO_THROW(
       replica->append({}, versionId, 500, "Hello World").semi().get());
 
-  replica->seal(versionId);
+  replica->seal(versionId).semi().get();
 
   std::string logEntry{"Hello World"};
   ASSERT_NO_THROW(

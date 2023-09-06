@@ -15,6 +15,7 @@ public:
     std::string path;
     bool createIfMissing;
     bool manualWALFlush;
+    bool destroyIfExists;
   };
 
   static rocksdb::DB *provide(const RocksDbConfig &config) {
@@ -24,8 +25,11 @@ public:
     options.create_if_missing = config.createIfMissing;
     options.manual_wal_flush = config.manualWALFlush;
 
-    auto destroyStatus = rocksdb::DestroyDB(config.path, options);
-    assert(destroyStatus.ok());
+    if (config.destroyIfExists) {
+      auto destroyStatus = rocksdb::DestroyDB(config.path, options);
+      LOG(INFO) << "destroying db: " << destroyStatus.ToString();
+      assert(destroyStatus.ok());
+    }
 
     rocksdb::Status status = rocksdb::DB::Open(options, config.path, &db);
 

@@ -23,6 +23,9 @@ public:
   scan(std::string startPrefix) = 0;
 
   virtual folly::coro::Task<bool> flushWal() = 0;
+
+  virtual folly::coro::Task<void>
+  checkpoint(const std::string &checkpointDir) = 0;
 };
 
 } // namespace rk::projects::persistence

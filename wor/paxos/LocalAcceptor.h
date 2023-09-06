@@ -37,7 +37,7 @@ private:
   std::shared_ptr<persistence::KVStoreLite> kvStore_;
   std::unique_ptr<std::mutex> mtx_;
 
-  static constexpr char *KEY_FORMAT = "PAXOS_DATA|{}";
+  static constexpr char const *KEY_FORMAT = "PAXOS_DATA|{}";
 };
 
 } // namespace rk::projects::paxos

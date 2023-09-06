@@ -43,10 +43,13 @@ public:
   coro<std::vector<CounterKeyValue>>
   batchUpdate(std::vector<Operation> operations);
 
-  std::vector<CounterKeyValue>
-  apply(const CounterLogEntries &counterLogEntries);
+  std::vector<CounterKeyValue> apply(const CounterLogEntries &counterLogEntries,
+                                     durable_log::LogId logId);
 
-  coro<CounterAppSnapshot> snapshot();
+  std::unordered_map<std::string, std::int64_t> getValues();
+
+  coro<CounterAppSnapshot> snapshot(const std::string &snapshotDirectory);
+  coro<std::optional<CounterAppSnapshot>> restoreFromSnapshot();
 
   LogId getLastSnapshotId() const;
 
