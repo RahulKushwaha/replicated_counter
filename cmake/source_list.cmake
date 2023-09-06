@@ -116,3 +116,28 @@ set(
         statemachine/Factory.h
         statemachine/Common.h
 )
+
+
+set(
+        MY_DB_SOURCE_FILES_LIST
+
+        applications/mydb/backend/Common.h
+        applications/mydb/backend/KeySerializer.cc
+        applications/mydb/backend/KeySerializer.h
+        applications/mydb/backend/QueryExecutor.cc
+        applications/mydb/backend/QueryExecutor.h
+        applications/mydb/backend/QueryOptions.h
+        applications/mydb/backend/RocksDbFactory.h
+        applications/mydb/backend/RocksReaderWriter.cc
+        applications/mydb/backend/RocksReaderWriter.h
+        applications/mydb/backend/RowSerializer.h
+        applications/mydb/backend/SchemaStore.h
+        applications/mydb/backend/TableRow.cc
+        applications/mydb/backend/TableRow.h
+
+        applications/mydb/backend/QueryParser.h
+        applications/mydb/backend/QueryParser.cc
+        applications/mydb/backend/QueryPlanner.h
+        applications/mydb/backend/QueryPlanner.cc
+        applications/mydb/backend/QueryPlan.h
+)

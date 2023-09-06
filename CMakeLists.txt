@@ -94,6 +94,9 @@ target_link_libraries(CounterAppServer ${SERVER_LIBS})
 add_executable(MetadataServer metadata/main.cc ${SOURCE_FILES_LIST})
 target_link_libraries(MetadataServer ${SERVER_LIBS})
 
+find_package(Arrow REQUIRED)
+find_package(ArrowDataset REQUIRED)
+
 enable_testing()
 
 set(
@@ -110,66 +113,15 @@ set(
 
         ${BACKWARD_SOURCES}
         ${BACKWARD_ENABLE}
-)
-
-find_package(Arrow REQUIRED)
-
-set(
-        MY_DB_SOURCE_FILES_LIST
-
-        applications/mydb/backend/Common.h
-        applications/mydb/backend/KeySerializer.cc
-        applications/mydb/backend/KeySerializer.h
-        applications/mydb/backend/QueryExecutor.cc
-        applications/mydb/backend/QueryExecutor.h
-        applications/mydb/backend/QueryOptions.h
-        applications/mydb/backend/RocksDbFactory.h
-        applications/mydb/backend/RocksReaderWriter.cc
-        applications/mydb/backend/RocksReaderWriter.h
-        applications/mydb/backend/RowSerializer.h
-        applications/mydb/backend/SchemaStore.h
-        applications/mydb/backend/TableRow.cc
-        applications/mydb/backend/TableRow.h
-
-        applications/mydb/backend/QueryParser.h
-        applications/mydb/backend/QueryParser.cc
-        applications/mydb/backend/QueryPlanner.h
-        applications/mydb/backend/QueryPlanner.cc
-        applications/mydb/backend/QueryPlan.h
-)
-
-set(
-        MY_DB_TEST_FILES_LIST
-
-        applications/mydb/backend/Common.h
-        applications/mydb/backend/KeySerializer.cc
-        applications/mydb/backend/KeySerializer.h
-        applications/mydb/backend/QueryExecutor.cc
-        applications/mydb/backend/QueryExecutor.h
-        applications/mydb/backend/QueryOptions.h
-        applications/mydb/backend/RocksDbFactory.h
-        applications/mydb/backend/RocksReaderWriter.cc
-        applications/mydb/backend/RocksReaderWriter.h
-        applications/mydb/backend/RowSerializer.h
-        applications/mydb/backend/SchemaStore.h
-        applications/mydb/backend/TableRow.cc
-        applications/mydb/backend/TableRow.h
-
-        applications/mydb/backend/tests/TestUtils.h
-        applications/mydb/backend/tests/TestUtils.cc
-
-        applications/mydb/backend/tests/KeySerializerTests.cc
-        applications/mydb/backend/tests/RowSerializerTests.cc
-        applications/mydb/backend/tests/RocksReaderWriterTests.cc
-        applications/mydb/backend/tests/KeyParserTests.cc
-        applications/mydb/backend/tests/QueryExecutorTests.cc
+        Arrow::arrow_shared
+        arrow_dataset_shared
 )
 
 add_executable(mydb applications/mydb/main.cc ${SOURCE_FILES_LIST} ${MY_DB_SOURCE_FILES_LIST})
-target_link_libraries(mydb ${SERVER_LIBS} Arrow::arrow_shared ${ROCKS_DB_LIB})
+target_link_libraries(mydb ${SERVER_LIBS} Arrow::arrow_shared arrow_dataset_shared ${ROCKS_DB_LIB})
 
 add_executable(mydb_tests ${MY_DB_TEST_FILES_LIST})
-target_link_libraries(mydb_tests Arrow::arrow_shared ${ROCKS_DB_LIB} ${TEST_LIBS})
+target_link_libraries(mydb_tests Arrow::arrow_shared arrow_dataset_shared ${ROCKS_DB_LIB} ${TEST_LIBS})
 
 add_executable(tests ${TEST_FILES_LIST})
 
