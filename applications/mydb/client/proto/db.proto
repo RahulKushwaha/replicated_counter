@@ -91,4 +91,15 @@ service db{
   rpc addTable(AddTableRequest) returns(google.protobuf.Empty);
 
   rpc addRow(AddRowRequest)returns(AddRowResponse);
+
+  rpc scanTable(ScanTableRequest) returns(google.protobuf.Empty);
+}
+
+message ScanTableRequest{
+  DatabaseName database_name = 1;
+  TableName table_name = 2;
+
+  repeated ColumnName return_columns = 4;
+
+  optional Condition condition = 5;
 }
