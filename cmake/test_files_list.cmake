@@ -22,6 +22,7 @@ set(
         wor/paxos/tests/ProposerTests.cc
 
         statemachine/tests/RocksStateMachineTests.cc
+        statemachine/tests/VirtualLogStateMachineTests.cc
 )
 
 list(APPEND TEST_FILES_LIST ${SOURCE_FILES_LIST})

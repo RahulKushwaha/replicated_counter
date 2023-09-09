@@ -112,6 +112,7 @@ set(
         statemachine/LogTrimApplicator.h
         statemachine/LogTrimStateMachine.h
         statemachine/VirtualLogStateMachine.h
+        statemachine/SinkStateMachine.h
         statemachine/Factory.h
         statemachine/Common.h
 )
