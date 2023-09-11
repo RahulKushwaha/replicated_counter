@@ -49,7 +49,7 @@ RUN apt-get install -y librocksdb-dev
 
 # Arrow
 WORKDIR /tmp/
-RUN git clone --depth 1 https://github.com/apache/arrow.git
+RUN git clone --depth 1 -b apache-arrow-13.0.0 https://github.com/apache/arrow.git
 
 WORKDIR /tmp/arrow/cpp
 RUN mkdir build

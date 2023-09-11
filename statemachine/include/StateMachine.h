@@ -26,6 +26,8 @@ public:
 
   virtual void setUpstreamStateMachine(
       std::shared_ptr<StateMachine<T, R>> upstreamStateMachine) = 0;
+
+  ~StateMachine() = default;
 };
 
 } // namespace rk::projects::state_machine
