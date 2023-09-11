@@ -2,6 +2,7 @@
 // Created by Rahul  Kushwaha on 1/1/23.
 //
 
+#include "folly/experimental/TestUtil.h"
 #include "log/impl/InMemoryNanoLog.h"
 #include "log/impl/NanoLogFactory.h"
 #include "log/impl/RocksNanoLog.h"
@@ -14,13 +15,17 @@ namespace rk::projects::durable_log {
 
 class NanoLogTests : public testing::TestWithParam<NanoLogType> {
 protected:
+  std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   std::shared_ptr<rocksdb::DB> rocks_;
-  persistence::RocksDbFactory::RocksDbConfig config_{
-      .path = "/tmp/nanolog_tests", .createIfMissing = true};
+  persistence::RocksDbFactory::RocksDbConfig config_{.createIfMissing = true};
   NanoLogType nanoLogType_;
 
 protected:
-  void SetUp() override { nanoLogType_ = GetParam(); }
+  void SetUp() override {
+    tmpDir_ = std::make_shared<folly::test::TemporaryDirectory>();
+    config_.path = tmpDir_->path().string();
+    nanoLogType_ = GetParam();
+  }
   void TearDown() override {
     if (rocks_) {
       auto s = rocksdb::DestroyDB(config_.path, rocksdb::Options{});

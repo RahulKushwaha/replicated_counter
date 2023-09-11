@@ -6,6 +6,7 @@
 #include <mutex>
 #include <random>
 
+#include "folly/experimental/TestUtil.h"
 #include "log/impl/InMemoryMetadataStore.h"
 #include "log/impl/NanoLogFactory.h"
 #include "log/impl/NanoLogStoreImpl.h"
@@ -31,9 +32,9 @@ struct SequencerCreationResult {
 
 class ReplicaTests : public testing::TestWithParam<ReplicaType> {
 protected:
+  std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   SequencerCreationResult creationResult_;
-  persistence::RocksDbFactory::RocksDbConfig config_{
-      .path = "/tmp/replica_tests", .createIfMissing = true};
+  persistence::RocksDbFactory::RocksDbConfig config_{.createIfMissing = true};
 
 protected:
   SequencerCreationResult createReplica(bool inMemoryReplica = true) {
@@ -69,6 +70,9 @@ protected:
   }
 
   void SetUp() override {
+    tmpDir_ = std::make_shared<folly::test::TemporaryDirectory>();
+    config_.path = tmpDir_->path().string();
+
     switch (GetParam()) {
     case ReplicaType::RocksDb:
       creationResult_ = createReplica(false);

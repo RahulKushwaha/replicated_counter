@@ -1,6 +1,7 @@
 //
 // Created by Rahul  Kushwaha on 6/12/23.
 //
+#include "folly/experimental/TestUtil.h"
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
 #include "wor/paxos/LocalAcceptor.h"
@@ -10,12 +11,14 @@ namespace rk::projects::paxos {
 
 class AcceptorTests : public testing::TestWithParam<std::string> {
 protected:
+  std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   std::shared_ptr<rocksdb::DB> rocks_;
   std::shared_ptr<persistence::KVStoreLite> kvStore_;
-  persistence::RocksDbFactory::RocksDbConfig config_{.path = "/tmp/paxos_tests",
-                                                     .createIfMissing = true};
+  persistence::RocksDbFactory::RocksDbConfig config_{.createIfMissing = true};
 
   void SetUp() override {
+    tmpDir_ = std::make_shared<folly::test::TemporaryDirectory>();
+    config_.path = tmpDir_->path().string();
     rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
     kvStore_ = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
   }
