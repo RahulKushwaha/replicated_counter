@@ -29,7 +29,7 @@ public:
     co_return input;
   }
 
-  virtual coro<void> sync() override {
+  coro<void> sync() override {
     co_return co_await downstreamStateMachine_->sync();
   }
 

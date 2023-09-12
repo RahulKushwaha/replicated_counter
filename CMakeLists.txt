@@ -9,6 +9,7 @@ include(FetchContent)
 find_package(OpenSSL MODULE REQUIRED)
 
 include(cmake/uuid_generator.cmake)
+include(cmake/tabulate.cmake)
 include(cmake/source_list.cmake)
 include(cmake/test_files_list.cmake)
 include(cmake/gtest.cmake)

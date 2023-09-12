@@ -140,4 +140,5 @@ set(
         applications/mydb/backend/QueryPlanner.h
         applications/mydb/backend/QueryPlanner.cc
         applications/mydb/backend/QueryPlan.h
+        applications/mydb/format/FormatTable.h
 )
