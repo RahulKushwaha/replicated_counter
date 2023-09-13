@@ -4,10 +4,16 @@
 
 #pragma once
 
+#include "QueryPlan.h"
 #include "RocksReaderWriter.h"
 #include "TableRow.h"
+#include "arrow/acero/options.h"
+#include "arrow/result.h"
 
 namespace rk::projects::mydb {
+
+namespace cp = ::arrow::compute;
+namespace ac = ::arrow::acero;
 
 class QueryExecutor {
 public:

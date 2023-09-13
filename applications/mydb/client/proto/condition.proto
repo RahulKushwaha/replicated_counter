@@ -39,7 +39,7 @@ message IntCondition{
   }
 
   string col_name = 1;
-  google.protobuf.Any value = 2;
+  int64 value = 2;
   Operation op = 3;
 }
 

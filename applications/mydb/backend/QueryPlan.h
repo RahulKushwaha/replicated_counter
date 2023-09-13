@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "TableRow.h"
 #include "applications/mydb/backend/Common.h"
 #include "applications/mydb/client/proto/condition.pb.h"
 #include <arrow/acero/exec_plan.h>
