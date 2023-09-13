@@ -3,18 +3,33 @@
 //
 
 #pragma once
+#include "QueryExecutor.h"
 #include "applications/mydb/backend/QueryPlan.h"
+#include "arrow/acero/exec_plan.h"
+#include "arrow/result.h"
 
 namespace rk::projects::mydb {
 
-class QueryPlanner {
-public:
-  explicit QueryPlanner(QueryPlan plan);
+namespace cp = ::arrow::compute;
+namespace ac = ::arrow::acero;
 
-  ExecutableQueryPlan plan();
+class QueryPlanner {
+
+public:
+  QueryPlanner(QueryPlan plan, std::shared_ptr<QueryExecutor> queryExecutor);
+
+  ExecutableQueryPlan plan(const InternalTable &internalTable);
+
+  static InternalTable execute(const ExecutableQueryPlan &executableQueryPlan);
+
+private:
+  arrow::acero::Declaration
+  parseUnaryCondition(const InternalTable &internalTable,
+                      const client::UnaryCondition &unaryCondition);
 
 private:
   QueryPlan plan_;
+  std::shared_ptr<QueryExecutor> queryExecutor_;
 };
 
 } // namespace rk::projects::mydb

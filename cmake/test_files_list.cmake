@@ -51,6 +51,7 @@ set(
         applications/mydb/backend/tests/KeyParserTests.cc
         applications/mydb/backend/tests/QueryExecutorTests.cc
         applications/mydb/format/tests/FormatTableTests.cc
+        applications/mydb/backend/tests/QueryPlannerTest.cc
 )
 
 

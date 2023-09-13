@@ -114,6 +114,6 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
 
     return get(primaryKeys);
   }
-};
+}
 
 } // namespace rk::projects::mydb
