@@ -79,6 +79,7 @@ set(
 
         persistence/KVStoreLite.h
         persistence/RocksKVStoreLite.h
+        persistence/TransactionalRocksKVStoreLite.h
         persistence/RocksDbFactory.h
         wor/include/WriteOnceRegister.h
         wor/include/WriteOnceRegisterChain.h
