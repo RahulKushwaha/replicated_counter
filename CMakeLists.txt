@@ -71,6 +71,9 @@ include_directories(${CMAKE_SOURCE_DIR})
 find_package(RocksDB CONFIG REQUIRED)
 set(ROCKS_DB_LIB RocksDB::rocksdb)
 
+find_package(Arrow REQUIRED)
+find_package(ArrowDataset REQUIRED)
+
 set(
         SERVER_LIBS
 
@@ -81,6 +84,8 @@ set(
         ${ROCKS_DB_LIB}
         ${BACKWARD_SOURCES}
         ${BACKWARD_ENABLE}
+        Arrow::arrow_shared
+        arrow_dataset_shared
 )
 
 add_executable(LogStorage main.cpp ${SOURCE_FILES_LIST})
@@ -94,9 +99,6 @@ target_link_libraries(CounterAppServer ${SERVER_LIBS})
 
 add_executable(MetadataServer metadata/main.cc ${SOURCE_FILES_LIST})
 target_link_libraries(MetadataServer ${SERVER_LIBS})
-
-find_package(Arrow REQUIRED)
-find_package(ArrowDataset REQUIRED)
 
 enable_testing()
 
