@@ -4,7 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
         folly
         GIT_REPOSITORY https://github.com/facebook/folly.git
-        GIT_TAG v2023.07.24.00
+        GIT_TAG v2023.09.11.00
 )
 
 FetchContent_MakeAvailable(folly)
