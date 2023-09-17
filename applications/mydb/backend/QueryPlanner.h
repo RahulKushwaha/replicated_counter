@@ -23,9 +23,12 @@ public:
   static InternalTable execute(const ExecutableQueryPlan &executableQueryPlan);
 
 private:
-  arrow::acero::Declaration
+  static cp::Expression
   parseUnaryCondition(const InternalTable &internalTable,
                       const client::UnaryCondition &unaryCondition);
+
+  cp::Expression parseCondition(const InternalTable &internalTable,
+                                const client::Condition &condition);
 
 private:
   QueryPlan plan_;

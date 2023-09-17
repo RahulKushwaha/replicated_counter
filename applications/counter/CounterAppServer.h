@@ -29,8 +29,8 @@ class CounterAppServer {
 public:
   explicit CounterAppServer(CounterAppConfig appConfig,
                             rk::projects::server::ServerConfig logServerConfig)
-      : appConfig_{std::move(appConfig)},
-        logServerConfig_{std::move(logServerConfig)} {}
+      : appConfig_{std::move(appConfig)}, logServerConfig_{
+                                              std::move(logServerConfig)} {}
 
   folly::coro::Task<void> start() {
     State state{.logServerConfig = logServerConfig_};
