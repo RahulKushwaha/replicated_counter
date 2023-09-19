@@ -3,7 +3,9 @@
 //
 
 #include "QueryExecutor.h"
+
 #include "RowSerializer.h"
+#include <utility>
 
 namespace rk::projects::mydb {
 
@@ -39,8 +41,6 @@ InternalTable QueryExecutor::get(const InternalTable &internalTable) {
   return RowSerializer::deserialize(internalTable.schema, kvRows);
 }
 
-// Pagination is missing
-//
 InternalTable QueryExecutor::tableScan(InternalTable internalTable,
                                        IndexQueryOptions indexQueryOptions) {
   if (internalTable.schema->rawTable().primary_key_index().id() ==
@@ -116,4 +116,29 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
   }
 }
 
+folly::coro::AsyncGenerator<InternalTable>
+QueryExecutor::tableScanGenerator(InternalTable internalTable,
+                                  IndexQueryOptions indexQueryOptions) {
+
+  while (true) {
+
+    InternalTable response = tableScan(
+        InternalTable{.schema = internalTable.schema}, indexQueryOptions);
+    if (response.table->num_rows() == 0) {
+      break;
+    }
+    auto lastRow =
+        response.table->Slice(indexQueryOptions.maxRowsReturnSize - 1, 1);
+    indexQueryOptions.primaryKeyValues =
+        RowSerializer::parsePrimaryKeyValues({internalTable.schema, lastRow});
+
+    if (internalTable.schema->rawTable().primary_key_index().id() !=
+        indexQueryOptions.indexId) {
+      indexQueryOptions.secondaryKeyValues =
+          RowSerializer::parseSecondaryKeyValues(internalTable,
+                                                 indexQueryOptions.indexId);
+    }
+    co_yield response;
+  }
+}
 } // namespace rk::projects::mydb

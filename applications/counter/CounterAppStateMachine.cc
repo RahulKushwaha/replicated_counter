@@ -10,8 +10,8 @@ CounterAppStateMachine::CounterAppStateMachine(
     std::shared_ptr<
         state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
         downstreamStateMachine)
-    : lastAppliedLogId_{0},
-      downstreamStateMachine_{std::move(downstreamStateMachine)},
+    : lastAppliedLogId_{0}, downstreamStateMachine_{std::move(
+                                downstreamStateMachine)},
       applicator_{nullptr} {}
 
 folly::coro::Task<std::vector<CounterKeyValue>>

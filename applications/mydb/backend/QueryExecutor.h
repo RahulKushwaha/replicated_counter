@@ -9,6 +9,7 @@
 #include "TableRow.h"
 #include "arrow/acero/options.h"
 #include "arrow/result.h"
+#include "folly/experimental/coro/AsyncGenerator.h"
 
 namespace rk::projects::mydb {
 
@@ -26,6 +27,10 @@ public:
 
   InternalTable tableScan(InternalTable internalTable,
                           IndexQueryOptions queryOptions);
+
+  folly::coro::AsyncGenerator<InternalTable>
+  tableScanGenerator(InternalTable internalTable,
+                     IndexQueryOptions queryOptions);
 
 private:
 private:
