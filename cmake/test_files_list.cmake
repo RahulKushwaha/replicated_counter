@@ -21,6 +21,9 @@ set(
         wor/paxos/tests/AcceptorTests.cc
         wor/paxos/tests/ProposerTests.cc
 
+        persistence/tests/RocksTestFixture.h
+        persistence/tests/TransactionalRocksKVStoreLiteTests.cc
+
         statemachine/tests/RocksStateMachineTests.cc
         statemachine/tests/VirtualLogStateMachineTests.cc
 )

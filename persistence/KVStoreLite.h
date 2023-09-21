@@ -20,12 +20,18 @@ public:
                                               std::string end) = 0;
 
   virtual folly::coro::AsyncGenerator<KeyValue>
-  scan(std::string startPrefix) = 0;
+  scan(std::string startPrefix = "") = 0;
 
   virtual folly::coro::Task<bool> flushWal() = 0;
 
   virtual folly::coro::Task<void>
   checkpoint(const std::string &checkpointDir) = 0;
+};
+
+class TransactionalKVStoreLite : public KVStoreLite {
+public:
+  virtual folly::coro::Task<std::uint64_t> getId() = 0;
+  virtual folly::coro::Task<bool> commit() = 0;
 };
 
 } // namespace rk::projects::persistence
