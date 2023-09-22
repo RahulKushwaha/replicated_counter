@@ -2,52 +2,23 @@
 // Created by Rahul  Kushwaha on 4/15/23.
 //
 #include "applications/mydb/backend/QueryExecutor.h"
-#include "applications/mydb/backend/RocksDbFactory.h"
 #include "applications/mydb/backend/RocksReaderWriter.h"
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
-#include "rocksdb/db.h"
+#include "persistence/tests/RocksTestFixture.h"
 #include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
-class QueryExecutorTests : public ::testing::Test {
+class QueryExecutorTests : public persistence::RocksTestFixture {
 protected:
-  RocksDbFactory::RocksDbConfig config{.path = "/tmp/db3",
-                                       .createIfMissing = true};
-
-  rocksdb::DB *db_;
-  std::unique_ptr<QueryExecutor> queryExecutor_;
-
-  // You can remove any or all of the following functions if their bodies would
-  // be empty.
-
   QueryExecutorTests() {
-    // You can do set-up work for each test here.
-    db_ = RocksDbFactory::provide(config);
     queryExecutor_ = std::make_unique<QueryExecutor>(
         std::make_unique<RocksReaderWriter>(db_));
   }
 
-  ~QueryExecutorTests() override {
-    db_->Close();
-    auto status = rocksdb::DestroyDB(config.path, rocksdb::Options{});
-    LOG(INFO) << status.ToString();
-    assert(status.ok());
-  }
-
-  // If the constructor and destructor are not enough for setting up
-  // and cleaning up each test, you can define the following methods:
-
-  void SetUp() override {
-    // Code here will be called immediately after the constructor (right
-    // before each test).
-  }
-
-  void TearDown() override {
-    // Code here will be called immediately after each test (right
-    // before the destructor).
-  }
+protected:
+  std::unique_ptr<QueryExecutor> queryExecutor_;
 };
 
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
@@ -59,8 +30,9 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
       InternalTable{.schema = internalTable.schema},
       IndexQueryOptions{
           .indexId = internalTable.schema->rawTable().primary_key_index().id(),
+          .direction = ScanDirection::FORWARD,
           .maxRowsReturnSize = 100,
-          .direction = ScanDirection::FORWARD});
+      });
 
   LOG(INFO) << response.table->ToString() << std::endl;
   LOG(INFO) << internalTable.table->ToString() << std::endl;
@@ -77,8 +49,8 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
     auto response = queryExecutor_->tableScan(
         InternalTable{.schema = internalTable.schema},
         IndexQueryOptions{.indexId = idx.id(),
-                          .maxRowsReturnSize = 100,
-                          .direction = ScanDirection::FORWARD});
+                          .direction = ScanDirection::FORWARD,
+                          .maxRowsReturnSize = 100});
 
     LOG(INFO) << response.table->ToString() << std::endl;
     LOG(INFO) << internalTable.table->ToString() << std::endl;

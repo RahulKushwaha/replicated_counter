@@ -5,48 +5,25 @@
 #include "applications/mydb/backend/QueryPlanner.h"
 #include "TestUtils.h"
 #include "applications/mydb/backend/QueryExecutor.h"
-#include "applications/mydb/backend/RocksDbFactory.h"
 #include "applications/mydb/format/FormatTable.h"
+#include "persistence/tests/RocksTestFixture.h"
 #include <gtest/gtest.h>
+
 namespace rk::projects::mydb {
 
-class QueryPlannerTests : public ::testing::Test {
+class QueryPlannerTests : public persistence::RocksTestFixture {
 protected:
-  RocksDbFactory::RocksDbConfig config{.path = "/tmp/db3",
-                                       .createIfMissing = true};
-
-  rocksdb::DB *db_;
-  std::shared_ptr<QueryExecutor> queryExecutor_;
-
-  // You can remove any or all of the following functions if their bodies would
-  // be empty.
-
-  QueryPlannerTests() {}
-
-  ~QueryPlannerTests() override {}
-
-  // If the constructor and destructor are not enough for setting up
-  // and cleaning up each test, you can define the following methods:
-
   void SetUp() override {
-    // You can do set-up work for each test here.
-    db_ = RocksDbFactory::provide(config);
     queryExecutor_ = std::make_shared<QueryExecutor>(
         std::make_unique<RocksReaderWriter>(db_));
-    // Code here will be called immediately after the constructor (right
-    // before each test).
   }
 
-  void TearDown() override {
-    db_->Close();
-    auto status = rocksdb::DestroyDB(config.path, rocksdb::Options{});
-    assert(status.ok());
-    // Code here will be called immediately after each test (right
-    // before the destructor).
-  }
   void testIntUnaryCondition(client::IntCondition_Operation operation,
                              int64_t value, int64_t returnedRows,
                              const InternalTable &internalTable);
+
+protected:
+  std::shared_ptr<QueryExecutor> queryExecutor_;
 };
 
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryIndexWithIntUnaryCondition) {
