@@ -9,7 +9,7 @@ db{
 }
 
 primary_key_index{
-  id: 1
+  id: 0
   name: "id_idx"
   column_ids: [1]
 }
