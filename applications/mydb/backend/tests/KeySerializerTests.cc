@@ -81,8 +81,7 @@ TEST_P(PrefixTestsSuite, parseKeyString) {
   ASSERT_EQ(keyFragments.tableId, table.id());
   ASSERT_EQ(keyFragments.primaryIndex->indexId, table.primary_key_index().id());
   ASSERT_EQ(keyFragments.primaryIndex->values.size(), 1);
-  ASSERT_EQ(std::stoi(keyFragments.primaryIndex->values[0]),
-            table.primary_key_index().column_ids()[0]);
+  ASSERT_EQ(std::stoi(keyFragments.primaryIndex->values[0]), 5000);
 }
 
 INSTANTIATE_TEST_SUITE_P(PrefixTestSuite, PrefixTestsSuite,

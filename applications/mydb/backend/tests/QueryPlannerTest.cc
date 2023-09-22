@@ -13,10 +13,9 @@ namespace rk::projects::mydb {
 
 class QueryPlannerTests : public persistence::RocksTestFixture {
 protected:
-  void SetUp() override {
-    queryExecutor_ = std::make_shared<QueryExecutor>(
-        std::make_unique<RocksReaderWriter>(db_));
-  }
+  QueryPlannerTests()
+      : queryExecutor_{std::make_shared<QueryExecutor>(
+            std::make_unique<RocksReaderWriter>(db_))} {}
 
   void testIntUnaryCondition(client::IntCondition_Operation operation,
                              int64_t value, int64_t returnedRows,

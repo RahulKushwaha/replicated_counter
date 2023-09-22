@@ -12,10 +12,9 @@ namespace rk::projects::mydb {
 
 class QueryExecutorTests : public persistence::RocksTestFixture {
 protected:
-  QueryExecutorTests() {
-    queryExecutor_ = std::make_unique<QueryExecutor>(
-        std::make_unique<RocksReaderWriter>(db_));
-  }
+  QueryExecutorTests()
+      : queryExecutor_{std::make_unique<QueryExecutor>(
+            std::make_unique<RocksReaderWriter>(db_))} {}
 
 protected:
   std::unique_ptr<QueryExecutor> queryExecutor_;

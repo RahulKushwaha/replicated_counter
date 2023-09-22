@@ -11,12 +11,9 @@
 namespace rk::projects::mydb {
 
 TEST(RowSerializerTest, serializeInternalTable) {
-  auto internalTable = test_utils::getInternalTable(1);
+  auto internalTable = test_utils::getInternalTable(10);
   auto rawTableRows = RowSerializer::serialize(internalTable);
 
-  for (auto &row : rawTableRows) {
-    LOG(INFO) << row.toString();
-  }
   ASSERT_EQ(rawTableRows.size(), 10);
 }
 

@@ -12,9 +12,8 @@ namespace rk::projects::mydb {
 
 class RocksReaderWriterTests : public persistence::RocksTestFixture {
 protected:
-  RocksReaderWriterTests() {
-    rocksReaderWriter_ = std::make_unique<RocksReaderWriter>(db_);
-  }
+  RocksReaderWriterTests()
+      : rocksReaderWriter_{std::make_unique<RocksReaderWriter>(db_)} {}
 
 protected:
   std::unique_ptr<RocksReaderWriter> rocksReaderWriter_;
@@ -85,8 +84,11 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
       internalTable.schema->rawTable(),
       internalTable.schema->rawTable().primary_key_index().id());
 
-  ScanOptions scanOptions{.direction = ScanDirection::FORWARD,
-                          .prefix = prefix};
+  ScanOptions scanOptions{
+      .direction = ScanDirection::FORWARD,
+      .maxRowsReturnSize = 1000,
+      .prefix = prefix,
+  };
   auto response = rocksReaderWriter_->scan(scanOptions);
 
   auto responseTable =

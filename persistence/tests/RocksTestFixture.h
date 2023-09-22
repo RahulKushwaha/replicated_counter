@@ -11,12 +11,12 @@ namespace rk::projects::persistence {
 
 class RocksTestFixture : public ::testing::Test {
 protected:
-  RocksTestFixture() {
-    tmpDir_ = std::make_shared<folly::test::TemporaryDirectory>();
-    config_.path = tmpDir_->path().string();
-    optimisticDb_ = RocksDbFactory::provideOptimisticDb(config_);
-    db_ = optimisticDb_->GetBaseDB();
-  }
+  RocksTestFixture()
+      : tmpDir_{std::make_shared<folly::test::TemporaryDirectory>()},
+        config_{RocksDbFactory::RocksDbConfig{.path = tmpDir_->path().string(),
+                                              .createIfMissing = true}},
+        optimisticDb_{RocksDbFactory::provideOptimisticDb(config_)},
+        db_{optimisticDb_->GetBaseDB()} {}
 
   ~RocksTestFixture() override {
     db_->Close();
@@ -40,9 +40,9 @@ protected:
 
 protected:
   std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
-  RocksDbFactory::RocksDbConfig config_{.createIfMissing = true};
-  rocksdb::DB *db_;
+  RocksDbFactory::RocksDbConfig config_;
   std::shared_ptr<rocksdb::OptimisticTransactionDB> optimisticDb_;
+  rocksdb::DB *db_;
 };
 
 } // namespace rk::projects::persistence
