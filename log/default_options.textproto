@@ -1,5 +1,5 @@
 # proto-file: log/proto/Options.proto
-# proto-message: Options.proto
+# proto-message: Options
 
 
 client_deadline_ms: 250
