@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "rocksdb/utilities/write_batch_with_index.h"
+#include <optional>
 #include <string>
 
 namespace rk::projects::state_machine {

@@ -95,7 +95,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
   std::string serverAddressFormat{"localhost:"};
 
   std::int32_t index = 0;
-  for (auto &config : configs) {
+  for (auto &config: configs) {
     std::string replicaAddress =
         serverAddressFormat + std::to_string(config.replicaPort);
 
@@ -140,7 +140,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
   }
 
   index = 0;
-  for (auto &config : configs) {
+  for (auto &config: configs) {
     auto &ensembleNode = counterAppEnsemble.nodes_[index];
     // All the replica set for each node should be populated by now.
     CHECK(ensembleNode.replicaSet.size() == 5);
@@ -152,7 +152,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
             sequencerAddress, grpc::InsecureChannelCredentials()));
 
     LOG(INFO) << "Sequencer: " << sequencerAddress;
-    for (const auto &replica : ensembleNode.replicaSet) {
+    for (const auto &replica: ensembleNode.replicaSet) {
       LOG(INFO) << "  has Replica: " << replica->getId();
     }
 
@@ -178,7 +178,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
         std::make_shared<NullSequencer>(), ensembleNode.replicaSet,
         metadataStore, metadataConfig.version_id(), registry);
 
-    auto counterApp = std::make_shared<CounterApp>(log);
+    auto counterApp = std::make_shared<CounterApp>(nullptr, nullptr);
     ensembleNode.app = counterApp;
     if (true) {
       std::shared_ptr<folly::Executor> failureDetectorPool =
