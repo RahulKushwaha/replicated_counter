@@ -48,13 +48,9 @@ RUN git clone --recurse-submodules -b v1.58.0 --depth 1 --shallow-submodules htt
 
 # ROCKS_DB
 RUN git clone -b v8.5.3 --depth 1 --shallow-submodules https://github.com/facebook/rocksdb.git \
-    && cd /tmp/rocksdb/ && make static_lib -j 32 && rm -rf /tmp/*
+    && cd /tmp/rocksdb/ && make static_lib -j 32 && make install && rm -rf /tmp/*
 
 RUN apt install -y -V ca-certificates lsb-release wget  \
     && wget https://apache.jfrog.io/artifactory/arrow/ubuntu/apache-arrow-apt-source-latest-jammy.deb  \
     && apt install -y -V ./apache-arrow-apt-source-latest-jammy.deb  \
     && apt update && apt install -y -V libarrow-dev libarrow-dataset-dev libarrow-acero-dev && apt clean
-
-RUN apt install -y lsb-release wget software-properties-common gnupg && wget https://apt.llvm.org/llvm.sh \
-    && chmod +x llvm.sh \
-    && ./llvm.sh 16
