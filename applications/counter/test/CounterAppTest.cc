@@ -10,13 +10,14 @@
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
 #include "statemachine/Factory.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::counter_app {
 using namespace testing;
 
 class CounterAppTests : public ::testing::Test {
-protected:
+ protected:
   std::shared_ptr<folly::test::TemporaryDirectory> rocksDir_;
 
   void SetUp() override {
@@ -25,9 +26,9 @@ protected:
 
   void TearDown() override {}
 
-public:
-  std::shared_ptr<CounterApp>
-  makeCounterApp(std::optional<std::string> dbPath = {}) {
+ public:
+  std::shared_ptr<CounterApp> makeCounterApp(
+      std::optional<std::string> dbPath = {}) {
     auto mockVirtualLog = std::make_shared<InMemoryFakeVirtualLog>();
     auto stateMachineStack = state_machine::makeStateMachineStack<ReturnType>(
         nullptr, mockVirtualLog);
@@ -287,4 +288,4 @@ TEST_F(CounterAppTests, CheckpointWithDataAndRestoreMultiple) {
   }
 }
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

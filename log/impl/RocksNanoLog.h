@@ -11,7 +11,7 @@
 namespace rk::projects::durable_log {
 
 class RocksNanoLog : public NanoLog {
-public:
+ public:
   explicit RocksNanoLog(std::string id, std::string name, std::string versionId,
                         LogId startIndex, LogId endIndex, bool sealed,
                         std::shared_ptr<persistence::KVStoreLite> kvStore);
@@ -35,7 +35,7 @@ public:
   bool isSealed() override;
   ~RocksNanoLog() override = default;
 
-private:
+ private:
   coro<bool> co_isSealed();
   coro<bool> co_setSeal();
   coro<LogId> co_getEndIndex();
@@ -49,7 +49,7 @@ private:
     static constexpr std::string_view endIndexKey = "VERSION_ID|{}|END_INDEX|";
   };
 
-private:
+ private:
   std::string id_;
   std::string name_;
   std::string versionId_;
@@ -63,4 +63,4 @@ private:
   std::unique_ptr<std::mutex> mtx_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

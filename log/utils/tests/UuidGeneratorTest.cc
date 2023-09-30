@@ -3,7 +3,9 @@
 //
 
 #include "../UuidGenerator.h"
+
 #include <gtest/gtest.h>
+
 #include <unordered_set>
 
 namespace rk::projects::utils {
@@ -24,4 +26,4 @@ TEST(UuidGeneratorTests, createUuidMultipleAndAreUnique) {
   ASSERT_EQ(uuids.size(), limit);
 }
 
-} // namespace rk::projects::utils
+}  // namespace rk::projects::utils

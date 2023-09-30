@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "rocksdb/utilities/write_batch_with_index.h"
+
 #include <optional>
 #include <string>
 
@@ -32,4 +33,4 @@ struct RocksTxn {
   LogId logId;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

@@ -6,27 +6,29 @@
 #include "Common.h"
 #include "folly/experimental/coro/Task.h"
 #include "log/proto/MetadataConfig.pb.h"
+
 #include <folly/futures/Future.h>
+
 #include <string>
 
 namespace rk::projects::durable_log {
 
 class VirtualLog {
-public:
+ public:
   virtual std::string getId() = 0;
   virtual std::string getName() = 0;
 
   virtual folly::SemiFuture<LogId> append(std::string logEntryPayload) = 0;
-  virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(LogId logId) = 0;
+  virtual folly::SemiFuture<std::variant<LogEntry, LogReadError>> getLogEntry(
+      LogId logId) = 0;
 
   virtual folly::coro::Task<MetadataConfig> getCurrentConfig() = 0;
-  virtual folly::coro::Task<MetadataConfig>
-  reconfigure(MetadataConfig metadataConfig) = 0;
+  virtual folly::coro::Task<MetadataConfig> reconfigure(
+      MetadataConfig metadataConfig) = 0;
   virtual folly::coro::Task<void> refreshConfiguration() = 0;
   virtual folly::SemiFuture<LogId> sync() = 0;
 
   virtual ~VirtualLog() = default;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

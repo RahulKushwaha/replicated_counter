@@ -5,6 +5,7 @@
 #include "applications/mydb/backend/AddTableRowRequest.h"
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
+
 #include <arrow/chunked_array.h>
 #include <gtest/gtest.h>
 
@@ -17,4 +18,4 @@ TEST(RowSerializerTest, serializeInternalTable) {
   ASSERT_EQ(rawTableRows.size(), 10);
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

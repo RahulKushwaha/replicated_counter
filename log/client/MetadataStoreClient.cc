@@ -12,8 +12,8 @@ constexpr auto CLIENT_TIMEOUT = 250ms;
 MetadataStoreClient::MetadataStoreClient(std::shared_ptr<grpc::Channel> channel)
     : stub_{server::MetadataService::NewStub(std::move(channel))} {}
 
-folly::SemiFuture<MetadataConfig>
-MetadataStoreClient::getConfig(VersionId versionId) {
+folly::SemiFuture<MetadataConfig> MetadataStoreClient::getConfig(
+    VersionId versionId) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
   server::MetadataVersionId request;
@@ -30,8 +30,8 @@ MetadataStoreClient::getConfig(VersionId versionId) {
   return folly::makeSemiFuture<MetadataConfig>(std::move(err));
 }
 
-folly::SemiFuture<MetadataConfig>
-MetadataStoreClient::getConfigUsingLogId(LogId logId) {
+folly::SemiFuture<MetadataConfig> MetadataStoreClient::getConfigUsingLogId(
+    LogId logId) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
   server::LogId request;
@@ -65,8 +65,8 @@ folly::SemiFuture<VersionId> MetadataStoreClient::getCurrentVersionId() {
   return folly::makeSemiFuture<VersionId>(std::move(err));
 }
 
-folly::SemiFuture<folly::Unit>
-MetadataStoreClient::compareAndAppendRange(MetadataConfig newMetadataConfig) {
+folly::SemiFuture<folly::Unit> MetadataStoreClient::compareAndAppendRange(
+    MetadataConfig newMetadataConfig) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
   server::CompareAndAppendRangeRequest request;
@@ -100,4 +100,4 @@ folly::coro::Task<void> MetadataStoreClient::printConfigChain() {
       "debug string: " + context.debug_error_string());
 }
 
-} // namespace rk::projects::durable_log::client
+}  // namespace rk::projects::durable_log::client

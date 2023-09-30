@@ -3,9 +3,9 @@
 //
 
 #include "folly/experimental/coro/AsyncGenerator.h"
+#include "gtest/gtest.h"
 #include "persistence/TransactionalRocksKVStoreLite.h"
 #include "persistence/tests/RocksTestFixture.h"
-#include "gtest/gtest.h"
 
 namespace rk::projects::persistence {
 
@@ -20,7 +20,7 @@ getKeyValues(folly::coro::AsyncGenerator<KVStoreLite::KeyValue> generator) {
   co_return output;
 }
 
-} // namespace
+}  // namespace
 
 class TransactionalRocksKVStoreLiteTests : public RocksTestFixture {};
 
@@ -80,7 +80,7 @@ TEST_F(TransactionalRocksKVStoreLiteTests, scan) {
 
   std::sort(keyValues.begin(), keyValues.end());
 
-  for (const auto &[key, value] : keyValues) {
+  for (const auto& [key, value] : keyValues) {
     handle->put(key, value).semi().get();
   }
 
@@ -88,4 +88,4 @@ TEST_F(TransactionalRocksKVStoreLiteTests, scan) {
   ASSERT_EQ(keyValues, response);
 }
 
-} // namespace rk::projects::persistence
+}  // namespace rk::projects::persistence

@@ -9,8 +9,8 @@ namespace rk::projects::counter_app {
 CounterAppClient::CounterAppClient(std::shared_ptr<grpc::Channel> channel)
     : stub_{CounterService::NewStub(std::move(channel))} {}
 
-folly::coro::Task<std::int64_t>
-CounterAppClient::incrementAndGet(std::string key, std::int64_t incrBy) {
+folly::coro::Task<std::int64_t> CounterAppClient::incrementAndGet(
+    std::string key, std::int64_t incrBy) {
   IncrementRequest request{};
   request.set_key(std::move(key));
   request.set_incr_by(incrBy);
@@ -27,8 +27,8 @@ CounterAppClient::incrementAndGet(std::string key, std::int64_t incrBy) {
   co_return response.value();
 }
 
-folly::coro::Task<std::int64_t>
-CounterAppClient::decrementAndGet(std::string key, std::int64_t decrBy) {
+folly::coro::Task<std::int64_t> CounterAppClient::decrementAndGet(
+    std::string key, std::int64_t decrBy) {
   DecrementRequest request{};
   request.set_key(std::move(key));
   request.set_decr_by(decrBy);
@@ -61,4 +61,4 @@ folly::coro::Task<std::int64_t> CounterAppClient::getValue(std::string key) {
   co_return response.value();
 }
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

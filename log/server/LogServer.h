@@ -29,8 +29,10 @@
 #include "wor/paxos/RemoteAcceptor.h"
 #include "wor/paxos/client/AcceptorClient.h"
 #include "wor/paxos/server/Acceptor.h"
+
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+
 #include <utility>
 
 namespace rk::projects::durable_log::server {
@@ -41,10 +43,11 @@ constexpr std::string_view GRPC_SVC_ADDRESS_FORMAT = {"{}:{}"};
 constexpr bool USE_PERSISTENT_METADATA_STORE = true;
 
 class LogServer {
-public:
+ public:
   explicit LogServer(::rk::projects::server::ServerConfig serverConfig,
                      ::rk::projects::durable_log::Options options = {})
-      : config_{std::move(serverConfig)}, options_{std::move(options)},
+      : config_{std::move(serverConfig)},
+        options_{std::move(options)},
         mtx_{std::make_unique<std::mutex>()} {}
 
   folly::coro::Task<void> start() {
@@ -94,11 +97,12 @@ public:
   }
 
   std::shared_ptr<VirtualLog> getVirtualLog() { return state_->virtualLog; }
+
   std::shared_ptr<folly::CPUThreadPoolExecutor> getThreadPool() {
     return state_->threadPoolExecutor;
   }
 
-private:
+ private:
   struct State {
     rk::projects::server::ServerConfig config;
 
@@ -153,7 +157,7 @@ private:
         metadataConfig.set_version_id(0);
         metadataConfig.set_previous_version_id(-1);
 
-        for (const auto &replicaServerConfig : config.replica_set()) {
+        for (const auto& replicaServerConfig : config.replica_set()) {
           ReplicaConfig replicaConfig{};
           replicaConfig.set_id(replicaServerConfig.id());
           replicaConfig.mutable_ip_address()->CopyFrom(
@@ -241,7 +245,7 @@ private:
     }
 
     void makeAcceptorSet() {
-      for (const auto &remoteReplicaConfig : config.replica_set()) {
+      for (const auto& remoteReplicaConfig : config.replica_set()) {
         const auto remoteAcceptorClientAddress = fmt::format(
             GRPC_SVC_ADDRESS_FORMAT, remoteReplicaConfig.ip_address().host(),
             remoteReplicaConfig.ip_address().port());
@@ -262,7 +266,7 @@ private:
     }
 
     void makeReplicaSet() {
-      for (const auto &remoteReplicaConfig : config.replica_set()) {
+      for (const auto& remoteReplicaConfig : config.replica_set()) {
         const auto remoteReplicaClientAddress = fmt::format(
             GRPC_SVC_ADDRESS_FORMAT, remoteReplicaConfig.ip_address().host(),
             remoteReplicaConfig.ip_address().port());
@@ -312,7 +316,7 @@ private:
       registry->registerSequencer(config.sequencer_config().id(), sequencer);
 
       // register remote sequencers
-      for (const auto &remoteSequencerConfig : config.remote_sequencer_set()) {
+      for (const auto& remoteSequencerConfig : config.remote_sequencer_set()) {
         const auto remoteSequencerClientAddress = fmt::format(
             GRPC_SVC_ADDRESS_FORMAT, remoteSequencerConfig.ip_address().host(),
             remoteSequencerConfig.ip_address().port());
@@ -336,4 +340,4 @@ private:
   std::shared_ptr<State> state_;
 };
 
-} // namespace rk::projects::durable_log::server
+}  // namespace rk::projects::durable_log::server

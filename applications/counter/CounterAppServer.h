@@ -1,8 +1,6 @@
 //
 // Created by Rahul  Kushwaha on 3/28/23.
 //
-#include <memory>
-
 #include "applications/counter/CounterApp.h"
 #include "applications/counter/CounterAppStateMachine.h"
 #include "applications/counter/CounterApplicator.h"
@@ -19,6 +17,8 @@
 #include "statemachine/VirtualLogStateMachine.h"
 #include "statemachine/include/StateMachine.h"
 
+#include <memory>
+
 namespace rk::projects::counter_app {
 
 using StateMachineReturnType =
@@ -26,11 +26,11 @@ using StateMachineReturnType =
 using namespace state_machine;
 
 class CounterAppServer {
-public:
+ public:
   explicit CounterAppServer(CounterAppConfig appConfig,
                             rk::projects::server::ServerConfig logServerConfig)
-      : appConfig_{std::move(appConfig)}, logServerConfig_{
-                                              std::move(logServerConfig)} {}
+      : appConfig_{std::move(appConfig)},
+        logServerConfig_{std::move(logServerConfig)} {}
 
   folly::coro::Task<void> start() {
     State state{.logServerConfig = logServerConfig_};
@@ -100,7 +100,7 @@ public:
     co_return;
   }
 
-private:
+ private:
   struct State {
     rk::projects::server::ServerConfig logServerConfig;
     std::shared_ptr<rk::projects::durable_log::server::LogServer> logServer;
@@ -123,4 +123,4 @@ private:
   std::shared_ptr<State> state_;
 };
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

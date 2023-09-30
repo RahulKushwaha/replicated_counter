@@ -19,10 +19,11 @@
 #include "log/server/SequencerServer.h"
 #include "log/utils/GrpcServerFactory.h"
 #include "log/utils/UuidGenerator.h"
-#include <string>
 
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+
+#include <string>
 
 namespace rk::projects::counter_app {
 
@@ -77,7 +78,7 @@ std::array<EnsembleNodeConfig, 5> configs{
     ensembleNode1, ensembleNode2, ensembleNode3, ensembleNode4, ensembleNode5};
 
 CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
-                                          folly::Executor *executor) {
+                                          folly::Executor* executor) {
 
   CounterAppEnsemble counterAppEnsemble;
   std::shared_ptr<MetadataStore> metadataStore = makeMetadataStore();
@@ -93,9 +94,8 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
 
   // TODO(rahul): use cpp fmt.
   std::string serverAddressFormat{"localhost:"};
-
   std::int32_t index = 0;
-  for (auto &config: configs) {
+  for (auto& config : configs) {
     std::string replicaAddress =
         serverAddressFormat + std::to_string(config.replicaPort);
 
@@ -121,7 +121,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
 
     registry->registerReplica(remoteReplica);
 
-    auto &ensembleNode = counterAppEnsemble.nodes_[index];
+    auto& ensembleNode = counterAppEnsemble.nodes_[index];
     ensembleNode.replica = localReplicaServer;
 
     // Add current remote replica to other nodes replica set.
@@ -140,8 +140,8 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
   }
 
   index = 0;
-  for (auto &config: configs) {
-    auto &ensembleNode = counterAppEnsemble.nodes_[index];
+  for (auto& config : configs) {
+    auto& ensembleNode = counterAppEnsemble.nodes_[index];
     // All the replica set for each node should be populated by now.
     CHECK(ensembleNode.replicaSet.size() == 5);
 
@@ -152,7 +152,7 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
             sequencerAddress, grpc::InsecureChannelCredentials()));
 
     LOG(INFO) << "Sequencer: " << sequencerAddress;
-    for (const auto &replica: ensembleNode.replicaSet) {
+    for (const auto& replica : ensembleNode.replicaSet) {
       LOG(INFO) << "  has Replica: " << replica->getId();
     }
 
@@ -203,4 +203,4 @@ CounterAppEnsemble makeCounterAppEnsemble(std::string appName,
   return counterAppEnsemble;
 }
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

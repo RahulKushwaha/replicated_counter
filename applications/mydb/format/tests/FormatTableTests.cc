@@ -3,12 +3,13 @@
 //
 #include "applications/mydb/backend/tests/TestUtils.h"
 #include "applications/mydb/format/FormatTable.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
 namespace {
-const char *output =
+const char* output =
     R"(+----------------+----------------+----------------+------------------------+------------------------+------------------------+
 | col_int_name_1 | col_int_name_2 | col_int_name_3 |     col_str_name_4     |     col_str_name_5     |     col_str_name_6     |
 +----------------+----------------+----------------+------------------------+------------------------+------------------------+
@@ -41,4 +42,4 @@ TEST(FormatTableTests, PrintPretty) {
   ASSERT_EQ(formattedTable, output);
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

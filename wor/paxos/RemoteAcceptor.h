@@ -9,14 +9,14 @@
 namespace rk::projects::paxos {
 
 class RemoteAcceptor : public paxos::Acceptor {
-public:
+ public:
   explicit RemoteAcceptor(std::shared_ptr<client::AcceptorClient> client)
       : remote_{std::move(client)} {}
 
   std::string getId() override { return remote_->getId(); }
 
-  coro<std::variant<Promise, std::false_type>>
-  prepare(std::string paxosInstanceId, Ballot ballot) override {
+  coro<std::variant<Promise, std::false_type>> prepare(
+      std::string paxosInstanceId, Ballot ballot) override {
     co_return co_await remote_->prepare(std::move(paxosInstanceId),
                                         std::move(ballot));
   }
@@ -31,18 +31,18 @@ public:
                                        std::move(ballotId));
   }
 
-  coro<std::optional<Promise>>
-  getAcceptedValue(std::string paxosInstanceId) override {
+  coro<std::optional<Promise>> getAcceptedValue(
+      std::string paxosInstanceId) override {
     co_return co_await remote_->getAcceptedValue(std::move(paxosInstanceId));
   }
 
-  coro<std::optional<std::string>>
-  getCommittedValue(std::string paxosInstanceId) override {
+  coro<std::optional<std::string>> getCommittedValue(
+      std::string paxosInstanceId) override {
     co_return co_await remote_->getCommittedValue(std::move(paxosInstanceId));
   }
 
-private:
+ private:
   std::shared_ptr<client::AcceptorClient> remote_;
 };
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

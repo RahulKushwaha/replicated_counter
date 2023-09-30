@@ -4,15 +4,16 @@
 //
 
 #include "TableRow.h"
+
 #include <variant>
 
 namespace rk::projects::mydb {
 
 using ColumnValue = std::variant<std::int64_t, std::string>;
 
-std::string toString(const ColumnValue &rowValue) {
+std::string toString(const ColumnValue& rowValue) {
   return std::visit(
-      [](auto &&arg) {
+      [](auto&& arg) {
         using a = std::decay_t<decltype(arg)>;
         if constexpr (std::is_same_v<a, std::string>)
           return arg;
@@ -22,4 +23,4 @@ std::string toString(const ColumnValue &rowValue) {
       rowValue);
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

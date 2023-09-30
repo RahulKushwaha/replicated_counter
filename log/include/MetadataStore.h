@@ -13,27 +13,27 @@
 namespace rk::projects::durable_log {
 
 struct OptimisticConcurrencyException : public std::exception {
-  const char *what() const noexcept override {
+  const char* what() const noexcept override {
     return "Optimistic Concurrency Exception";
   }
 };
 
 class MetadataStore {
-public:
-  virtual coro<std::optional<MetadataConfig>>
-  getConfig(VersionId versionId) = 0;
+ public:
+  virtual coro<std::optional<MetadataConfig>> getConfig(
+      VersionId versionId) = 0;
 
-  virtual coro<std::optional<MetadataConfig>>
-  getConfigUsingLogId(LogId logId) = 0;
+  virtual coro<std::optional<MetadataConfig>> getConfigUsingLogId(
+      LogId logId) = 0;
 
   virtual coro<VersionId> getCurrentVersionId() = 0;
 
-  virtual coro<void>
-  compareAndAppendRange(MetadataConfig newMetadataConfig) = 0;
+  virtual coro<void> compareAndAppendRange(
+      MetadataConfig newMetadataConfig) = 0;
 
   virtual void printConfigChain() = 0;
 
   virtual ~MetadataStore() = default;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

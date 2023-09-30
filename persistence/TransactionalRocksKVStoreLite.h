@@ -14,16 +14,17 @@ namespace rk::projects::persistence {
 class TransactionalRocksKVStoreLite;
 
 class TxnManager {
-public:
+ public:
   using txnId_t = std::uint64_t;
 
   explicit TxnManager(std::shared_ptr<rocksdb::OptimisticTransactionDB> txnDb)
-      : txnDb_{std::move(txnDb)}, txnLookup_{},
+      : txnDb_{std::move(txnDb)},
+        txnLookup_{},
         mtx_{std::make_unique<std::mutex>()} {}
 
   folly::coro::Task<std::shared_ptr<TransactionalKVStoreLite>>
   createTxnHandle() {
-    rocksdb::Transaction *txn =
+    rocksdb::Transaction* txn =
         txnDb_->BeginTransaction(rocksdb::WriteOptions{});
 
     std::shared_ptr<rocksdb::Transaction> txnPtr{txn};
@@ -49,14 +50,14 @@ public:
     co_return {};
   }
 
-private:
+ private:
   std::shared_ptr<rocksdb::OptimisticTransactionDB> txnDb_;
   std::map<txnId_t, std::shared_ptr<TransactionalRocksKVStoreLite>> txnLookup_;
   std::unique_ptr<std::mutex> mtx_;
 };
 
 class TransactionalRocksKVStoreLite : public TransactionalKVStoreLite {
-public:
+ public:
   explicit TransactionalRocksKVStoreLite(
       std::shared_ptr<rocksdb::Transaction> txn,
       std::shared_ptr<rocksdb::OptimisticTransactionDB> txnDb)
@@ -125,9 +126,9 @@ public:
     co_return status.ok();
   }
 
-  folly::coro::Task<void>
-  checkpoint(const std::string &checkpointDir) override {
-    rocksdb::Checkpoint *checkpoint;
+  folly::coro::Task<void> checkpoint(
+      const std::string& checkpointDir) override {
+    rocksdb::Checkpoint* checkpoint;
     auto status = rocksdb::Checkpoint::Create(txnDb_.get(), &checkpoint);
     if (!status.ok()) {
       LOG(INFO) << "failed to create checkpoint object" << status.ToString();
@@ -151,9 +152,9 @@ public:
     throw std::runtime_error{status.ToString()};
   }
 
-private:
+ private:
   std::shared_ptr<rocksdb::Transaction> txn_;
   std::shared_ptr<rocksdb::OptimisticTransactionDB> txnDb_;
 };
 
-} // namespace rk::projects::persistence
+}  // namespace rk::projects::persistence

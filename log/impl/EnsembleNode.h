@@ -9,11 +9,13 @@
 #include "log/include/Replica.h"
 #include "log/server/ReplicaServer.h"
 #include "log/server/SequencerServer.h"
+
 #include <memory>
 
 namespace rk::projects::durable_log {
 
-template <class APP> struct EnsembleNode {
+template <class APP>
+struct EnsembleNode {
   std::shared_ptr<APP> app;
   std::shared_ptr<server::SequencerServer> sequencer;
   std::shared_ptr<server::ReplicaServer> replica;
@@ -24,4 +26,4 @@ template <class APP> struct EnsembleNode {
   ~EnsembleNode() { LOG(INFO) << "Destructor Called"; }
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

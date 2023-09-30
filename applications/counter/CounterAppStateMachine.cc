@@ -2,6 +2,7 @@
 // Created by Rahul  Kushwaha on 7/15/23.
 //
 #include "applications/counter/CounterAppStateMachine.h"
+
 #include "applications/counter/CounterApp.h"
 
 namespace rk::projects::counter_app {
@@ -10,12 +11,12 @@ CounterAppStateMachine::CounterAppStateMachine(
     std::shared_ptr<
         state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
         downstreamStateMachine)
-    : lastAppliedLogId_{0}, downstreamStateMachine_{std::move(
-                                downstreamStateMachine)},
+    : lastAppliedLogId_{0},
+      downstreamStateMachine_{std::move(downstreamStateMachine)},
       applicator_{nullptr} {}
 
-folly::coro::Task<std::vector<CounterKeyValue>>
-CounterAppStateMachine::append(CounterLogEntries t) {
+folly::coro::Task<std::vector<CounterKeyValue>> CounterAppStateMachine::append(
+    CounterLogEntries t) {
   durable_log::LogEntry_1 logEntry{};
   durable_log::SingleLogEntry singleLogEntry{};
   singleLogEntry.set_payload(t.SerializeAsString());
@@ -30,15 +31,15 @@ CounterAppStateMachine::append(CounterLogEntries t) {
   throw std::runtime_error{"unknown result type"};
 }
 
-folly::coro::Task<ReturnType>
-CounterAppStateMachine::append(rk::projects::durable_log::LogEntry_1 t) {
+folly::coro::Task<ReturnType> CounterAppStateMachine::append(
+    rk::projects::durable_log::LogEntry_1 t) {
   assert(downstreamStateMachine_ != nullptr);
 
   co_return co_await downstreamStateMachine_->append(std::move(t));
 }
 
-folly::coro::Task<ReturnType>
-CounterAppStateMachine::apply(rk::projects::durable_log::LogEntry_1 t) {
+folly::coro::Task<ReturnType> CounterAppStateMachine::apply(
+    rk::projects::durable_log::LogEntry_1 t) {
   assert(applicator_ != nullptr);
 
   co_return co_await applicator_->apply(std::move(t));
@@ -61,4 +62,4 @@ folly::coro::Task<void> CounterAppStateMachine::sync() {
   co_await downstreamStateMachine_->sync();
 }
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

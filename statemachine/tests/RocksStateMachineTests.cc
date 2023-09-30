@@ -8,6 +8,7 @@
 #include "statemachine/tests/TestUtils.h"
 #include "wor/WriteOnceRegisterChainAppender.h"
 #include "wor/inmemory/InMemoryWriteOnceRegisterChain.h"
+
 #include <fmt/format.h>
 #include <gtest/gtest.h>
 
@@ -16,11 +17,11 @@ using namespace wor;
 using namespace rk::projects::mydb;
 
 class RocksStateMachineTests : public ::testing::Test {
-protected:
+ protected:
   RocksDbFactory::RocksDbConfig config{.path = "/tmp/db3",
                                        .createIfMissing = true};
 
-  rocksdb::DB *db_;
+  rocksdb::DB* db_;
 
   RocksStateMachineTests() {
     // You can do set-up work for each test here.
@@ -60,4 +61,4 @@ TEST_F(RocksStateMachineTests, WriteSingleTxn) {
   ASSERT_FALSE(txnResult.speculativeTxnResult.conflictDetected);
 }
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

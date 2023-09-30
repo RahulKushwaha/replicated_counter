@@ -1,11 +1,13 @@
 //
 // Created by Rahul  Kushwaha on 6/9/23.
 //
-#include "wor/WriteOnceRegisterChainAppender.h"
 #include "wor/WORFactory.h"
+#include "wor/WriteOnceRegisterChainAppender.h"
 #include "wor/inmemory/InMemoryWriteOnceRegisterChain.h"
+
 #include <fmt/format.h>
 #include <gtest/gtest.h>
+
 #include <vector>
 
 namespace rk::projects::wor {
@@ -59,4 +61,4 @@ TEST(WriteOnceRegisterChainAppenderTests, WriteMultipleToChain) {
   ASSERT_EQ(values, valuesInChain);
 }
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

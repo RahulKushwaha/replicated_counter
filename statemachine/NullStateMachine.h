@@ -10,8 +10,8 @@ namespace rk::projects::state_machine {
 using namespace rk::projects::durable_log;
 
 class NullStateMachineError : std::runtime_error {
-public:
-  explicit NullStateMachineError(const std::string &errorMessage)
+ public:
+  explicit NullStateMachineError(const std::string& errorMessage)
       : std::runtime_error(errorMessage) {}
 };
 
@@ -40,4 +40,4 @@ class NullStateMachine : public StateMachine<T, R> {
   }
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

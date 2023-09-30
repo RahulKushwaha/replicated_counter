@@ -7,8 +7,10 @@
 #include "wor/inmemory/InMemoryWriteOnceRegister.h"
 #include "wor/paxos/LocalAcceptor.h"
 #include "wor/paxos/PaxosWriteOnceRegister.h"
+
 #include <fmt/format.h>
 #include <gtest/gtest.h>
+
 #include <vector>
 
 namespace rk::projects::wor {
@@ -133,4 +135,4 @@ INSTANTIATE_TEST_SUITE_P(
         []() { return std::make_shared<InMemoryWriteOnceRegister>(); },
         []() { return createPaxosRegister(); }));
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

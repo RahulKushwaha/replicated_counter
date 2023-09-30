@@ -13,7 +13,7 @@
 namespace rk::projects::durable_log {
 
 class ReplicaImpl : public Replica {
-public:
+ public:
   explicit ReplicaImpl(std::string id, std::string name,
                        std::shared_ptr<NanoLogStore> nanoLogStore,
                        std::shared_ptr<MetadataStore> metadataStore,
@@ -39,7 +39,7 @@ public:
 
   ~ReplicaImpl() override = default;
 
-private:
+ private:
   std::string id_;
   std::string name_;
   std::shared_ptr<NanoLogStore> nanoLogStore_;
@@ -49,4 +49,4 @@ private:
   NanoLogType nanoLogType_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

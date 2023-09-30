@@ -4,6 +4,7 @@
 #pragma once
 #include "wor/paxos/include/Acceptor.h"
 #include "wor/paxos/server/proto/Acceptor.grpc.pb.h"
+
 #include <grpc++/grpc++.h>
 
 namespace rk::projects::paxos::client {
@@ -11,7 +12,7 @@ using namespace std::chrono_literals;
 constexpr auto CLIENT_TIMEOUT = 250ms;
 
 class AcceptorClient {
-public:
+ public:
   explicit AcceptorClient(std::shared_ptr<grpc::Channel> channel)
       : stub_{server::Acceptor::NewStub(std::move(channel))} {}
 
@@ -30,8 +31,8 @@ public:
     throw std::runtime_error(context.debug_error_string());
   }
 
-  coro<std::variant<Promise, std::false_type>>
-  prepare(std::string paxosInstanceId, Ballot ballot) {
+  coro<std::variant<Promise, std::false_type>> prepare(
+      std::string paxosInstanceId, Ballot ballot) {
     grpc::ClientContext context;
     context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
@@ -115,8 +116,8 @@ public:
         std::move(err));
   }
 
-  coro<std::optional<std::string>>
-  getCommittedValue(std::string paxosInstanceId) {
+  coro<std::optional<std::string>> getCommittedValue(
+      std::string paxosInstanceId) {
     grpc::ClientContext context;
     context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
@@ -140,8 +141,8 @@ public:
         std::move(err));
   }
 
-private:
+ private:
   std::unique_ptr<server::Acceptor::Stub> stub_;
 };
 
-} // namespace rk::projects::paxos::client
+}  // namespace rk::projects::paxos::client

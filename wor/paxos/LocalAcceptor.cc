@@ -8,13 +8,16 @@ namespace rk::projects::paxos {
 
 LocalAcceptor::LocalAcceptor(std::string id,
                              std::shared_ptr<persistence::KVStoreLite> kvStore)
-    : id_{std::move(id)}, kvStore_{std::move(kvStore)},
+    : id_{std::move(id)},
+      kvStore_{std::move(kvStore)},
       mtx_{std::make_unique<std::mutex>()} {}
 
-std::string LocalAcceptor::getId() { return id_; }
+std::string LocalAcceptor::getId() {
+  return id_;
+}
 
-coro<std::variant<Promise, std::false_type>>
-LocalAcceptor::prepare(std::string paxosInstanceId, Ballot ballot) {
+coro<std::variant<Promise, std::false_type>> LocalAcceptor::prepare(
+    std::string paxosInstanceId, Ballot ballot) {
   std::lock_guard lk{*mtx_};
 
   auto paxosInstance = co_await getOrCreate(paxosInstanceId);
@@ -90,16 +93,16 @@ coro<bool> LocalAcceptor::commit(std::string paxosInstanceId,
   co_return false;
 }
 
-coro<std::optional<Promise>>
-LocalAcceptor::getAcceptedValue(std::string paxosInstanceId) {
+coro<std::optional<Promise>> LocalAcceptor::getAcceptedValue(
+    std::string paxosInstanceId) {
   std::lock_guard lk{*mtx_};
 
   auto paxosInstance = co_await getOrCreate(paxosInstanceId);
   co_return paxosInstance.accepted();
 }
 
-coro<std::optional<std::string>>
-LocalAcceptor::getCommittedValue(std::string paxosInstanceId) {
+coro<std::optional<std::string>> LocalAcceptor::getCommittedValue(
+    std::string paxosInstanceId) {
   std::lock_guard lk{*mtx_};
 
   auto paxosInstance = co_await getOrCreate(paxosInstanceId);
@@ -140,4 +143,4 @@ coro<internal::PaxosInstance> LocalAcceptor::getOrCreate(std::string id) {
   co_return paxosInstance;
 }
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

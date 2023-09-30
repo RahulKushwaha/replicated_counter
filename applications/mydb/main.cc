@@ -5,6 +5,7 @@
 #include <arrow/builder.h>
 #include <arrow/chunked_array.h>
 #include <arrow/table.h>
+
 #include <iostream>
 
 auto getIntArrays(std::int32_t size = 10) {
@@ -28,7 +29,7 @@ auto getIntArrays(std::int32_t size = 10) {
 
 auto makeChunkedArray(std::int32_t size = 10) {}
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   std::cout << "Hello World" << std::endl;
   auto v1 = getIntArrays(10).ValueOrDie();
   auto v2 = getIntArrays(9).ValueOrDie();

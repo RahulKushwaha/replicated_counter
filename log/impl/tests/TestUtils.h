@@ -12,6 +12,7 @@
 #include "log/impl/SequencerImpl.h"
 #include "log/include/Registry.h"
 #include "log/utils/UuidGenerator.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::durable_log {
@@ -27,9 +28,8 @@ struct SequencerCreationResult {
   std::shared_ptr<Registry> registry;
 };
 
-inline SequencerCreationResult
-createSequencer(std::int32_t numberOfBadReplicas = 0,
-                std::int64_t sequencerStartNum = 1) {
+inline SequencerCreationResult createSequencer(
+    std::int32_t numberOfBadReplicas = 0, std::int64_t sequencerStartNum = 1) {
   std::shared_ptr<Registry> registry = std::make_shared<RegistryImpl>();
   std::shared_ptr<MetadataStore> metadataStore =
       std::make_shared<InMemoryMetadataStore>();
@@ -99,4 +99,4 @@ createSequencer(std::int32_t numberOfBadReplicas = 0,
           metadataStore, config,     registry};
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

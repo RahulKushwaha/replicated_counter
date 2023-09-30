@@ -6,16 +6,17 @@
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
 #include "persistence/tests/RocksTestFixture.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
 class RocksReaderWriterTests : public persistence::RocksTestFixture {
-protected:
+ protected:
   RocksReaderWriterTests()
       : rocksReaderWriter_{std::make_unique<RocksReaderWriter>(db_)} {}
 
-protected:
+ protected:
   std::unique_ptr<RocksReaderWriter> rocksReaderWriter_;
 };
 
@@ -27,7 +28,7 @@ TEST_F(RocksReaderWriterTests, writeToRockdb) {
   ASSERT_TRUE(result);
 
   std::string primaryKey;
-  for (auto &[k, v] : rawTableRows[0].keyValues) {
+  for (auto& [k, v] : rawTableRows[0].keyValues) {
     if (v == "NULL") {
       primaryKey = k;
       break;
@@ -53,8 +54,8 @@ TEST_F(RocksReaderWriterTests, writeToRockdbMultipleRows) {
   ASSERT_TRUE(result);
 
   std::vector<RawTableRow::Key> keys;
-  for (auto &row : rawTableRows) {
-    for (auto &[k, v] : row.keyValues) {
+  for (auto& row : rawTableRows) {
+    for (auto& [k, v] : row.keyValues) {
       if (v == "NULL") {
         keys.emplace_back(k);
         break;
@@ -97,4 +98,4 @@ TEST_F(RocksReaderWriterTests, scanTableUsingPrimaryIndex) {
   ASSERT_TRUE(internalTable.table->Equals(*responseTable.table));
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

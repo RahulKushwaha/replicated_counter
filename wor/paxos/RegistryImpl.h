@@ -7,7 +7,7 @@
 namespace rk::projects::paxos {
 
 class RegistryImpl : public Registry {
-public:
+ public:
   RegistryImpl() = default;
 
   void registerAcceptor(std::string id,
@@ -23,8 +23,8 @@ public:
     return itr->second;
   }
 
-private:
+ private:
   std::unordered_map<std::string, std::shared_ptr<Acceptor>> lookup_;
 };
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

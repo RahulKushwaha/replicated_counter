@@ -10,13 +10,12 @@
 
 namespace rk::projects::wor {
 
-std::unique_ptr<WriteOnceRegister>
-makePaxosWor(WorId worId,
-             const std::vector<durable_log::ReplicaConfig> &replicaConfigs,
-             const std::shared_ptr<paxos::Registry> &registry);
+std::unique_ptr<WriteOnceRegister> makePaxosWor(
+    WorId worId, const std::vector<durable_log::ReplicaConfig>& replicaConfigs,
+    const std::shared_ptr<paxos::Registry>& registry);
 
 std::unique_ptr<WriteOnceRegisterChain> makeChainUsingInMemoryWor();
 
 std::unique_ptr<WriteOnceRegisterChain> makeChainUsingPaxosWor();
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

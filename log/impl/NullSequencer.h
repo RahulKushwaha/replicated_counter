@@ -14,7 +14,7 @@ constexpr std::string_view NULL_SEQUENCER_ID = "NULL_SEQUENCER";
  * for any kind of action.
  * */
 class NullSequencer : public Sequencer {
-public:
+ public:
   std::string getId() override { return std::string{NULL_SEQUENCER_ID}; }
 
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override {
@@ -36,4 +36,4 @@ public:
   ~NullSequencer() override = default;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

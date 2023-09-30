@@ -5,6 +5,7 @@
 #include "folly/experimental/coro/Collect.h"
 #include "statemachine/SinkStateMachine.h"
 #include "statemachine/VirtualLogStateMachine.h"
+
 #include <google/protobuf/util/message_differencer.h>
 #include <gtest/gtest.h>
 
@@ -34,7 +35,7 @@ std::vector<StmStack> getStateMachineStacks(std::int32_t numberOfStacks = 1) {
 }
 
 bool areAllLogEntriesSame(std::vector<std::vector<LogEntry_1>> entries) {
-  std::vector<LogEntry_1> &prevEntries = entries.at(0);
+  std::vector<LogEntry_1>& prevEntries = entries.at(0);
 
   for (std::size_t index = 1; index < entries.size(); index++) {
     auto logEntries = entries.at(index);
@@ -54,11 +55,11 @@ bool areAllLogEntriesSame(std::vector<std::vector<LogEntry_1>> entries) {
   return true;
 }
 
-} // namespace
+}  // namespace
 
 TEST(VirtualLogStateMachineTests, singleLogEntryWithSingleStm) {
   auto stmStacks = getStateMachineStacks();
-  const auto &topStm = stmStacks.at(0).topStm;
+  const auto& topStm = stmStacks.at(0).topStm;
 
   SingleLogEntry singleLogEntry{};
   singleLogEntry.set_id(1);
@@ -73,7 +74,7 @@ TEST(VirtualLogStateMachineTests, singleLogEntryWithSingleStm) {
 
 TEST(VirtualLogStateMachineTests, multipleLogEntriesWithSingleStm) {
   auto stmStacks = getStateMachineStacks();
-  const auto &topStm = stmStacks.at(0).topStm;
+  const auto& topStm = stmStacks.at(0).topStm;
 
   for (int j = 0, id = 1; j < 10; j++) {
 
@@ -95,7 +96,7 @@ TEST(VirtualLogStateMachineTests, multipleLogEntriesWithSingleStm) {
 
 TEST(VirtualLogStateMachineTests, callSyncMultipleTimes) {
   auto stmStacks = getStateMachineStacks();
-  const auto &topStm = stmStacks.at(0).topStm;
+  const auto& topStm = stmStacks.at(0).topStm;
 
   for (int j = 0, id = 1; j < 10; j++) {
 
@@ -122,8 +123,8 @@ TEST(VirtualLogStateMachineTests, callSyncMultipleTimes) {
 TEST(VirtualLogStateMachineTests, multipleLogEntryInEachStmSequentially) {
   auto stmStacks = getStateMachineStacks(5);
   LogId id{1};
-  for (const auto &stmStack : stmStacks) {
-    const auto &stm = stmStack.topStm;
+  for (const auto& stmStack : stmStacks) {
+    const auto& stm = stmStack.topStm;
     for (int i = 0; i < 10; i++) {
       SingleLogEntry singleLogEntry{};
       singleLogEntry.set_id(id++);
@@ -136,7 +137,7 @@ TEST(VirtualLogStateMachineTests, multipleLogEntryInEachStmSequentially) {
 
     auto logs = stm->getAllLogEntries();
     ASSERT_TRUE(std::is_sorted(
-        logs.begin(), logs.end(), [](const LogEntry_1 &x, const LogEntry_1 &y) {
+        logs.begin(), logs.end(), [](const LogEntry_1& x, const LogEntry_1& y) {
           return x.single_log_entry().id() < y.single_log_entry().id();
         }));
   }
@@ -149,8 +150,8 @@ TEST(VirtualLogStateMachineTests, multipleLogEntryInEachStmParallely) {
   std::vector<folly::SemiFuture<folly::Unit>> tasks;
   std::atomic_int64_t errors{0};
   std::atomic_int64_t id{1};
-  for (const auto &stmStack : stmStacks) {
-    const auto &stm = stmStack.topStm;
+  for (const auto& stmStack : stmStacks) {
+    const auto& stm = stmStack.topStm;
     auto task =
         folly::coro::co_invoke(
             [stm, &id, &errors]() -> folly::coro::Task<void> {
@@ -179,12 +180,12 @@ TEST(VirtualLogStateMachineTests, multipleLogEntryInEachStmParallely) {
 
   folly::collectAll(tasks).get();
 
-  for (auto &stmStack : stmStacks) {
+  for (auto& stmStack : stmStacks) {
     ASSERT_NO_THROW(stmStack.topStm->sync().semi().get());
   }
 
   std::vector<std::vector<LogEntry_1>> entries;
-  for (const auto &stm : stmStacks) {
+  for (const auto& stm : stmStacks) {
     entries.emplace_back(stm.topStm->getAllLogEntries());
   }
 
@@ -195,7 +196,7 @@ TEST(VirtualLogStateMachineTests, addToFirstStmButSyncMultiple) {
   auto stmStacks = getStateMachineStacks(5);
 
   LogId id{1};
-  auto &firstStm = stmStacks.at(0).topStm;
+  auto& firstStm = stmStacks.at(0).topStm;
   for (int i = 0; i < 10; i++) {
     SingleLogEntry singleLogEntry{};
     singleLogEntry.set_id(id++);
@@ -206,16 +207,16 @@ TEST(VirtualLogStateMachineTests, addToFirstStmButSyncMultiple) {
     ASSERT_NO_THROW(firstStm->append(std::move(logEntry)).semi().get());
   }
 
-  for (auto &stmStack : stmStacks) {
+  for (auto& stmStack : stmStacks) {
     ASSERT_NO_THROW(stmStack.topStm->sync().semi().get());
   }
 
   std::vector<std::vector<LogEntry_1>> entries;
-  for (const auto &stm : stmStacks) {
+  for (const auto& stm : stmStacks) {
     entries.emplace_back(stm.topStm->getAllLogEntries());
   }
 
   ASSERT_TRUE(areAllLogEntriesSame(entries));
 }
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

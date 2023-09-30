@@ -4,13 +4,13 @@
 
 #pragma once
 #include "folly/experimental/TestUtil.h"
-#include "persistence/RocksDbFactory.h"
 #include "gtest/gtest.h"
+#include "persistence/RocksDbFactory.h"
 
 namespace rk::projects::persistence {
 
 class RocksTestFixture : public ::testing::Test {
-protected:
+ protected:
   RocksTestFixture()
       : tmpDir_{std::make_shared<folly::test::TemporaryDirectory>()},
         config_{RocksDbFactory::RocksDbConfig{.path = tmpDir_->path().string(),
@@ -38,11 +38,11 @@ protected:
     // before the destructor).
   }
 
-protected:
+ protected:
   std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   RocksDbFactory::RocksDbConfig config_;
   std::shared_ptr<rocksdb::OptimisticTransactionDB> optimisticDb_;
-  rocksdb::DB *db_;
+  rocksdb::DB* db_;
 };
 
-} // namespace rk::projects::persistence
+}  // namespace rk::projects::persistence

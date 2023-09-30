@@ -4,11 +4,13 @@
 #pragma once
 #include "applications/mydb/backend/TableRow.h"
 #include "folly/Conv.h"
+
 #include <arrow/array.h>
 #include <arrow/builder.h>
 // #include <arrow/compute/exec/exec_plan.h>
 #include <arrow/dataset/dataset.h>
 #include <arrow/table.h>
+
 #include <cstdint>
 #include <random>
 #include <sstream>
@@ -21,7 +23,7 @@ struct TableSchemaOutput {
   std::uint32_t indexId;
 };
 
-TableSchemaOutput parse(const std::string &key);
+TableSchemaOutput parse(const std::string& key);
 
 TableSchema createTableSchema(int numIntColumns = 5, int numStringColumns = 5,
                               int numColumnsInPrimaryIndex = 1,
@@ -39,4 +41,4 @@ std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable);
 std::vector<ColumnValue> parseSecondaryKeyValues(InternalTable internalTable,
                                                  int secondaryKeyIndex);
 
-} // namespace rk::projects::mydb::test_utils
+}  // namespace rk::projects::mydb::test_utils

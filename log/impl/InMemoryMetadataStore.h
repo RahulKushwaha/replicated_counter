@@ -12,7 +12,7 @@
 namespace rk::projects::durable_log {
 
 class InMemoryMetadataStore : public MetadataStore {
-public:
+ public:
   explicit InMemoryMetadataStore();
 
   coro<std::optional<MetadataConfig>> getConfig(VersionId versionId) override;
@@ -26,7 +26,7 @@ public:
 
   ~InMemoryMetadataStore() override = default;
 
-private:
+ private:
   struct State {
     std::mutex mtx;
     std::map<VersionId, MetadataConfig> configs_;
@@ -36,4 +36,4 @@ private:
   std::unique_ptr<State> state_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

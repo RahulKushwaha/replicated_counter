@@ -28,10 +28,9 @@ folly::SemiFuture<std::string> ReplicaClient::getId() {
           "failed to get replica id"));
 }
 
-folly::SemiFuture<folly::Unit>
-ReplicaClient::append(std::optional<LogId> globalCommitIndex,
-                      VersionId versionId, LogId logId,
-                      std::string logEntryPayload, bool skipSeal) {
+folly::SemiFuture<folly::Unit> ReplicaClient::append(
+    std::optional<LogId> globalCommitIndex, VersionId versionId, LogId logId,
+    std::string logEntryPayload, bool skipSeal) {
   google::protobuf::Empty response;
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
@@ -73,17 +72,17 @@ ReplicaClient::getLogEntry(VersionId versionId, LogId logId) {
   if (status.ok()) {
     if (response.has_log_read_error()) {
       switch (response.log_read_error()) {
-      case server::GetLogEntryResponse_LOG_READ_ERROR_INDEX_OUT_OF_BOUNDS:
-        result = {LogReadError::IndexOutOfBounds};
-        break;
-      case server::GetLogEntryResponse_LOG_READ_ERROR_NOT_FOUND:
-        result = {LogReadError::NotFound};
-        break;
+        case server::GetLogEntryResponse_LOG_READ_ERROR_INDEX_OUT_OF_BOUNDS:
+          result = {LogReadError::IndexOutOfBounds};
+          break;
+        case server::GetLogEntryResponse_LOG_READ_ERROR_NOT_FOUND:
+          result = {LogReadError::NotFound};
+          break;
 
-      case server::GetLogEntryResponse_LOG_READ_ERROR_UNKNOWN:
-      default:
-        result = {LogReadError::Unknown};
-        break;
+        case server::GetLogEntryResponse_LOG_READ_ERROR_UNKNOWN:
+        default:
+          result = {LogReadError::Unknown};
+          break;
       }
     } else {
       result =
@@ -100,8 +99,8 @@ ReplicaClient::getLogEntry(VersionId versionId, LogId logId) {
       std::move(err));
 }
 
-folly::SemiFuture<LogId>
-ReplicaClient::getLocalCommitIndex(VersionId versionId) {
+folly::SemiFuture<LogId> ReplicaClient::getLocalCommitIndex(
+    VersionId versionId) {
   grpc::ClientContext context;
   context.set_deadline(std::chrono::system_clock::now() + CLIENT_TIMEOUT);
 
@@ -158,4 +157,4 @@ coro<LogId> ReplicaClient::trim(VersionId versionId, LogId logId) {
   throw std::runtime_error{status.error_message()};
 }
 
-} // namespace rk::projects::durable_log::client
+}  // namespace rk::projects::durable_log::client

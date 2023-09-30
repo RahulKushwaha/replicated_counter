@@ -14,27 +14,31 @@ using namespace rk::projects::durable_log;
 
 template <typename R>
 class VirtualLogStateMachine : public StateMachine<LogEntry_1, R> {
-private:
+ private:
   struct State {
     LogId logId;
     LogEntry_1 log;
   };
 
-public:
+ public:
   explicit VirtualLogStateMachine(std::shared_ptr<VirtualLog> virtualLog,
                                   LogId lastAppliedLogId = 0)
       : virtualLog_{std::move(virtualLog)},
         upstreamStateMachine_{
             std::make_shared<NullStateMachine<LogEntry_1, R>>()},
-        lastFetchId_{0}, targetLogId_{-1}, lastAppliedLogId_{lastAppliedLogId},
+        lastFetchId_{0},
+        targetLogId_{-1},
+        lastAppliedLogId_{lastAppliedLogId},
         flatMapSeq_{std::make_unique<utils::FlatMapSequential<State>>(
             std::make_shared<folly::CPUThreadPoolExecutor>(10))},
         singleExecutor_{std::make_unique<folly::CPUThreadPoolExecutor>(1)},
         mtx_{std::make_unique<std::mutex>()},
-        condVar_{std::make_unique<std::condition_variable>()}, promises_{},
+        condVar_{std::make_unique<std::condition_variable>()},
+        promises_{},
         producerExecutor_{std::make_unique<folly::CPUThreadPoolExecutor>(1)},
         consumerExecutor_{std::make_unique<folly::CPUThreadPoolExecutor>(1)},
-        producerLoopCancellationSource_{}, consumerLoopCancellationSource_{} {
+        producerLoopCancellationSource_{},
+        consumerLoopCancellationSource_{} {
     folly::coro::co_withCancellation(consumerLoopCancellationSource_.getToken(),
                                      consumeLoop())
         .scheduleOn(consumerExecutor_.get())
@@ -100,7 +104,7 @@ public:
     singleExecutor_->stop();
   }
 
-private:
+ private:
   coro<void> producerLoop() {
     LogId to = 0;
     while (true) {
@@ -166,7 +170,7 @@ private:
     }
   }
 
-private:
+ private:
   std::shared_ptr<VirtualLog> virtualLog_;
   std::shared_ptr<StateMachine<LogEntry_1, R>> upstreamStateMachine_;
   LogId lastFetchId_;
@@ -185,4 +189,4 @@ private:
   folly::CancellationSource consumerLoopCancellationSource_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

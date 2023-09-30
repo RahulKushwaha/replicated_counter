@@ -12,7 +12,7 @@ using namespace rk::projects::durable_log;
 
 template <typename R>
 class LogTrimStateMachine : public StateMachine<LogEntry_1, R> {
-public:
+ public:
   explicit LogTrimStateMachine(
       std::shared_ptr<Applicator<LogEntry_1, R>> applicator,
       std::shared_ptr<StateMachine<LogEntry_1, R>> downstreamStateMachine)
@@ -47,10 +47,10 @@ public:
     upstreamStateMachine_ = std::move(upstreamStateMachine);
   }
 
-private:
+ private:
   std::shared_ptr<Applicator<LogEntry_1, R>> applicator_;
   std::shared_ptr<StateMachine<LogEntry_1, R>> downstreamStateMachine_;
   std::shared_ptr<StateMachine<LogEntry_1, R>> upstreamStateMachine_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

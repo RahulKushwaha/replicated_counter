@@ -2,13 +2,14 @@
 // Created by Rahul  Kushwaha on 1/2/23.
 //
 
-#include <chrono>
+#include "../OrderedCompletionQueue.h"
+
 #include <folly/futures/Future.h>
 #include <gtest/gtest.h>
+
+#include <chrono>
 #include <map>
 #include <random>
-
-#include "../OrderedCompletionQueue.h"
 
 namespace rk::projects::utils {
 
@@ -85,7 +86,7 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomlyAndCompleteOld) {
 
   folly::collectAll(futures.begin(), futures.end()).get();
 
-  for (auto &future : futures) {
+  for (auto& future : futures) {
     ASSERT_TRUE(future.hasValue());
   }
 }
@@ -112,7 +113,7 @@ TEST(OrderedCompletionQueueTests, AddElementsRandomly) {
 
   folly::collectAll(futures.begin(), futures.end()).get();
 
-  for (auto &future : futures) {
+  for (auto& future : futures) {
     ASSERT_TRUE(future.hasValue());
   }
 }
@@ -147,7 +148,7 @@ TEST(OrderedCompletionQueueTests,
     }
 
     std::int32_t complete = 0, incomplete = 0;
-    for (auto &[index, future] : futures) {
+    for (auto& [index, future] : futures) {
       if (index < pivot) {
         ASSERT_EQ(future.value(), index);
         complete++;
@@ -166,4 +167,4 @@ TEST(OrderedCompletionQueueTests,
   }
 }
 
-} // namespace rk::projects::utils
+}  // namespace rk::projects::utils

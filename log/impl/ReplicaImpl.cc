@@ -3,6 +3,7 @@
 //
 
 #include "ReplicaImpl.h"
+
 #include "InMemoryNanoLog.h"
 #include "folly/executors/InlineExecutor.h"
 #include "log/utils/UuidGenerator.h"
@@ -14,15 +15,21 @@ ReplicaImpl::ReplicaImpl(std::string id, std::string name,
                          std::shared_ptr<MetadataStore> metadataStore,
                          std::shared_ptr<NanoLogFactory> nanoLogFactory,
                          NanoLogType nanoLogType)
-    : id_{std::move(id)}, name_{std::move(name)},
+    : id_{std::move(id)},
+      name_{std::move(name)},
       nanoLogStore_{std::move(nanoLogStore)},
       metadataStore_{std::move(metadataStore)},
       mtx_{std::make_shared<std::mutex>()},
-      nanoLogFactory_{std::move(nanoLogFactory)}, nanoLogType_{nanoLogType} {}
+      nanoLogFactory_{std::move(nanoLogFactory)},
+      nanoLogType_{nanoLogType} {}
 
-std::string ReplicaImpl::getId() { return id_; }
+std::string ReplicaImpl::getId() {
+  return id_;
+}
 
-std::string ReplicaImpl::getName() { return name_; }
+std::string ReplicaImpl::getName() {
+  return name_;
+}
 
 coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
                                       VersionId versionId, LogId logId,
@@ -56,8 +63,8 @@ coro<folly::Unit> ReplicaImpl::append(std::optional<LogId> globalCommitIndex,
   co_return folly::unit;
 }
 
-coro<std::variant<LogEntry, LogReadError>>
-ReplicaImpl::getLogEntry(VersionId versionId, LogId logId) {
+coro<std::variant<LogEntry, LogReadError>> ReplicaImpl::getLogEntry(
+    VersionId versionId, LogId logId) {
   std::shared_ptr<NanoLog> nanoLog;
   {
     std::lock_guard lk{*mtx_};
@@ -122,4 +129,4 @@ coro<LogId> ReplicaImpl::trim(VersionId versionId, LogId logId) {
   throw std::runtime_error{"nanolog not present"};
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

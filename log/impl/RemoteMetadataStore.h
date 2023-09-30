@@ -10,7 +10,7 @@
 namespace rk::projects::durable_log {
 
 class RemoteMetadataStore : public MetadataStore {
-public:
+ public:
   explicit RemoteMetadataStore(
       std::shared_ptr<client::MetadataStoreClient> metadataStoreClient)
       : client_{std::move(metadataStoreClient)} {}
@@ -19,8 +19,8 @@ public:
     co_return client_->getConfig(versionId).get();
   }
 
-  coro<std::optional<MetadataConfig>>
-  getConfigUsingLogId(LogId logId) override {
+  coro<std::optional<MetadataConfig>> getConfigUsingLogId(
+      LogId logId) override {
     co_return client_->getConfigUsingLogId(logId).get();
   }
 
@@ -34,8 +34,8 @@ public:
 
   void printConfigChain() override { client_->printConfigChain().semi().get(); }
 
-private:
+ private:
   std::shared_ptr<client::MetadataStoreClient> client_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

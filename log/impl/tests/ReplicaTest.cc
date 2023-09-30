@@ -1,11 +1,6 @@
 //
 // Created by Rahul  Kushwaha on 1/8/23.
 //
-#include <folly/executors/InlineExecutor.h>
-#include <gtest/gtest.h>
-#include <mutex>
-#include <random>
-
 #include "folly/experimental/TestUtil.h"
 #include "log/impl/InMemoryMetadataStore.h"
 #include "log/impl/NanoLogFactory.h"
@@ -13,6 +8,12 @@
 #include "log/impl/ReplicaImpl.h"
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
+
+#include <folly/executors/InlineExecutor.h>
+#include <gtest/gtest.h>
+
+#include <mutex>
+#include <random>
 
 namespace rk::projects::durable_log {
 
@@ -28,15 +29,15 @@ struct SequencerCreationResult {
   std::shared_ptr<MetadataStore> metadataStore;
 };
 
-} // namespace
+}  // namespace
 
 class ReplicaTests : public testing::TestWithParam<ReplicaType> {
-protected:
+ protected:
   std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   SequencerCreationResult creationResult_;
   persistence::RocksDbFactory::RocksDbConfig config_{.createIfMissing = true};
 
-protected:
+ protected:
   SequencerCreationResult createReplica(bool inMemoryReplica = true) {
     std::shared_ptr<NanoLogStore> nanoLogStore =
         std::make_shared<NanoLogStoreImpl>();
@@ -74,14 +75,14 @@ protected:
     config_.path = tmpDir_->path().string();
 
     switch (GetParam()) {
-    case ReplicaType::RocksDb:
-      creationResult_ = createReplica(false);
-      break;
-    case ReplicaType::InMemory:
-      creationResult_ = createReplica();
-      break;
-    default:
-      throw std::runtime_error{"unknown replica type"};
+      case ReplicaType::RocksDb:
+        creationResult_ = createReplica(false);
+        break;
+      case ReplicaType::InMemory:
+        creationResult_ = createReplica();
+        break;
+      default:
+        throw std::runtime_error{"unknown replica type"};
     }
   }
 
@@ -181,14 +182,14 @@ TEST_P(ReplicaTests, UnOrderedAppendAlwaysFinishInOrder) {
                       ->append({}, versionId, element,
                                "Random Text" + std::to_string(element))
                       .semi()
-                      .defer([element](auto &&r) -> LogId { return element; })
+                      .defer([element](auto&& r) -> LogId { return element; })
                       .via(&folly::InlineExecutor::instance());
 
     futures.emplace_back(std::move(future));
   }
   LOG(INFO) << "finished appending";
 
-  for (auto &future : futures) {
+  for (auto& future : futures) {
     ASSERT_FALSE(future.isReady());
   }
 
@@ -198,7 +199,7 @@ TEST_P(ReplicaTests, UnOrderedAppendAlwaysFinishInOrder) {
       .get();
   folly::collectAll(futures.begin(), futures.end()).get();
 
-  for (auto &future : futures) {
+  for (auto& future : futures) {
     ASSERT_NO_THROW(future.value());
   }
 }
@@ -207,4 +208,4 @@ INSTANTIATE_TEST_SUITE_P(ReplicaParameterizedTests, ReplicaTests,
                          testing::Values(ReplicaType::InMemory,
                                          ReplicaType::RocksDb));
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

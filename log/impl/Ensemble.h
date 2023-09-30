@@ -3,15 +3,16 @@
 //
 #pragma once
 
+#include "EnsembleNode.h"
+
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
-#include "EnsembleNode.h"
-#include <array>
-
 namespace rk::projects::durable_log {
 
-template <class APP, size_t SIZE = 5> struct Ensemble {
+template <class APP, size_t SIZE = 5>
+struct Ensemble {
   // Make sure size is an odd number.
   static_assert(SIZE % 2 == 1);
 
@@ -21,4 +22,4 @@ template <class APP, size_t SIZE = 5> struct Ensemble {
   std::array<EnsembleNode<APP>, SIZE> nodes_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

@@ -11,7 +11,7 @@
 namespace rk::projects::durable_log {
 
 class RegistryImpl : public Registry {
-public:
+ public:
   void registerReplica(std::shared_ptr<Replica> replica) override;
   void registerSequencer(std::shared_ptr<Sequencer> sequencer) override;
   void registerReplica(std::string id,
@@ -23,9 +23,9 @@ public:
 
   ~RegistryImpl() override = default;
 
-private:
+ private:
   std::unordered_map<std::string, std::shared_ptr<Replica>> replicas_;
   std::unordered_map<std::string, std::shared_ptr<Sequencer>> sequencers_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

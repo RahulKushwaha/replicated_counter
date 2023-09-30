@@ -1,14 +1,15 @@
 //
 // Created by Rahul  Kushwaha on 4/7/23.
 //
-#include <fstream>
-#include <gtest/gtest.h>
-#include <sstream>
-
 #include "applications/mydb/backend/KeySerializer.h"
 #include "applications/mydb/backend/proto/db.pb.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
 #include "google/protobuf/text_format.h"
+
+#include <gtest/gtest.h>
+
+#include <fstream>
+#include <sstream>
 
 namespace rk::projects::mydb {
 using namespace test_utils;
@@ -46,7 +47,7 @@ TEST_P(PrefixTestsSuite, primaryKey) {
 
 TEST_P(PrefixTestsSuite, secondaryIndexKey) {
   auto table = GetParam();
-  for (const auto &index : table.secondary_index()) {
+  for (const auto& index : table.secondary_index()) {
     auto key = prefix::secondaryIndexKey(table, index.id(),
                                          std::vector<ColumnValue>{5000},
                                          std::vector<ColumnValue>{5000});
@@ -60,7 +61,7 @@ TEST_P(PrefixTestsSuite, secondaryIndexKey) {
 
 TEST_P(PrefixTestsSuite, columnKey) {
   auto table = GetParam();
-  for (const auto &column : table.columns()) {
+  for (const auto& column : table.columns()) {
     auto primary = prefix::primaryKey(table, std::vector<ColumnValue>{5000});
     auto key = prefix::columnKey(primary, column.id());
 
@@ -86,4 +87,4 @@ TEST_P(PrefixTestsSuite, parseKeyString) {
 
 INSTANTIATE_TEST_SUITE_P(PrefixTestSuite, PrefixTestsSuite,
                          testing::Values(getMetaTables()));
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

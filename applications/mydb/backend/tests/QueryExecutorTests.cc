@@ -6,17 +6,18 @@
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
 #include "persistence/tests/RocksTestFixture.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
 class QueryExecutorTests : public persistence::RocksTestFixture {
-protected:
+ protected:
   QueryExecutorTests()
       : queryExecutor_{std::make_unique<QueryExecutor>(
             std::make_unique<RocksReaderWriter>(db_))} {}
 
-protected:
+ protected:
   std::unique_ptr<QueryExecutor> queryExecutor_;
 };
 
@@ -44,7 +45,7 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
 
   queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
 
-  for (const auto &idx : internalTable.schema->rawTable().secondary_index()) {
+  for (const auto& idx : internalTable.schema->rawTable().secondary_index()) {
     auto response = queryExecutor_->tableScan(
         InternalTable{.schema = internalTable.schema},
         IndexQueryOptions{.indexId = idx.id(),
@@ -147,4 +148,4 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndexWithBatchSize) {
   }
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

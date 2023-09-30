@@ -7,7 +7,7 @@
 namespace rk::projects::paxos {
 
 class Registry {
-public:
+ public:
   virtual void registerAcceptor(std::string id,
                                 std::shared_ptr<Acceptor> acceptor) = 0;
 
@@ -16,4 +16,4 @@ public:
   virtual ~Registry() = default;
 };
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

@@ -3,6 +3,7 @@
 //
 
 #include "FailureDetectorImpl.h"
+
 #include "folly/executors/CPUThreadPoolExecutor.h"
 #include "folly/executors/thread_factory/NamedThreadFactory.h"
 #include "folly/experimental/coro/Collect.h"
@@ -12,25 +13,28 @@
 
 namespace rk::projects::durable_log {
 
-auto &reconfiguration =
+auto& reconfiguration =
     prometheus::BuildCounter()
         .Name("reconfiguration")
         .Help("ensemble reconfiguration")
         .Register(metrics::MetricsRegistry::instance().registry());
 
-auto &reconfigurationSuccess = reconfiguration.Add({{"result", "success"}});
-auto &reconfigurationFailure = reconfiguration.Add({{"result", "failure"}});
+auto& reconfigurationSuccess = reconfiguration.Add({{"result", "success"}});
+auto& reconfigurationFailure = reconfiguration.Add({{"result", "failure"}});
 
 FailureDetectorImpl::FailureDetectorImpl(
     std::shared_ptr<HealthCheck> healthCheck,
     std::shared_ptr<VirtualLog> virtualLog,
     std::shared_ptr<folly::Executor> executor,
     rk::projects::server::ServerConfig logServerConfig)
-    : healthCheck_{std::move(healthCheck)}, virtualLog_{std::move(virtualLog)},
-      state_{std::make_unique<State>(State{-1})}, ensembleAlive_{false},
+    : healthCheck_{std::move(healthCheck)},
+      virtualLog_{std::move(virtualLog)},
+      state_{std::make_unique<State>(State{-1})},
+      ensembleAlive_{false},
       logServerConfig_{std::move(logServerConfig)},
       healthCheckRecords_{std::vector<bool>(5, false)},
-      executor_{std::move(executor)}, healthCheckLoopCancellationSource_{},
+      executor_{std::move(executor)},
+      healthCheckLoopCancellationSource_{},
       reconciliationLoopCancellationSource_{} {
   folly::coro::co_withCancellation(
       healthCheckLoopCancellationSource_.getToken(), runHealthCheckLoop())
@@ -47,7 +51,9 @@ std::optional<MetadataConfig> FailureDetectorImpl::getLatestMetadataConfig() {
   return {};
 }
 
-bool FailureDetectorImpl::healthy() { return ensembleAlive_.load(); }
+bool FailureDetectorImpl::healthy() {
+  return ensembleAlive_.load();
+}
 
 folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
   while (true) {
@@ -61,14 +67,14 @@ folly::coro::Task<void> FailureDetectorImpl::reconcileLoop() {
       MetadataConfig config{};
       config.mutable_sequencer_config()->set_id(
           logServerConfig_.sequencer_config().id());
-      for (const auto &replica : logServerConfig_.replica_set()) {
+      for (const auto& replica : logServerConfig_.replica_set()) {
         config.mutable_replica_set_config()->Add()->set_id(replica.id());
       }
 
       try {
         co_await virtualLog_->reconfigure(config);
         reconfigurationSuccess.Increment();
-      } catch (const std::exception &e) {
+      } catch (const std::exception& e) {
         LOG(ERROR) << "failed to reconfigure: " << e.what();
         reconfigurationFailure.Increment();
       }
@@ -133,4 +139,4 @@ folly::coro::Task<void> FailureDetectorImpl::runHealthCheckLoop() {
     }
   }
 }
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

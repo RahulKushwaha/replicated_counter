@@ -3,6 +3,7 @@
 //
 
 #include "WORFactory.h"
+
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
 #include "wor/paxos/LocalAcceptor.h"
@@ -12,17 +13,16 @@
 
 namespace rk::projects::wor {
 
-std::unique_ptr<WriteOnceRegister>
-makePaxosWor(WorId worId,
-             const std::vector<durable_log::ReplicaConfig> &replicaConfigs,
-             const std::shared_ptr<paxos::Registry> &registry) {
+std::unique_ptr<WriteOnceRegister> makePaxosWor(
+    WorId worId, const std::vector<durable_log::ReplicaConfig>& replicaConfigs,
+    const std::shared_ptr<paxos::Registry>& registry) {
   if (registry == nullptr) {
     throw std::runtime_error{"null wor registry"};
   }
 
   LOG(INFO) << "making paxos wor, replicaCount: " << replicaConfigs.size();
   std::vector<std::shared_ptr<paxos::Acceptor>> acceptors;
-  for (const auto &replicaConfig : replicaConfigs) {
+  for (const auto& replicaConfig : replicaConfigs) {
     acceptors.emplace_back(registry->getAcceptor(replicaConfig.id()));
   }
 
@@ -66,4 +66,4 @@ std::unique_ptr<WriteOnceRegisterChain> makeChainUsingPaxosWor() {
   return std::make_unique<WriteOnceRegisterChainImpl>(worFactory);
 }
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

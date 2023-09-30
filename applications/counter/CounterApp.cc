@@ -8,12 +8,15 @@ namespace rk::projects::counter_app {
 
 CounterApp::CounterApp(std::shared_ptr<CounterAppStateMachine> stateMachine,
                        std::shared_ptr<persistence::KVStoreLite> kvStore)
-    : stateMachine_{std::move(stateMachine)}, kvStore_{std::move(kvStore)},
+    : stateMachine_{std::move(stateMachine)},
+      kvStore_{std::move(kvStore)},
       lastAppliedEntry_{0},
-      lastSnapshotId_{0}, mtx_{std::make_unique<std::mutex>()}, lookup_{} {}
+      lastSnapshotId_{0},
+      mtx_{std::make_unique<std::mutex>()},
+      lookup_{} {}
 
-folly::coro::Task<std::int64_t>
-CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
+folly::coro::Task<std::int64_t> CounterApp::incrementAndGet(
+    std::string key, std::int64_t incrBy) {
   std::lock_guard lk{*mtx_};
 
   std::vector<Operation> operations;
@@ -24,8 +27,8 @@ CounterApp::incrementAndGet(std::string key, std::int64_t incrBy) {
   co_return result.at(0).val;
 }
 
-folly::coro::Task<std::int64_t>
-CounterApp::decrementAndGet(std::string key, std::int64_t decrBy) {
+folly::coro::Task<std::int64_t> CounterApp::decrementAndGet(
+    std::string key, std::int64_t decrBy) {
   std::lock_guard lk{*mtx_};
 
   std::vector<Operation> operations;
@@ -43,15 +46,15 @@ folly::coro::Task<std::int64_t> CounterApp::getValue(std::string key) {
   co_return lookup_[key];
 }
 
-folly::coro::Task<std::vector<CounterKeyValue>>
-CounterApp::batchUpdate(std::vector<Operation> operations) {
+folly::coro::Task<std::vector<CounterKeyValue>> CounterApp::batchUpdate(
+    std::vector<Operation> operations) {
   std::lock_guard lk{*mtx_};
 
   co_return co_await stateMachine_->append(serialize(operations));
 }
 
-CounterLogEntries
-CounterApp::serialize(const std::vector<Operation> &operations) {
+CounterLogEntries CounterApp::serialize(
+    const std::vector<Operation>& operations) {
   CounterLogEntries entries{};
 
   for (auto op : operations) {
@@ -77,12 +80,11 @@ CounterApp::serialize(const std::vector<Operation> &operations) {
   return entries;
 }
 
-std::vector<CounterKeyValue>
-CounterApp::apply(const CounterLogEntries &counterLogEntries,
-                  durable_log::LogId logId) {
+std::vector<CounterKeyValue> CounterApp::apply(
+    const CounterLogEntries& counterLogEntries, durable_log::LogId logId) {
   std::vector<CounterKeyValue> counterValues;
-  for (const auto &counterLogEntry : counterLogEntries.entries()) {
-    auto &val = lookup_[counterLogEntry.key()];
+  for (const auto& counterLogEntry : counterLogEntries.entries()) {
+    auto& val = lookup_[counterLogEntry.key()];
     CounterKeyValue counterValue{};
     if (counterLogEntry.commandtype() ==
         CounterLogEntry_CommandType::CounterLogEntry_CommandType_INCR) {
@@ -113,8 +115,8 @@ std::unordered_map<std::string, std::int64_t> CounterApp::getValues() {
   return lookup_;
 }
 
-coro<CounterAppSnapshot>
-CounterApp::snapshot(const std::string &snapshotDirectory) {
+coro<CounterAppSnapshot> CounterApp::snapshot(
+    const std::string& snapshotDirectory) {
   std::lock_guard lock{*mtx_};
 
   CounterAppSnapshot counterAppSnapshot{};
@@ -159,6 +161,8 @@ coro<std::optional<CounterAppSnapshot>> CounterApp::restoreFromSnapshot() {
   co_return counterAppSnapshot;
 }
 
-LogId CounterApp::getLastSnapshotId() const { return lastSnapshotId_; }
+LogId CounterApp::getLastSnapshotId() const {
+  return lastSnapshotId_;
+}
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

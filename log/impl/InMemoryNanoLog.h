@@ -6,6 +6,7 @@
 
 #include "log/include/NanoLog.h"
 #include "log/utils/OrderedCompletionQueue.h"
+
 #include <map>
 
 namespace rk::projects::durable_log {
@@ -13,12 +14,12 @@ namespace rk::projects::durable_log {
 using namespace rk::projects::utils;
 
 class InMemoryNanoLog : public NanoLog {
-public:
+ public:
   explicit InMemoryNanoLog(std::string id, std::string name,
                            std::string metadataVersionId, LogId startIndex,
                            LogId endIndex, bool sealed);
 
-public:
+ public:
   std::string getId() override;
   std::string getName() override;
   std::string getMetadataVersionId() override;
@@ -36,7 +37,7 @@ public:
   LogId getEndIndex() override;
   bool isSealed() override;
 
-private:
+ private:
   std::string id_;
   std::string name_;
   std::string metadataVersionId_;
@@ -47,4 +48,4 @@ private:
   OrderedCompletionQueue<LogId> completionQueue_;
   std::shared_ptr<std::mutex> mtx_;
 };
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

@@ -4,6 +4,7 @@
 
 #pragma once
 #include "folly/experimental/coro/Task.h"
+
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -11,10 +12,11 @@
 namespace rk::projects::wor {
 
 using LockId = std::int64_t;
-template <typename T> using coro = folly::coro::Task<T>;
+template <typename T>
+using coro = folly::coro::Task<T>;
 
 class WriteOnceRegister {
-public:
+ public:
   enum class ReadError {
     UNKNOWN,
     NOT_WRITTEN,
@@ -34,4 +36,4 @@ public:
   virtual ~WriteOnceRegister() = default;
 };
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

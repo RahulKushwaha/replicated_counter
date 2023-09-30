@@ -3,12 +3,14 @@
 //
 
 #include "TestUtils.h"
+
 #include "arrow/table.h"
+
 #include <arrow/compute/api.h>
 
 namespace rk::projects::mydb::test_utils {
 
-TableSchemaOutput parse(const std::string &key) {
+TableSchemaOutput parse(const std::string& key) {
   std::string str;
   std::stringstream ss(key);
 
@@ -17,20 +19,20 @@ TableSchemaOutput parse(const std::string &key) {
   int index = 0;
   while (std::getline(ss, str, '/') && index < 3) {
     switch (index) {
-    case 0:
-      schema.dbId = folly::to<uint32_t>(str);
-      break;
+      case 0:
+        schema.dbId = folly::to<uint32_t>(str);
+        break;
 
-    case 1:
-      schema.tableId = folly::to<uint32_t>(str);
-      break;
+      case 1:
+        schema.tableId = folly::to<uint32_t>(str);
+        break;
 
-    case 2:
-      schema.indexId = folly::to<uint32_t>(str);
-      break;
+      case 2:
+        schema.indexId = folly::to<uint32_t>(str);
+        break;
 
-    default:
-      throw std::runtime_error{"unknown case"};
+      default:
+        throw std::runtime_error{"unknown case"};
     }
 
     index++;
@@ -118,28 +120,28 @@ InternalTable getInternalTable(std::int32_t numRows, int numIntColumns,
   std::vector<std::shared_ptr<arrow::Array>> columns;
   std::vector<std::shared_ptr<arrow::Field>> fields;
   int key = 0;
-  for (auto &col : tableSchema->rawTable().columns()) {
+  for (auto& col : tableSchema->rawTable().columns()) {
     switch (col.column_type()) {
-    case Column_COLUMN_TYPE_INT64: {
-      fields.emplace_back(arrow::field(col.name(), arrow::int64()));
-      arrow::Int64Builder builder;
-      for (int i = 0; i < numRows; i++) {
-        builder.Append(key++);
-      }
+      case Column_COLUMN_TYPE_INT64: {
+        fields.emplace_back(arrow::field(col.name(), arrow::int64()));
+        arrow::Int64Builder builder;
+        for (int i = 0; i < numRows; i++) {
+          builder.Append(key++);
+        }
 
-      columns.emplace_back(builder.Finish().ValueOrDie());
-    } break;
-    case Column_COLUMN_TYPE_STRING: {
-      fields.emplace_back(arrow::field(col.name(), arrow::utf8()));
-      arrow::StringBuilder builder;
-      for (int i = 0; i < numRows; i++) {
-        builder.Append(col.name() + "-value-" + std::to_string(i));
-      }
+        columns.emplace_back(builder.Finish().ValueOrDie());
+      } break;
+      case Column_COLUMN_TYPE_STRING: {
+        fields.emplace_back(arrow::field(col.name(), arrow::utf8()));
+        arrow::StringBuilder builder;
+        for (int i = 0; i < numRows; i++) {
+          builder.Append(col.name() + "-value-" + std::to_string(i));
+        }
 
-      columns.emplace_back(builder.Finish().ValueOrDie());
-    } break;
-    default:
-      throw std::runtime_error{"unknown column type"};
+        columns.emplace_back(builder.Finish().ValueOrDie());
+      } break;
+      default:
+        throw std::runtime_error{"unknown column type"};
     }
   }
 
@@ -152,8 +154,8 @@ InternalTable getInternalTable(std::int32_t numRows, int numIntColumns,
 }
 
 std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable) {
-  auto &arrowTable = *internalTable.table;
-  auto &rawTable = internalTable.schema->rawTable();
+  auto& arrowTable = *internalTable.table;
+  auto& rawTable = internalTable.schema->rawTable();
 
   for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows(); rowIdx++) {
     auto totalChunks = arrowTable.columns().front()->num_chunks();
@@ -192,8 +194,8 @@ std::vector<ColumnValue> parsePrimaryKeyValues(InternalTable internalTable) {
 
 std::vector<ColumnValue> parseSecondaryKeyValues(InternalTable internalTable,
                                                  int secondarykeyIndex) {
-  auto &arrowTable = *internalTable.table;
-  auto &rawTable = internalTable.schema->rawTable();
+  auto& arrowTable = *internalTable.table;
+  auto& rawTable = internalTable.schema->rawTable();
 
   for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows(); rowIdx++) {
     auto totalChunks = arrowTable.columns().front()->num_chunks();
@@ -231,4 +233,4 @@ std::vector<ColumnValue> parseSecondaryKeyValues(InternalTable internalTable,
   return {};
 }
 
-} // namespace rk::projects::mydb::test_utils
+}  // namespace rk::projects::mydb::test_utils

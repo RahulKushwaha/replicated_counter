@@ -9,7 +9,7 @@
 namespace rk::projects::durable_log {
 
 class Registry {
-public:
+ public:
   virtual void registerReplica(std::string id,
                                std::shared_ptr<Replica> replica) = 0;
   virtual void registerSequencer(std::string id,
@@ -23,4 +23,4 @@ public:
   virtual ~Registry() = default;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log
