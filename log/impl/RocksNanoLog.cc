@@ -3,6 +3,7 @@
 //
 
 #include "RocksNanoLog.h"
+
 #include "folly/Conv.h"
 #include "log/include/NanoLog.h"
 #include "log/utils/OrderedCompletionQueue.h"
@@ -13,11 +14,17 @@ RocksNanoLog::RocksNanoLog(std::string id, std::string name,
                            std::string versionId, LogId startIndex,
                            LogId endIndex, bool sealed,
                            std::shared_ptr<persistence::KVStoreLite> kvStore)
-    : id_{std::move(id)}, name_{std::move(name)},
-      versionId_{std::move(versionId)}, startIndex_{startIndex},
-      endIndexDirty_{true}, endIndex_{endIndex}, sealed_{sealed},
-      sealDirty_{true}, completionQueue_{startIndex_},
-      kvStore_{std::move(kvStore)}, mtx_{std::make_unique<std::mutex>()} {}
+    : id_{std::move(id)},
+      name_{std::move(name)},
+      versionId_{std::move(versionId)},
+      startIndex_{startIndex},
+      endIndexDirty_{true},
+      endIndex_{endIndex},
+      sealed_{sealed},
+      sealDirty_{true},
+      completionQueue_{startIndex_},
+      kvStore_{std::move(kvStore)},
+      mtx_{std::make_unique<std::mutex>()} {}
 
 coro<void> RocksNanoLog::init() {
   co_await kvStore_->put(fmt::format(KeyFormat::startIndexKey, versionId_),
@@ -29,9 +36,17 @@ coro<void> RocksNanoLog::init() {
   co_return;
 }
 
-std::string RocksNanoLog::getId() { return id_; };
-std::string RocksNanoLog::getName() { return name_; };
-std::string RocksNanoLog::getMetadataVersionId() { return versionId_; }
+std::string RocksNanoLog::getId() {
+  return id_;
+};
+
+std::string RocksNanoLog::getName() {
+  return name_;
+};
+
+std::string RocksNanoLog::getMetadataVersionId() {
+  return versionId_;
+}
 
 coro<LogId> RocksNanoLog::append(std::optional<LogId> globalCommitIndex,
                                  LogId logId, std::string logEntryPayload,
@@ -67,8 +82,8 @@ coro<LogId> RocksNanoLog::append(std::optional<LogId> globalCommitIndex,
   co_return co_await std::move(future);
 }
 
-coro<std::variant<LogEntry, LogReadError>>
-RocksNanoLog::getLogEntry(LogId logId) {
+coro<std::variant<LogEntry, LogReadError>> RocksNanoLog::getLogEntry(
+    LogId logId) {
   try {
     auto log = co_await kvStore_->get(
         fmt::format(KeyFormat::logKey, versionId_, logId));
@@ -95,9 +110,17 @@ coro<LogId> RocksNanoLog::getLocalCommitIndex() {
   co_return co_await co_getEndIndex();
 };
 
-LogId RocksNanoLog::getStartIndex() { return startIndex_; };
-LogId RocksNanoLog::getEndIndex() { return co_getEndIndex().semi().get(); };
-bool RocksNanoLog::isSealed() { return co_isSealed().semi().get(); };
+LogId RocksNanoLog::getStartIndex() {
+  return startIndex_;
+};
+
+LogId RocksNanoLog::getEndIndex() {
+  return co_getEndIndex().semi().get();
+};
+
+bool RocksNanoLog::isSealed() {
+  return co_isSealed().semi().get();
+};
 
 coro<bool> RocksNanoLog::co_isSealed() {
   if (sealDirty_) {
@@ -126,7 +149,7 @@ coro<bool> RocksNanoLog::co_setSeal() {
     sealed_ = true;
   }
 
-  co_return result &&fsyncResult &&sealed_;
+  co_return result&& fsyncResult&& sealed_;
 }
 
 coro<LogId> RocksNanoLog::co_getEndIndex() {
@@ -172,4 +195,4 @@ coro<LogId> RocksNanoLog::trim(LogId logId) {
   throw std::runtime_error{"log trim failed"};
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

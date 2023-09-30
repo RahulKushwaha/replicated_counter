@@ -7,6 +7,7 @@
 #include "KeySerializer.h"
 #include "TableRow.h"
 #include "folly/Conv.h"
+
 #include <arrow/builder.h>
 
 namespace rk::projects::mydb {
@@ -14,12 +15,12 @@ namespace rk::projects::mydb {
 constexpr std::string_view EMPTY_ROW_VALUE;
 
 class RowSerializer {
-public:
+ public:
   // Converting Apache arrow into rocks
   static std::vector<RawTableRow> serialize(InternalTable internalTable) {
     std::vector<RawTableRow> rows;
 
-    auto &arrowTable = *internalTable.table;
+    auto& arrowTable = *internalTable.table;
     for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows(); rowIdx++) {
       auto totalChunks = arrowTable.columns().front()->num_chunks();
       for (int chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
@@ -29,7 +30,7 @@ public:
                            std::vector<ColumnValue>>
             secondaryIdxValues;
 
-        for (const auto &col : internalTable.schema->rawTable().columns()) {
+        for (const auto& col : internalTable.schema->rawTable().columns()) {
           ColumnValue columnValue;
           auto arrowCol =
               arrowTable.GetColumnByName(col.name())->chunk(chunkIdx);
@@ -64,13 +65,13 @@ public:
         rawTableRow.keyValues.emplace_back(primaryKey, "NULL");
 
         // Now we add primary key and column pairs
-        for (auto &[colId, colValue] : colValues) {
+        for (auto& [colId, colValue] : colValues) {
           std::string colKey = prefix::columnKey(primaryKey, colId);
           rawTableRow.keyValues.emplace_back(std::move(colKey),
                                              toString(colValue));
         }
 
-        for (auto &[idxId, values] : secondaryIdxValues) {
+        for (auto& [idxId, values] : secondaryIdxValues) {
           std::string idxKey =
               prefix::secondaryIndexKey(internalTable.schema->rawTable(), idxId,
                                         values, primaryIdxValues);
@@ -85,12 +86,12 @@ public:
     return rows;
   }
 
-  static std::vector<RawTableRow::Key>
-  serializePrimaryKeys(InternalTable internalTable) {
+  static std::vector<RawTableRow::Key> serializePrimaryKeys(
+      InternalTable internalTable) {
     std::vector<RawTableRow::Key> keys;
 
-    auto &arrowTable = *internalTable.table;
-    auto &rawTable = internalTable.schema->rawTable();
+    auto& arrowTable = *internalTable.table;
+    auto& rawTable = internalTable.schema->rawTable();
     for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows(); rowIdx++) {
       auto totalChunks = arrowTable.columns().front()->num_chunks();
       for (int chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
@@ -132,7 +133,7 @@ public:
              std::shared_ptr<arrow::ArrayBuilder>>
         colBuilder;
     std::vector<std::shared_ptr<arrow::Field>> fields;
-    for (const auto &col : schema->rawTable().columns()) {
+    for (const auto& col : schema->rawTable().columns()) {
       std::shared_ptr<arrow::DataType> fieldType;
       if (col.column_type() == internal::Column_COLUMN_TYPE_INT64) {
         fieldType = arrow::int64();
@@ -147,8 +148,8 @@ public:
 
     auto arrowSchema = arrow::schema(std::move(fields));
 
-    for (auto &row : rows) {
-      for (auto &[key, value] : row.keyValues) {
+    for (auto& row : rows) {
+      for (auto& [key, value] : row.keyValues) {
         auto keyFragments = prefix::parseKey(schema->rawTable(), key);
         if (keyFragments.colId.has_value()) {
           auto colId =
@@ -157,28 +158,28 @@ public:
 
           assert(schema->getColumnType(colId).has_value());
           switch (*schema->getColumnType(colId)) {
-          case internal::Column_COLUMN_TYPE_INT64: {
-            auto intBuilder =
-                std::static_pointer_cast<arrow::Int64Builder>(builder);
-            auto typedValue = folly::to<std::int64_t>(value);
+            case internal::Column_COLUMN_TYPE_INT64: {
+              auto intBuilder =
+                  std::static_pointer_cast<arrow::Int64Builder>(builder);
+              auto typedValue = folly::to<std::int64_t>(value);
 
-            assert(intBuilder->Append(typedValue).ok());
-          } break;
-          case internal::Column_COLUMN_TYPE_STRING: {
-            auto stringBuilder =
-                std::static_pointer_cast<arrow::StringBuilder>(builder);
+              assert(intBuilder->Append(typedValue).ok());
+            } break;
+            case internal::Column_COLUMN_TYPE_STRING: {
+              auto stringBuilder =
+                  std::static_pointer_cast<arrow::StringBuilder>(builder);
 
-            assert(stringBuilder->Append(value).ok());
-          } break;
-          default:
-            assert(false);
+              assert(stringBuilder->Append(value).ok());
+            } break;
+            default:
+              assert(false);
           }
         }
       }
     }
 
     std::vector<std::shared_ptr<arrow::Array>> arrays;
-    for (auto &[type, builder] : colBuilder) {
+    for (auto& [type, builder] : colBuilder) {
       auto result = builder->Finish();
       arrays.emplace_back(result.ValueOrDie());
     }
@@ -190,7 +191,7 @@ public:
     return {schema, table};
   }
 
-  static ColumnValue toColumnValue(const google::protobuf::Any &columnValue) {
+  static ColumnValue toColumnValue(const google::protobuf::Any& columnValue) {
     if (columnValue.type_url() == "std::string") {
       return columnValue.value();
     } else if (columnValue.GetTypeName() == "std::uint64") {
@@ -201,15 +202,14 @@ public:
     }
   }
 
-  static InternalTable
-  deserializeSecondaryIndexKeys(std::shared_ptr<TableSchema> schema,
-                                std::vector<RawTableRow> rows,
-                                TableSchemaType::TableIdType indexId) {
+  static InternalTable deserializeSecondaryIndexKeys(
+      std::shared_ptr<TableSchema> schema, std::vector<RawTableRow> rows,
+      TableSchemaType::TableIdType indexId) {
     std::map<TableSchemaType::ColumnIdType,
              std::shared_ptr<arrow::ArrayBuilder>>
         colBuilder;
     std::vector<std::shared_ptr<arrow::Field>> fields;
-    for (const auto &colId :
+    for (const auto& colId :
          schema->rawTable().primary_key_index().column_ids()) {
       auto col = schema->getColumn(colId);
       std::shared_ptr<arrow::DataType> fieldType;
@@ -226,35 +226,35 @@ public:
 
     auto arrowSchema = arrow::schema(std::move(fields));
 
-    for (auto &row : rows) {
+    for (auto& row : rows) {
       int i = 0;
       i++;
-      for (auto &[key, _] : row.keyValues) {
+      for (auto& [key, _] : row.keyValues) {
 
         auto keyFragments = prefix::parseKey(schema->rawTable(), key);
 
         if (keyFragments.primaryIndex.has_value()) {
           std::int32_t indexValueItr = 0;
-          for (auto &[colId, builder] : colBuilder) {
+          for (auto& [colId, builder] : colBuilder) {
             LOG(INFO) << "colBuilder size: " << colBuilder.size();
             auto value =
                 keyFragments.primaryIndex.value().values[indexValueItr++];
             switch (*schema->getColumnType(colId)) {
-            case internal::Column_COLUMN_TYPE_INT64: {
-              auto intBuilder =
-                  std::static_pointer_cast<arrow::Int64Builder>(builder);
-              auto typedValue = folly::to<std::int64_t>(value);
+              case internal::Column_COLUMN_TYPE_INT64: {
+                auto intBuilder =
+                    std::static_pointer_cast<arrow::Int64Builder>(builder);
+                auto typedValue = folly::to<std::int64_t>(value);
 
-              assert(intBuilder->Append(typedValue).ok());
-            } break;
-            case internal::Column_COLUMN_TYPE_STRING: {
-              auto stringBuilder =
-                  std::static_pointer_cast<arrow::StringBuilder>(builder);
+                assert(intBuilder->Append(typedValue).ok());
+              } break;
+              case internal::Column_COLUMN_TYPE_STRING: {
+                auto stringBuilder =
+                    std::static_pointer_cast<arrow::StringBuilder>(builder);
 
-              assert(stringBuilder->Append(value).ok());
-            } break;
-            default:
-              assert(false);
+                assert(stringBuilder->Append(value).ok());
+              } break;
+              default:
+                assert(false);
             }
           }
         }
@@ -262,7 +262,7 @@ public:
     }
 
     std::vector<std::shared_ptr<arrow::Array>> arrays;
-    for (auto &[type, builder] : colBuilder) {
+    for (auto& [type, builder] : colBuilder) {
       auto result = builder->Finish();
       arrays.emplace_back(result.ValueOrDie());
     }
@@ -273,10 +273,10 @@ public:
     return {schema, table};
   }
 
-  static std::vector<ColumnValue>
-  parsePrimaryKeyValues(const InternalTable &internalTable) {
-    auto &arrowTable = *internalTable.table;
-    auto &rawTable = internalTable.schema->rawTable();
+  static std::vector<ColumnValue> parsePrimaryKeyValues(
+      const InternalTable& internalTable) {
+    auto& arrowTable = *internalTable.table;
+    auto& rawTable = internalTable.schema->rawTable();
 
     for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows(); rowIdx++) {
       auto totalChunks = arrowTable.columns().front()->num_chunks();
@@ -315,11 +315,11 @@ public:
   }
 
   // TODO Remove this method/refactor it.
-  static std::vector<ColumnValue>
-  parseSecondaryKeyValues(InternalTable internalTable,
-                          TableSchemaType::ColumnIdType secondarykeyIndex) {
-    auto &arrowTable = *internalTable.table;
-    auto &rawTable = internalTable.schema->rawTable();
+  static std::vector<ColumnValue> parseSecondaryKeyValues(
+      InternalTable internalTable,
+      TableSchemaType::ColumnIdType secondarykeyIndex) {
+    auto& arrowTable = *internalTable.table;
+    auto& rawTable = internalTable.schema->rawTable();
 
     for (std::int32_t rowIdx = 0; rowIdx < arrowTable.num_rows(); rowIdx++) {
       auto totalChunks = arrowTable.columns().front()->num_chunks();
@@ -358,4 +358,4 @@ public:
   }
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

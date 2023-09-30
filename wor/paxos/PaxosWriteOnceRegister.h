@@ -10,11 +10,13 @@
 namespace rk::projects::paxos {
 
 class PaxosWriteOnceRegister : public wor::WriteOnceRegister {
-public:
+ public:
   explicit PaxosWriteOnceRegister(std::int64_t registerId,
                                   std::shared_ptr<Proposer> proposer)
-      : registerId_{std::to_string(registerId)}, majorId_{registerId},
-        lockId_{0}, proposer_{std::move(proposer)} {}
+      : registerId_{std::to_string(registerId)},
+        majorId_{registerId},
+        lockId_{0},
+        proposer_{std::move(proposer)} {}
 
   coro<std::optional<wor::LockId>> lock() override {
     auto lockId = getNextLockId();
@@ -48,17 +50,17 @@ public:
     co_return ReadError::NOT_WRITTEN;
   }
 
-private:
+ private:
   wor::LockId getNextLockId() {
     lockId_++;
     return lockId_;
   }
 
-private:
+ private:
   std::string registerId_;
   std::int64_t majorId_;
   wor::LockId lockId_;
   std::shared_ptr<Proposer> proposer_;
 };
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

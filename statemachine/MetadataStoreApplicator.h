@@ -16,17 +16,17 @@ using ApplicationResult =
 
 class MetadataStoreApplicator
     : public Applicator<durable_log::MetadataConfig, ApplicationResult> {
-public:
+ public:
   explicit MetadataStoreApplicator(
       std::shared_ptr<durable_log::MetadataStore> metadataStore)
       : metadataStore_{std::move(metadataStore)} {}
 
-  folly::coro::Task<ApplicationResult>
-  apply(durable_log::MetadataConfig metadataConfig) override {
+  folly::coro::Task<ApplicationResult> apply(
+      durable_log::MetadataConfig metadataConfig) override {
     try {
       co_await metadataStore_->compareAndAppendRange(std::move(metadataConfig));
       co_return std::true_type{};
-    } catch (durable_log::OptimisticConcurrencyException &e) {
+    } catch (durable_log::OptimisticConcurrencyException& e) {
       LOG(INFO) << e.what();
       co_return ApplicationErrors{std::move(e)};
     } catch (...) {
@@ -37,8 +37,8 @@ public:
     }
   }
 
-private:
+ private:
   std::shared_ptr<durable_log::MetadataStore> metadataStore_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

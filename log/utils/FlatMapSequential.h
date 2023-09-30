@@ -7,18 +7,22 @@
 #include "folly/experimental/coro/AsyncGenerator.h"
 #include "folly/experimental/coro/Task.h"
 #include "folly/futures/Future.h"
+
 #include <list>
 
 namespace rk::projects::utils {
 
-template <typename T> class FlatMapSequential {
-public:
+template <typename T>
+class FlatMapSequential {
+ public:
   explicit FlatMapSequential(std::shared_ptr<folly::Executor> executor)
       : mtx_{std::make_unique<std::mutex>()},
         condVar_{std::make_unique<std::condition_variable>()},
-        executor_{std::move(executor)}, list_{}, drainAndStop_{false} {}
+        executor_{std::move(executor)},
+        list_{},
+        drainAndStop_{false} {}
 
-  folly::coro::AsyncGenerator<T &&> getGenerator() {
+  folly::coro::AsyncGenerator<T&&> getGenerator() {
     while (true) {
       std::optional<folly::SemiFuture<T>> listElement;
 
@@ -82,7 +86,7 @@ public:
 
   ~FlatMapSequential() = default;
 
-private:
+ private:
   std::unique_ptr<std::mutex> mtx_;
   std::unique_ptr<std::condition_variable> condVar_;
   std::shared_ptr<folly::Executor> executor_;
@@ -90,4 +94,4 @@ private:
   bool drainAndStop_;
 };
 
-} // namespace rk::projects::utils
+}  // namespace rk::projects::utils

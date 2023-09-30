@@ -2,13 +2,16 @@
 // Created by Rahul  Kushwaha on 6/9/23.
 //
 #pragma once
-#include "folly/experimental/coro/Task.h"
+
 #include "wor/include/WriteOnceRegisterChain.h"
+
+#include <folly/experimental/coro/Task.h>
 
 namespace rk::projects::wor {
 
-template <typename T> class WriteOnceRegisterChainAppender {
-public:
+template <typename T>
+class WriteOnceRegisterChainAppender {
+ public:
   explicit WriteOnceRegisterChainAppender(
       std::shared_ptr<WriteOnceRegisterChain> chain)
       : chain_{std::move(chain)} {}
@@ -65,8 +68,8 @@ public:
     co_return successfullyWrittenWorId;
   }
 
-private:
+ private:
   std::shared_ptr<WriteOnceRegisterChain> chain_;
 };
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

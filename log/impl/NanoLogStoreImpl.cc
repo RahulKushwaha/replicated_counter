@@ -3,6 +3,7 @@
 //
 
 #include "NanoLogStoreImpl.h"
+
 namespace rk::projects::durable_log {
 
 std::shared_ptr<NanoLog> NanoLogStoreImpl::getNanoLog(VersionId versionId) {
@@ -18,4 +19,4 @@ void NanoLogStoreImpl::add(VersionId versionId,
   store_.emplace(versionId, nanoLog);
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

@@ -4,12 +4,13 @@
 #pragma once
 
 #include "Common.h"
+
 #include <folly/futures/Future.h>
 
 namespace rk::projects::durable_log {
 
 class Sequencer {
-public:
+ public:
   virtual std::string getId() = 0;
   virtual folly::SemiFuture<LogId> append(std::string logEntryPayload) = 0;
   virtual folly::SemiFuture<LogId> latestAppendPosition() = 0;
@@ -19,4 +20,4 @@ public:
   virtual ~Sequencer() = default;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

@@ -7,21 +7,22 @@
 #include "statemachine/ConflictDetector.h"
 #include "statemachine/include/StateMachine.h"
 #include "statemachine/proto/RocksTxn.pb.h"
+
 #include <set>
 
 namespace rk::projects::state_machine {
 
 class RocksTxnApplicator : public Applicator<RocksTxn, RocksTxnResult> {
-public:
+ public:
   explicit RocksTxnApplicator(
-      std::shared_ptr<ConflictDetector> conflictDetector, rocksdb::DB *rocks)
+      std::shared_ptr<ConflictDetector> conflictDetector, rocksdb::DB* rocks)
       : conflictDetector_{std::move(conflictDetector)}, rocks_{rocks} {}
 
   folly::coro::Task<RocksTxnResult> apply(RocksTxn txn) override {
-    RocksTxnResult txnResult{.txnSucceeded = false,
-                             .speculativeTxnResult =
-                                 SpeculativeTxnResult{.conflictDetected = false,
-                                                      .txnSucceeded = false}};
+    RocksTxnResult txnResult{
+        .txnSucceeded = false,
+        .speculativeTxnResult = SpeculativeTxnResult{.conflictDetected = false,
+                                                     .txnSucceeded = false}};
 
     // fast path. check for speculative execution.
     // if the transaction has been speculatively executed, then we just
@@ -59,12 +60,12 @@ public:
 
     std::vector<std::string> modifiedKeySet;
     rocksdb::WriteBatchWithIndex batch{};
-    for (auto &k : rockTxn1.write_set()) {
+    for (auto& k : rockTxn1.write_set()) {
       batch.Put(rocksdb::Slice{k.key()}, rocksdb::Slice{k.value()});
       modifiedKeySet.emplace_back(k.key());
     }
 
-    for (auto &k : rockTxn1.delete_set()) {
+    for (auto& k : rockTxn1.delete_set()) {
       batch.Delete(rocksdb::Slice{k});
       modifiedKeySet.emplace_back(k);
     }
@@ -78,9 +79,9 @@ public:
     co_return txnResult;
   }
 
-private:
+ private:
   std::shared_ptr<ConflictDetector> conflictDetector_;
-  rocksdb::DB *rocks_;
+  rocksdb::DB* rocks_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

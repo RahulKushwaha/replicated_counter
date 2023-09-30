@@ -2,11 +2,11 @@
 // Created by Rahul  Kushwaha on 1/5/23.
 //
 
-#include <gtest/gtest.h>
-
 #include "log/impl/InMemoryMetadataStore.h"
 #include "log/impl/PersistentMetadataStore.h"
 #include "wor/WORFactory.h"
+
+#include <gtest/gtest.h>
 
 namespace rk::projects::durable_log {
 
@@ -34,10 +34,10 @@ std::vector<ReplicaConfig> getReplicaConfigs() {
   return replicaConfig;
 }
 
-} // namespace
+}  // namespace
 
 class MetadataStoreTests : public testing::TestWithParam<MetadataStoreType> {
-protected:
+ protected:
   static std::unique_ptr<MetadataStore> getStore() {
     MetadataConfig config{};
     config.set_version_id(0);
@@ -51,25 +51,25 @@ protected:
 
     auto metadataStoreType = GetParam();
     switch (metadataStoreType) {
-    case MetadataStoreType::InMemory: {
-      return std::make_unique<InMemoryMetadataStore>();
-    }
+      case MetadataStoreType::InMemory: {
+        return std::make_unique<InMemoryMetadataStore>();
+      }
 
-    case MetadataStoreType::InMemoryWor: {
-      auto chain = wor::makeChainUsingInMemoryWor();
-      auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
-      return std::make_unique<PersistentMetadataStore>(
-          config, std::move(inMemoryMetadataStore), nullptr);
-    }
+      case MetadataStoreType::InMemoryWor: {
+        auto chain = wor::makeChainUsingInMemoryWor();
+        auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
+        return std::make_unique<PersistentMetadataStore>(
+            config, std::move(inMemoryMetadataStore), nullptr);
+      }
 
-    case MetadataStoreType::PaxosWor: {
-      auto chain = wor::makeChainUsingPaxosWor();
-      auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
-      return std::make_unique<PersistentMetadataStore>(
-          config, std::move(inMemoryMetadataStore), nullptr);
-    }
-    default:
-      throw std::runtime_error{"unknown metadata store type"};
+      case MetadataStoreType::PaxosWor: {
+        auto chain = wor::makeChainUsingPaxosWor();
+        auto inMemoryMetadataStore = std::make_shared<InMemoryMetadataStore>();
+        return std::make_unique<PersistentMetadataStore>(
+            config, std::move(inMemoryMetadataStore), nullptr);
+      }
+      default:
+        throw std::runtime_error{"unknown metadata store type"};
     }
   }
 };
@@ -361,4 +361,4 @@ INSTANTIATE_TEST_SUITE_P(MetadataStoreParameterizedTests, MetadataStoreTests,
                                          MetadataStoreType::InMemoryWor,
                                          MetadataStoreType::PaxosWor));
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

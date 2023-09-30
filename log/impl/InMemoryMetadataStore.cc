@@ -9,8 +9,8 @@ namespace rk::projects::durable_log {
 InMemoryMetadataStore::InMemoryMetadataStore()
     : state_{std::make_unique<State>()} {}
 
-coro<std::optional<MetadataConfig>>
-InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
+coro<std::optional<MetadataConfig>> InMemoryMetadataStore::getConfigUsingLogId(
+    LogId logId) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
 
   if (state_->logIdToConfig_.empty()) {
@@ -39,8 +39,8 @@ InMemoryMetadataStore::getConfigUsingLogId(LogId logId) {
   co_return {};
 }
 
-coro<std::optional<MetadataConfig>>
-InMemoryMetadataStore::getConfig(VersionId versionId) {
+coro<std::optional<MetadataConfig>> InMemoryMetadataStore::getConfig(
+    VersionId versionId) {
   // TODO(RAHUL): Remove this hack.
   if (versionId == 0) {
     co_return MetadataConfig{};
@@ -68,13 +68,13 @@ coro<VersionId> InMemoryMetadataStore::getCurrentVersionId() {
 
 void InMemoryMetadataStore::printConfigChain() {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
-  for (auto &[key, config] : state_->configs_) {
+  for (auto& [key, config] : state_->configs_) {
     LOG(INFO) << config.DebugString();
   }
 }
 
-coro<void>
-InMemoryMetadataStore::compareAndAppendRange(MetadataConfig newMetadataConfig) {
+coro<void> InMemoryMetadataStore::compareAndAppendRange(
+    MetadataConfig newMetadataConfig) {
   std::lock_guard<std::mutex> lockGuard{state_->mtx};
   auto versionId = newMetadataConfig.previous_version_id();
 
@@ -102,4 +102,4 @@ InMemoryMetadataStore::compareAndAppendRange(MetadataConfig newMetadataConfig) {
   throw OptimisticConcurrencyException{};
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

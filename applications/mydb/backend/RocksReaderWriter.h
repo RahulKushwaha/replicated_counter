@@ -10,8 +10,8 @@
 namespace rk::projects::mydb {
 
 class RocksReaderWriter {
-public:
-  explicit RocksReaderWriter(rocksdb::DB *db);
+ public:
+  explicit RocksReaderWriter(rocksdb::DB* db);
 
   bool write(std::vector<RawTableRow> rows);
 
@@ -23,8 +23,8 @@ public:
 
   std::unique_ptr<rocksdb::ManagedSnapshot> createSnapshot();
 
-private:
-  rocksdb::DB *rocks_;
+ private:
+  rocksdb::DB* rocks_;
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

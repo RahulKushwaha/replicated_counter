@@ -4,6 +4,7 @@
 #include "../NanoLogStoreImpl.h"
 #include "../SequencerImpl.h"
 #include "TestUtils.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::durable_log {
@@ -19,7 +20,7 @@ TEST(SequencerTest, appendLogEntry) {
   std::string logEntry{"Hello World"};
   ASSERT_EQ(sequencer->append(logEntry).get(), 1);
 
-  for (auto &replica : replicaSet) {
+  for (auto& replica : replicaSet) {
     auto result = replica->getLogEntry(versionId, 1).semi().get();
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(std::get<LogEntry>(result).logId, 1);
@@ -38,7 +39,7 @@ TEST(SequencerTest, appendLogEntryWithMajorityFailing) {
   std::string logEntry{"Hello World"};
   ASSERT_THROW(sequencer->append(logEntry).get(), std::exception);
 
-  for (auto &replica : goodReplicaSet) {
+  for (auto& replica : goodReplicaSet) {
     auto result = replica->getLogEntry(versionId, 1).semi().get();
     ASSERT_TRUE(std::holds_alternative<LogEntry>(result));
     ASSERT_EQ(std::get<LogEntry>(result).logId, 1);
@@ -46,4 +47,4 @@ TEST(SequencerTest, appendLogEntryWithMajorityFailing) {
   }
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

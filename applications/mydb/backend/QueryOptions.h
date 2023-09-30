@@ -31,4 +31,4 @@ struct ScanOptions {
   std::string prefix;
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

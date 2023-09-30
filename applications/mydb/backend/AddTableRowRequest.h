@@ -7,6 +7,7 @@
 #include "Common.h"
 #include "applications/mydb/backend/proto/db.pb.h"
 #include "applications/mydb/client/proto/db.pb.h"
+
 #include <functional>
 #include <string_view>
 #include <unordered_map>
@@ -24,4 +25,4 @@ struct AddTableRowRequest {
   client::AddRowRequest addRowRequest;
 };
 
-} // namespace rk::projects::mydb::internal
+}  // namespace rk::projects::mydb::internal

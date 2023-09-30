@@ -9,8 +9,8 @@
 namespace rk::projects::durable_log {
 
 class HealthCheck {
-public:
+ public:
   virtual folly::coro::Task<bool> isAlive() = 0;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

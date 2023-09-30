@@ -10,7 +10,7 @@
 namespace rk::projects::durable_log {
 
 class RemoteReplica final : public Replica {
-public:
+ public:
   explicit RemoteReplica(std::shared_ptr<client::ReplicaClient> replicaClient)
       : replicaClient_{std::move(replicaClient)} {}
 
@@ -44,8 +44,8 @@ public:
     co_return co_await replicaClient_->trim(versionId, logId);
   }
 
-private:
+ private:
   std::shared_ptr<client::ReplicaClient> replicaClient_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

@@ -13,7 +13,7 @@
 namespace rk::projects::durable_log {
 
 class VirtualLogImpl : public VirtualLog {
-public:
+ public:
   explicit VirtualLogImpl(std::string id, std::string name,
                           std::shared_ptr<Sequencer> sequencer,
                           std::vector<std::shared_ptr<Replica>> replicaSet,
@@ -21,31 +21,31 @@ public:
                           VersionId metadataConfigVersionId,
                           std::shared_ptr<Registry> registry);
 
-public:
+ public:
   std::string getId() override;
   std::string getName() override;
   folly::SemiFuture<LogId> append(std::string logEntryPayload) override;
-  folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(LogId logId) override;
+  folly::SemiFuture<std::variant<LogEntry, LogReadError>> getLogEntry(
+      LogId logId) override;
   folly::coro::Task<MetadataConfig> getCurrentConfig() override;
-  folly::coro::Task<MetadataConfig>
-  reconfigure(MetadataConfig targetMetadataConfig) override;
+  folly::coro::Task<MetadataConfig> reconfigure(
+      MetadataConfig targetMetadataConfig) override;
   folly::coro::Task<void> refreshConfiguration() override;
   folly::SemiFuture<LogId> sync() override;
 
   ~VirtualLogImpl() override = default;
 
-private:
+ private:
   coro<void> setState(VersionId versionId);
 
-private:
+ private:
   struct State {
     MetadataConfig metadataConfig;
     std::shared_ptr<Sequencer> sequencer;
     std::vector<std::shared_ptr<Replica>> replicaSet;
   };
 
-private:
+ private:
   std::string id_;
   std::string name_;
   std::shared_ptr<MetadataStore> metadataStore_;
@@ -53,4 +53,4 @@ private:
   std::shared_ptr<Registry> registry_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

@@ -9,14 +9,15 @@
 namespace rk::projects::state_machine {
 
 class RocksStateMachine : public StateMachine<RocksTxn, RocksTxnResult> {
-private:
+ private:
   using applicator_t = Applicator<RocksTxn, RocksTxnResult>;
   using appender_t = wor::WriteOnceRegisterChainAppender<std::string>;
 
-public:
+ public:
   explicit RocksStateMachine(std::shared_ptr<applicator_t> applicator,
                              std::shared_ptr<wor::WriteOnceRegisterChain> chain)
-      : lastAppliedWorId_{0}, applicator_{std::move(applicator)},
+      : lastAppliedWorId_{0},
+        applicator_{std::move(applicator)},
         chain_{std::move(chain)},
         appender_{std::make_shared<appender_t>(chain_)} {}
 
@@ -49,15 +50,16 @@ public:
   void setUpstreamStateMachine(
       std::shared_ptr<StateMachine<RocksTxn, RocksTxnResult>>
           upstreamStateMachine) override {
-    throw std::runtime_error{"rocksStateMachine state machine does not require "
-                             "upstream state machine"};
+    throw std::runtime_error{
+        "rocksStateMachine state machine does not require "
+        "upstream state machine"};
   }
 
-private:
+ private:
   wor::WorId lastAppliedWorId_;
   std::shared_ptr<applicator_t> applicator_;
   std::shared_ptr<wor::WriteOnceRegisterChain> chain_;
   std::shared_ptr<appender_t> appender_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

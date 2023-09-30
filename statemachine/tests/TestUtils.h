@@ -4,6 +4,7 @@
 #pragma once
 #include "statemachine/Common.h"
 #include "statemachine/proto/RocksTxn.pb.h"
+
 #include <fmt/format.h>
 
 namespace rk::projects::state_machine {
@@ -54,4 +55,4 @@ struct TestUtils {
   }
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

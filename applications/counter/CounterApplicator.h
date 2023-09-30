@@ -20,12 +20,12 @@ using applicatorOutput_t =
 class CounterApplicator
     : public state_machine::Applicator<applicatorInput_t, applicatorOutput_t> {
 
-public:
+ public:
   explicit CounterApplicator(std::shared_ptr<CounterApp> app);
 
   folly::coro::Task<applicatorOutput_t> apply(applicatorInput_t t) override;
 
-private:
+ private:
   std::shared_ptr<CounterApp> app_;
 };
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

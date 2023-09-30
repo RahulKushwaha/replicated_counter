@@ -10,9 +10,11 @@
 namespace rk::projects::wor {
 
 class InMemoryWriteOnceRegister : public WriteOnceRegister {
-public:
+ public:
   explicit InMemoryWriteOnceRegister()
-      : lockId_{0}, committed_{false}, payload_{},
+      : lockId_{0},
+        committed_{false},
+        payload_{},
         mtx_{std::make_unique<std::mutex>()} {}
 
   coro<std::optional<LockId>> lock() override {
@@ -42,11 +44,11 @@ public:
 
   ~InMemoryWriteOnceRegister() override = default;
 
-private:
+ private:
   LockId lockId_;
   bool committed_;
   std::string payload_;
   std::unique_ptr<std::mutex> mtx_;
 };
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

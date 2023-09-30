@@ -22,7 +22,7 @@ class CounterAppStateMachine
   using applicator_t =
       state_machine::Applicator<durable_log::LogEntry_1, ReturnType>;
 
-public:
+ public:
   explicit CounterAppStateMachine(
       std::shared_ptr<
           state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
@@ -30,11 +30,11 @@ public:
 
   folly::coro::Task<std::vector<CounterKeyValue>> append(CounterLogEntries t);
 
-  folly::coro::Task<ReturnType>
-  append(rk::projects::durable_log::LogEntry_1 t) override;
+  folly::coro::Task<ReturnType> append(
+      rk::projects::durable_log::LogEntry_1 t) override;
 
-  folly::coro::Task<ReturnType>
-  apply(rk::projects::durable_log::LogEntry_1 t) override;
+  folly::coro::Task<ReturnType> apply(
+      rk::projects::durable_log::LogEntry_1 t) override;
 
   void setApplicator(std::shared_ptr<applicator_t> applicator) override;
   folly::coro::Task<void> sync() override;
@@ -44,7 +44,7 @@ public:
           state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
           upstreamStateMachine_) override;
 
-private:
+ private:
   durable_log::LogId lastAppliedLogId_;
   std::shared_ptr<
       state_machine::StateMachine<durable_log::LogEntry_1, ReturnType>>
@@ -52,4 +52,4 @@ private:
   std::shared_ptr<applicator_t> applicator_;
 };
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

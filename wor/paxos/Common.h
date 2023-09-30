@@ -6,12 +6,14 @@
 
 #include "folly/experimental/coro/Task.h"
 #include "wor/paxos/proto/PaxosMessage.pb.h"
+
 #include <cstdint>
 #include <optional>
 #include <string>
 
 namespace rk::projects::paxos {
-template <typename T> using coro = folly::coro::Task<T>;
+template <typename T>
+using coro = folly::coro::Task<T>;
 
 using BallotId = internal::BallotId;
 using Promise = internal::Promise;
@@ -23,8 +25,8 @@ struct Ballot {
 
 struct Accept {};
 
-bool operator<=(const BallotId &x, const BallotId &y);
-bool operator<(const BallotId &x, const BallotId &y);
-bool operator==(const BallotId &x, const BallotId &y);
+bool operator<=(const BallotId& x, const BallotId& y);
+bool operator<(const BallotId& x, const BallotId& y);
+bool operator==(const BallotId& x, const BallotId& y);
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

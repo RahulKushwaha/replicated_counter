@@ -10,7 +10,7 @@
 namespace rk::projects::durable_log {
 
 class RemoteSequencer final : public Sequencer {
-public:
+ public:
   explicit RemoteSequencer(
       std::shared_ptr<client::SequencerClient> sequencerClient)
       : sequencerClient_{std::move(sequencerClient)} {}
@@ -35,8 +35,8 @@ public:
 
   ~RemoteSequencer() override = default;
 
-private:
+ private:
   std::shared_ptr<client::SequencerClient> sequencerClient_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

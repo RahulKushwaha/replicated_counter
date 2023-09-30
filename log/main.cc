@@ -1,17 +1,17 @@
 //
 // Created by Rahul  Kushwaha on 3/26/23.
 //
-#include <fstream>
-#include <sstream>
-
 #include "glog/logging.h"
 #include "google/protobuf/text_format.h"
 #include "log/server/LogServer.h"
 #include "log/server/proto/ServerConfig.pb.h"
 
+#include <fstream>
+#include <sstream>
+
 using namespace rk::projects::server;
 
-auto main(int argc, char *argv[]) -> int {
+auto main(int argc, char* argv[]) -> int {
   if (argc < 2) {
     LOG(ERROR) << "config file not provided";
     return 1;

@@ -10,9 +10,9 @@
 namespace rk::projects::state_machine {
 
 template <typename R>
-std::shared_ptr<StateMachine<LogEntry_1, R>>
-makeStateMachineStack(std::shared_ptr<persistence::KVStoreLite> kvStore,
-                      std::shared_ptr<VirtualLog> virtualLog) {
+std::shared_ptr<StateMachine<LogEntry_1, R>> makeStateMachineStack(
+    std::shared_ptr<persistence::KVStoreLite> kvStore,
+    std::shared_ptr<VirtualLog> virtualLog) {
   auto virtualLogStateMachine =
       std::make_shared<VirtualLogStateMachine<R>>(std::move(virtualLog));
 
@@ -27,4 +27,4 @@ makeStateMachineStack(std::shared_ptr<persistence::KVStoreLite> kvStore,
   return logTrimStateMachine;
 }
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

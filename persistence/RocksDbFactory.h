@@ -11,7 +11,7 @@
 namespace rk::projects::persistence {
 
 class RocksDbFactory {
-public:
+ public:
   struct RocksDbConfig {
     std::string path;
     bool createIfMissing;
@@ -19,10 +19,10 @@ public:
     bool destroyIfExists;
   };
 
-  static std::shared_ptr<rocksdb::DB>
-  provideSharedPtr(const RocksDbConfig &config) {
+  static std::shared_ptr<rocksdb::DB> provideSharedPtr(
+      const RocksDbConfig& config) {
     LOG(INFO) << config.path;
-    rocksdb::DB *db;
+    rocksdb::DB* db;
     rocksdb::Options options;
     options.create_if_missing = config.createIfMissing;
     options.manual_wal_flush = config.manualWALFlush;
@@ -40,17 +40,17 @@ public:
           "rocks instance could not be created: {}", status.ToString())};
     }
 
-    return std::shared_ptr<rocksdb::DB>{db, [config](rocksdb::DB *db) {
+    return std::shared_ptr<rocksdb::DB>{db, [config](rocksdb::DB* db) {
                                           auto s = db->Close();
                                           LOG(INFO)
                                               << "db close: " << s.ToString();
                                         }};
   }
 
-  static std::shared_ptr<rocksdb::OptimisticTransactionDB>
-  provideOptimisticDb(const RocksDbConfig &config) {
+  static std::shared_ptr<rocksdb::OptimisticTransactionDB> provideOptimisticDb(
+      const RocksDbConfig& config) {
     LOG(INFO) << config.path;
-    rocksdb::OptimisticTransactionDB *db;
+    rocksdb::OptimisticTransactionDB* db;
     rocksdb::Options options;
     options.create_if_missing = config.createIfMissing;
     options.manual_wal_flush = config.manualWALFlush;
@@ -70,11 +70,11 @@ public:
     }
 
     return std::shared_ptr<rocksdb::OptimisticTransactionDB>{
-        db, [config](rocksdb::OptimisticTransactionDB *db) {
+        db, [config](rocksdb::OptimisticTransactionDB* db) {
           auto s = db->Close();
           LOG(INFO) << "db close: " << s.ToString();
         }};
   }
 };
 
-} // namespace rk::projects::persistence
+}  // namespace rk::projects::persistence

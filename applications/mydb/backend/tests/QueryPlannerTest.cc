@@ -2,26 +2,27 @@
 // Created by Aman Mahajan on 9/10/23.
 //
 
-#include "applications/mydb/backend/QueryPlanner.h"
 #include "TestUtils.h"
 #include "applications/mydb/backend/QueryExecutor.h"
+#include "applications/mydb/backend/QueryPlanner.h"
 #include "applications/mydb/format/FormatTable.h"
 #include "persistence/tests/RocksTestFixture.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
 
 class QueryPlannerTests : public persistence::RocksTestFixture {
-protected:
+ protected:
   QueryPlannerTests()
       : queryExecutor_{std::make_shared<QueryExecutor>(
             std::make_unique<RocksReaderWriter>(db_))} {}
 
   void testIntUnaryCondition(client::IntCondition_Operation operation,
                              int64_t value, int64_t returnedRows,
-                             const InternalTable &internalTable);
+                             const InternalTable& internalTable);
 
-protected:
+ protected:
   std::shared_ptr<QueryExecutor> queryExecutor_;
 };
 
@@ -89,7 +90,7 @@ TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
 
 void QueryPlannerTests::testIntUnaryCondition(
     client::IntCondition_Operation operation, int64_t value,
-    int64_t returnedRows, const InternalTable &internalTable) {
+    int64_t returnedRows, const InternalTable& internalTable) {
 
   QueryPlan queryPlan;
   queryPlan.schema = internalTable.schema;
@@ -114,4 +115,4 @@ void QueryPlannerTests::testIntUnaryCondition(
   ASSERT_EQ(result.table->num_rows(), returnedRows);
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

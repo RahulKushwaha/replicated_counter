@@ -19,7 +19,7 @@ class MetadataStoreStateMachine
   using currentConfigSupplier_t =
       std::function<folly::SemiFuture<durable_log::MetadataConfig>()>;
 
-public:
+ public:
   explicit MetadataStoreStateMachine(
       std::shared_ptr<applicator_t> applicator,
       durable_log::MetadataConfig bootstrapConfig,
@@ -32,8 +32,8 @@ public:
         currentConfigSupplier_{std::move(currentConfigSupplier)},
         registry_{std::move(registry)} {}
 
-  folly::coro::Task<ApplicationResult>
-  append(durable_log::MetadataConfig config) override {
+  folly::coro::Task<ApplicationResult> append(
+      durable_log::MetadataConfig config) override {
     auto payload = config.SerializeAsString();
 
     bool successfullyWritten{false};
@@ -94,8 +94,8 @@ public:
     co_return result;
   }
 
-  folly::coro::Task<ApplicationResult>
-  apply(durable_log::MetadataConfig config) override {
+  folly::coro::Task<ApplicationResult> apply(
+      durable_log::MetadataConfig config) override {
     co_return co_await applicator_->apply(std::move(config));
   }
 
@@ -149,7 +149,7 @@ public:
         "metadata state machine does not require upstream state machine"};
   }
 
-private:
+ private:
   // TODO(rahul): Refactor out lock. Handle somewhere else.
   std::unique_ptr<std::mutex> mtx_;
   durable_log::MetadataConfig currentConfig_;
@@ -159,4 +159,4 @@ private:
   std::shared_ptr<paxos::Registry> registry_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

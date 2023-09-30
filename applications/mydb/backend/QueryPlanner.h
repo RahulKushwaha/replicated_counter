@@ -15,24 +15,24 @@ namespace ac = ::arrow::acero;
 
 class QueryPlanner {
 
-public:
+ public:
   QueryPlanner(QueryPlan plan, std::shared_ptr<QueryExecutor> queryExecutor);
 
-  ExecutableQueryPlan plan(const InternalTable &internalTable);
+  ExecutableQueryPlan plan(const InternalTable& internalTable);
 
-  static InternalTable execute(const ExecutableQueryPlan &executableQueryPlan);
+  static InternalTable execute(const ExecutableQueryPlan& executableQueryPlan);
 
-private:
-  static cp::Expression
-  parseUnaryCondition(const InternalTable &internalTable,
-                      const client::UnaryCondition &unaryCondition);
+ private:
+  static cp::Expression parseUnaryCondition(
+      const InternalTable& internalTable,
+      const client::UnaryCondition& unaryCondition);
 
-  cp::Expression parseCondition(const InternalTable &internalTable,
-                                const client::Condition &condition);
+  cp::Expression parseCondition(const InternalTable& internalTable,
+                                const client::Condition& condition);
 
-private:
+ private:
   QueryPlan plan_;
   std::shared_ptr<QueryExecutor> queryExecutor_;
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

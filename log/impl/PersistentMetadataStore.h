@@ -17,10 +17,10 @@ makeMetadataStoreStateMachine(MetadataConfig bootstrapConfig,
   auto currentConfigSupplier =
       [metadataStore]() -> folly::SemiFuture<MetadataConfig> {
     return metadataStore->getCurrentVersionId().semi().deferValue(
-        [metadataStore](auto &&value) {
+        [metadataStore](auto&& value) {
           folly::SemiFuture<MetadataConfig> f =
               metadataStore->getConfig(value).semi().deferValue(
-                  [](std::optional<MetadataConfig> &&optionalConfig) {
+                  [](std::optional<MetadataConfig>&& optionalConfig) {
                     if (optionalConfig.has_value()) {
                       return optionalConfig.value();
                     }
@@ -42,7 +42,7 @@ makeMetadataStoreStateMachine(MetadataConfig bootstrapConfig,
 }
 
 class PersistentMetadataStore : public MetadataStore {
-public:
+ public:
   explicit PersistentMetadataStore(MetadataConfig bootstrapConfig,
                                    std::shared_ptr<MetadataStore> metadataStore,
                                    std::shared_ptr<paxos::Registry> registry)
@@ -55,8 +55,8 @@ public:
     co_return co_await delegate_->getConfig(versionId);
   }
 
-  coro<std::optional<MetadataConfig>>
-  getConfigUsingLogId(LogId logId) override {
+  coro<std::optional<MetadataConfig>> getConfigUsingLogId(
+      LogId logId) override {
     co_await stateMachine_->sync();
     co_return co_await delegate_->getConfigUsingLogId(logId);
   }
@@ -88,9 +88,9 @@ public:
 
   ~PersistentMetadataStore() override = default;
 
-private:
+ private:
   std::shared_ptr<state_machine::MetadataStoreStateMachine> stateMachine_;
   std::shared_ptr<MetadataStore> delegate_;
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

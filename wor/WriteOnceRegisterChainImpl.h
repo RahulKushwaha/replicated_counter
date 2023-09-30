@@ -2,6 +2,7 @@
 // Created by Rahul  Kushwaha on 6/19/23.
 //
 #pragma once
+
 #include "wor/include/WriteOnceRegisterChain.h"
 
 #include <atomic>
@@ -11,10 +12,12 @@
 namespace rk::projects::wor {
 
 class WriteOnceRegisterChainImpl : public WriteOnceRegisterChain {
-public:
+ public:
   explicit WriteOnceRegisterChainImpl(
       std::function<std::shared_ptr<WriteOnceRegister>(WorId)> registerFactory)
-      : worId_{0}, lookup_{}, mtx_{std::make_unique<std::mutex>()},
+      : worId_{0},
+        lookup_{},
+        mtx_{std::make_unique<std::mutex>()},
         registerFactory_{std::move(registerFactory)} {}
 
   std::optional<WorId> append() override {
@@ -54,13 +57,14 @@ public:
 
     return {lookup_.begin()->first};
   }
+
   ~WriteOnceRegisterChainImpl() override = default;
 
-private:
+ private:
   WorId worId_;
   std::map<WorId, std::shared_ptr<WriteOnceRegister>> lookup_;
   std::unique_ptr<std::mutex> mtx_;
   std::function<std::shared_ptr<WriteOnceRegister>(WorId)> registerFactory_;
 };
 
-} // namespace rk::projects::wor
+}  // namespace rk::projects::wor

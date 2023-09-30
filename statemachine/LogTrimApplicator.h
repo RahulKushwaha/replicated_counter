@@ -12,13 +12,13 @@ namespace rk::projects::state_machine {
 
 template <typename R>
 class LogTrimApplicator : public Applicator<durable_log::LogEntry_1, R> {
-public:
+ public:
   explicit LogTrimApplicator(std::shared_ptr<persistence::KVStoreLite> kvStore)
       : kvStore_{std::move(kvStore)}, asyncScope_{}, executor_{nullptr} {}
 
   coro<R> apply(durable_log::LogEntry_1 t) override {
     if (t.has_log_trim_entry()) {
-      auto &logTrimEntry = t.log_trim_entry();
+      auto& logTrimEntry = t.log_trim_entry();
       auto result = co_await kvStore_->get(std::string{KEY});
       durable_log::LogTrimView logTrimView{};
       if (result.has_value()) {
@@ -37,10 +37,10 @@ public:
     co_return folly::unit;
   }
 
-private:
+ private:
   coro<void> trimLogs() { co_return; }
 
-private:
+ private:
   std::shared_ptr<persistence::KVStoreLite> kvStore_;
   folly::coro::AsyncScope asyncScope_;
   std::shared_ptr<folly::ThreadPoolExecutor> executor_;
@@ -48,4 +48,4 @@ private:
   static constexpr std::string_view KEY{"LOG_TRIM_VIEW"};
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

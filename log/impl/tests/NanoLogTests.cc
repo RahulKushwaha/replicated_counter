@@ -8,24 +8,27 @@
 #include "log/impl/RocksNanoLog.h"
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
+
 #include <gtest/gtest.h>
+
 #include <random>
 
 namespace rk::projects::durable_log {
 
 class NanoLogTests : public testing::TestWithParam<NanoLogType> {
-protected:
+ protected:
   std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   std::shared_ptr<rocksdb::DB> rocks_;
   persistence::RocksDbFactory::RocksDbConfig config_{.createIfMissing = true};
   NanoLogType nanoLogType_;
 
-protected:
+ protected:
   void SetUp() override {
     tmpDir_ = std::make_shared<folly::test::TemporaryDirectory>();
     config_.path = tmpDir_->path().string();
     nanoLogType_ = GetParam();
   }
+
   void TearDown() override {
     if (rocks_) {
       auto s = rocksdb::DestroyDB(config_.path, rocksdb::Options{});
@@ -38,16 +41,16 @@ protected:
                                    LogId startIndex, LogId endIndex,
                                    bool sealed) {
     switch (nanoLogType_) {
-    case NanoLogType::InMemory:
-      return std::make_shared<InMemoryNanoLog>(std::move(id), std::move(name),
-                                               std::move(metadataVersionId),
-                                               startIndex, endIndex, sealed);
-    case NanoLogType::Rocks:
-      rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
-      auto kvStore = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
-      return std::make_shared<RocksNanoLog>(
-          std::move(id), std::move(name), std::move(metadataVersionId),
-          startIndex, endIndex, sealed, std::move(kvStore));
+      case NanoLogType::InMemory:
+        return std::make_shared<InMemoryNanoLog>(std::move(id), std::move(name),
+                                                 std::move(metadataVersionId),
+                                                 startIndex, endIndex, sealed);
+      case NanoLogType::Rocks:
+        rocks_ = persistence::RocksDbFactory::provideSharedPtr(config_);
+        auto kvStore = std::make_shared<persistence::RocksKVStoreLite>(rocks_);
+        return std::make_shared<RocksNanoLog>(
+            std::move(id), std::move(name), std::move(metadataVersionId),
+            startIndex, endIndex, sealed, std::move(kvStore));
     }
 
     throw std::runtime_error{"unknown nanolog type"};
@@ -114,7 +117,7 @@ TEST_P(NanoLogTests, MultipleUnorderedAppends) {
     futures.emplace(logId, std::move(future));
   }
 
-  for (auto &[logId, future] : futures) {
+  for (auto& [logId, future] : futures) {
     if (logId < pivot) {
       ASSERT_EQ(future.value(), logId);
     } else {
@@ -137,4 +140,4 @@ INSTANTIATE_TEST_SUITE_P(NanoLogParameterizedTests, NanoLogTests,
                          testing::Values(NanoLogType::InMemory,
                                          NanoLogType::Rocks));
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

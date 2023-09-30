@@ -5,12 +5,13 @@
 #include "persistence/RocksDbFactory.h"
 #include "persistence/RocksKVStoreLite.h"
 #include "wor/paxos/LocalAcceptor.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::paxos {
 
 class AcceptorTests : public testing::TestWithParam<std::string> {
-protected:
+ protected:
   std::shared_ptr<folly::test::TemporaryDirectory> tmpDir_;
   std::shared_ptr<rocksdb::DB> rocks_;
   std::shared_ptr<persistence::KVStoreLite> kvStore_;
@@ -111,4 +112,4 @@ INSTANTIATE_TEST_SUITE_P(AcceptorValueParameterizedTests, AcceptorTests,
                          testing::Values("id1", "id2", "id3", "id4", "id5",
                                          "id6", "id7", "id8"));
 
-} // namespace rk::projects::paxos
+}  // namespace rk::projects::paxos

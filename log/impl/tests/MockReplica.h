@@ -1,15 +1,16 @@
 //
 // Created by Rahul  Kushwaha on 1/8/23.
 //
-#include <gmock/gmock.h>
-#include <variant>
-
 #include "log/include/Replica.h"
+
+#include <gmock/gmock.h>
+
+#include <variant>
 
 namespace rk::projects::durable_log {
 
 class MockReplica : public Replica {
-public:
+ public:
   MOCK_METHOD(std::string, getId, (), (override));
   MOCK_METHOD(std::string, getName, (), (override));
 
@@ -29,4 +30,4 @@ public:
               (override));
 };
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

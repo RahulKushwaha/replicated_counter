@@ -3,6 +3,7 @@
 //
 
 #include "VirtualLogFactory.h"
+
 #include "RegistryImpl.h"
 #include "SequencerImpl.h"
 #include "VirtualLogImpl.h"
@@ -49,10 +50,10 @@ std::unique_ptr<MetadataStore> makeMetadataStore() {
   return std::make_unique<InMemoryMetadataStore>();
 }
 
-std::unique_ptr<Replica>
-makeReplica(std::string id, std::string name,
-            std::shared_ptr<NanoLogStore> nanoLogStore,
-            std::shared_ptr<MetadataStore> metadataStore) {
+std::unique_ptr<Replica> makeReplica(
+    std::string id, std::string name,
+    std::shared_ptr<NanoLogStore> nanoLogStore,
+    std::shared_ptr<MetadataStore> metadataStore) {
   auto nanoLogFactory = std::make_shared<NanoLogFactory>(
       persistence::RocksDbFactory::RocksDbConfig{});
 
@@ -62,11 +63,11 @@ makeReplica(std::string id, std::string name,
       NanoLogType::InMemory);
 }
 
-std::unique_ptr<Replica>
-makeRocksReplica(std::string id, std::string name,
-                 std::shared_ptr<NanoLogStore> nanoLogStore,
-                 std::shared_ptr<MetadataStore> metadataStore,
-                 persistence::RocksDbFactory::RocksDbConfig rocksDbConfig) {
+std::unique_ptr<Replica> makeRocksReplica(
+    std::string id, std::string name,
+    std::shared_ptr<NanoLogStore> nanoLogStore,
+    std::shared_ptr<MetadataStore> metadataStore,
+    persistence::RocksDbFactory::RocksDbConfig rocksDbConfig) {
   auto nanoLogFactory =
       std::make_shared<NanoLogFactory>(std::move(rocksDbConfig));
 
@@ -76,9 +77,8 @@ makeRocksReplica(std::string id, std::string name,
       NanoLogType::InMemory);
 }
 
-std::unique_ptr<Sequencer>
-makeSequencer(std::string sequencerId,
-              std::vector<std::shared_ptr<Replica>> replicaSet) {
+std::unique_ptr<Sequencer> makeSequencer(
+    std::string sequencerId, std::vector<std::shared_ptr<Replica>> replicaSet) {
   return std::make_unique<SequencerImpl>(std::move(sequencerId),
                                          std::move(replicaSet), 1, 1);
 }
@@ -87,4 +87,4 @@ std::unique_ptr<Registry> makeRegistry() {
   return std::make_unique<RegistryImpl>();
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

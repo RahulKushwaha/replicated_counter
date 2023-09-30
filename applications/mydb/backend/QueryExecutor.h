@@ -17,24 +17,23 @@ namespace cp = ::arrow::compute;
 namespace ac = ::arrow::acero;
 
 class QueryExecutor {
-public:
+ public:
   explicit QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks);
 
-public:
-  void insert(const InternalTable &internalTable, InsertOptions option);
+ public:
+  void insert(const InternalTable& internalTable, InsertOptions option);
 
-  InternalTable get(const InternalTable &internalTable);
+  InternalTable get(const InternalTable& internalTable);
 
   InternalTable tableScan(InternalTable internalTable,
                           IndexQueryOptions queryOptions);
 
-  folly::coro::AsyncGenerator<InternalTable>
-  tableScanGenerator(InternalTable internalTable,
-                     IndexQueryOptions queryOptions);
+  folly::coro::AsyncGenerator<InternalTable> tableScanGenerator(
+      InternalTable internalTable, IndexQueryOptions queryOptions);
 
-private:
-private:
+ private:
+ private:
   std::shared_ptr<RocksReaderWriter> rocks_;
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

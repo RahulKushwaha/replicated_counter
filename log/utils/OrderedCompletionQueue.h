@@ -4,22 +4,24 @@
 
 #pragma once
 
-#include <cstdint>
 #include <folly/futures/Future.h>
+
+#include <cstdint>
 #include <iostream>
 #include <map>
 
 namespace rk::projects::utils {
 
-template <typename T> class OrderedCompletionQueue {
-public:
+template <typename T>
+class OrderedCompletionQueue {
+ public:
   explicit OrderedCompletionQueue(std::int64_t startIndex = 0)
       : currentIndex_{startIndex} {}
 
   void completeAllBelow(std::int64_t index) {
     std::vector<std::int64_t> toDelete;
 
-    for (auto &[key, value] : promises_) {
+    for (auto& [key, value] : promises_) {
       if (key < index) {
         value->promise.setValue(value->result);
         toDelete.push_back(key);
@@ -64,7 +66,7 @@ public:
 
   std::pair<std::int64_t, std::int64_t> getRangeEligibleForCompletion() {
     auto startIndex = currentIndex_;
-    for (auto &[key, value] : promises_) {
+    for (auto& [key, value] : promises_) {
       if (key == startIndex) {
         startIndex++;
       } else {
@@ -77,11 +79,11 @@ public:
 
   std::int64_t getCurrentIndex() { return currentIndex_; }
 
-private:
+ private:
   void checkAndCompleteAfterCurrentIndex() {
     auto startIndex = currentIndex_;
     std::vector<std::int64_t> toDelete;
-    for (auto &[key, value] : promises_) {
+    for (auto& [key, value] : promises_) {
       if (key == startIndex) {
         value->promise.setValue(value->result);
         toDelete.push_back(startIndex);
@@ -98,7 +100,7 @@ private:
     currentIndex_ = startIndex;
   }
 
-private:
+ private:
   struct PromiseState {
     folly::Promise<T> promise;
     T result;
@@ -108,4 +110,4 @@ private:
   std::map<std::int64_t, std::shared_ptr<PromiseState>> promises_;
 };
 
-} // namespace rk::projects::utils
+}  // namespace rk::projects::utils

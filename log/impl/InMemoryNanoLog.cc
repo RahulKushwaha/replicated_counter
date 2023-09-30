@@ -9,14 +9,23 @@ namespace rk::projects::durable_log {
 InMemoryNanoLog::InMemoryNanoLog(std::string id, std::string name,
                                  std::string metadataVersionId,
                                  LogId startIndex, LogId endIndex, bool sealed)
-    : id_(std::move(id)), name_(std::move(name)),
-      metadataVersionId_{std::move(metadataVersionId)}, startIndex_(startIndex),
-      endIndex_(endIndex), sealed_(sealed), logs_{},
-      completionQueue_{startIndex_}, mtx_{std::make_shared<std::mutex>()} {}
+    : id_(std::move(id)),
+      name_(std::move(name)),
+      metadataVersionId_{std::move(metadataVersionId)},
+      startIndex_(startIndex),
+      endIndex_(endIndex),
+      sealed_(sealed),
+      logs_{},
+      completionQueue_{startIndex_},
+      mtx_{std::make_shared<std::mutex>()} {}
 
-std::string InMemoryNanoLog::getId() { return id_; }
+std::string InMemoryNanoLog::getId() {
+  return id_;
+}
 
-std::string InMemoryNanoLog::getName() { return name_; }
+std::string InMemoryNanoLog::getName() {
+  return name_;
+}
 
 std::string InMemoryNanoLog::getMetadataVersionId() {
   return metadataVersionId_;
@@ -55,8 +64,8 @@ coro<LogId> InMemoryNanoLog::append(std::optional<LogId> globalCommitIndex,
   co_return co_await std::move(future);
 }
 
-coro<std::variant<LogEntry, LogReadError>>
-InMemoryNanoLog::getLogEntry(LogId logId) {
+coro<std::variant<LogEntry, LogReadError>> InMemoryNanoLog::getLogEntry(
+    LogId logId) {
   std::lock_guard lg{*mtx_};
   if (auto itr = logs_.find(logId); itr != logs_.end()) {
     co_return {LogEntry{logId, itr->second}};
@@ -71,17 +80,25 @@ coro<LogId> InMemoryNanoLog::seal() {
   co_return completionQueue_.getCurrentIndex();
 }
 
-LogId InMemoryNanoLog::getStartIndex() { return startIndex_; }
+LogId InMemoryNanoLog::getStartIndex() {
+  return startIndex_;
+}
 
-LogId InMemoryNanoLog::getEndIndex() { return endIndex_; }
+LogId InMemoryNanoLog::getEndIndex() {
+  return endIndex_;
+}
 
-bool InMemoryNanoLog::isSealed() { return sealed_; }
+bool InMemoryNanoLog::isSealed() {
+  return sealed_;
+}
 
 coro<LogId> InMemoryNanoLog::getLocalCommitIndex() {
   std::lock_guard lg{*mtx_};
   co_return completionQueue_.getCurrentIndex();
 }
 
-coro<LogId> InMemoryNanoLog::trim(LogId logId) { co_return logId; }
+coro<LogId> InMemoryNanoLog::trim(LogId logId) {
+  co_return logId;
+}
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

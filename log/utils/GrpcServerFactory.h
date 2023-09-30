@@ -5,14 +5,14 @@
 #include <folly/executors/GlobalExecutor.h>
 #include <folly/futures/Future.h>
 #include <grpc++/grpc++.h>
+
 #include <memory>
 
 namespace rk::projects::durable_log::server {
 
-folly::SemiFuture<std::shared_ptr<grpc::Server>>
-runRPCServer(std::string serverAddress,
-             const std::vector<grpc::Service *> &grpcServices,
-             folly::Executor *executor, const std::string &name = {}) {
+folly::SemiFuture<std::shared_ptr<grpc::Server>> runRPCServer(
+    std::string serverAddress, const std::vector<grpc::Service*>& grpcServices,
+    folly::Executor* executor, const std::string& name = {}) {
   folly::Promise<std::shared_ptr<grpc::Server>> promise;
   folly::SemiFuture<std::shared_ptr<grpc::Server>> future =
       promise.getSemiFuture();
@@ -36,4 +36,4 @@ runRPCServer(std::string serverAddress,
   return future;
 }
 
-} // namespace rk::projects::durable_log::server
+}  // namespace rk::projects::durable_log::server

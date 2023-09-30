@@ -3,16 +3,17 @@
 //
 
 #include "RocksReaderWriter.h"
+
 #include "rocksdb/utilities/write_batch_with_index.h"
 
 namespace rk::projects::mydb {
 
-RocksReaderWriter::RocksReaderWriter(rocksdb::DB *db) : rocks_{db} {}
+RocksReaderWriter::RocksReaderWriter(rocksdb::DB* db) : rocks_{db} {}
 
 bool RocksReaderWriter::write(std::vector<RawTableRow> rows) {
   rocksdb::WriteBatchWithIndex batch{};
-  for (auto &row : rows) {
-    for (auto &[k, v] : row.keyValues) {
+  for (auto& row : rows) {
+    for (auto& [k, v] : row.keyValues) {
       batch.Put(k, v);
     }
   }
@@ -25,7 +26,7 @@ bool RocksReaderWriter::write(std::vector<RawTableRow> rows) {
 
 bool RocksReaderWriter::del(std::vector<RawTableRow::Key> keys) {
   rocksdb::WriteBatchWithIndex batch{};
-  for (auto &key : keys) {
+  for (auto& key : keys) {
     batch.Delete(key);
   }
 
@@ -35,10 +36,10 @@ bool RocksReaderWriter::del(std::vector<RawTableRow::Key> keys) {
   return status.ok();
 }
 
-std::vector<RawTableRow>
-RocksReaderWriter::read(std::vector<RawTableRow::Key> keys) {
+std::vector<RawTableRow> RocksReaderWriter::read(
+    std::vector<RawTableRow::Key> keys) {
   std::vector<RawTableRow> rows;
-  for (auto &key : keys) {
+  for (auto& key : keys) {
     RawTableRow row;
 
     auto itr = rocks_->NewIterator(rocksdb::ReadOptions{});
@@ -106,4 +107,4 @@ std::unique_ptr<rocksdb::ManagedSnapshot> RocksReaderWriter::createSnapshot() {
   return std::make_unique<rocksdb::ManagedSnapshot>(rocks_);
 }
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

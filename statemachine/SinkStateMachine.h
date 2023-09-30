@@ -12,12 +12,13 @@ using in_t = LogEntry_1;
 using out_t = LogEntry_1;
 
 class SinkStateMachine : public StateMachine<in_t, out_t> {
-public:
+ public:
   explicit SinkStateMachine(
       std::shared_ptr<StateMachine<in_t, out_t>> downstreamStateMachine)
       : applicator_{nullptr},
         downstreamStateMachine_{std::move(downstreamStateMachine)},
-        upstreamStateMachine_{nullptr}, entries_{} {}
+        upstreamStateMachine_{nullptr},
+        entries_{} {}
 
   coro<out_t> append(in_t input) override {
     return downstreamStateMachine_->append(std::move(input));
@@ -33,8 +34,8 @@ public:
     co_return co_await downstreamStateMachine_->sync();
   }
 
-  void
-  setApplicator(std::shared_ptr<Applicator<in_t, out_t>> applicator) override {
+  void setApplicator(
+      std::shared_ptr<Applicator<in_t, out_t>> applicator) override {
     applicator_ = std::move(applicator);
   }
 
@@ -45,11 +46,11 @@ public:
 
   std::vector<LogEntry_1> getAllLogEntries() { return entries_; }
 
-private:
+ private:
   std::shared_ptr<Applicator<in_t, out_t>> applicator_;
   std::shared_ptr<StateMachine<in_t, out_t>> downstreamStateMachine_;
   std::shared_ptr<StateMachine<in_t, out_t>> upstreamStateMachine_;
   std::vector<LogEntry_1> entries_;
 };
 
-} // namespace rk::projects::state_machine
+}  // namespace rk::projects::state_machine

@@ -11,7 +11,7 @@ namespace rk::projects::metrics {
 using namespace prometheus;
 
 class MetricsRegistry {
-public:
+ public:
   explicit MetricsRegistry() : registry_{std::make_shared<Registry>()} {}
 
   static MetricsRegistry instance() {
@@ -20,11 +20,11 @@ public:
     return metricsEmitter;
   }
 
-  Registry &registry() { return *registry_; }
+  Registry& registry() { return *registry_; }
 
   std::weak_ptr<Registry> registryWeakRef() { return registry_; }
 
-private:
+ private:
   std::shared_ptr<Registry> registry_;
 };
-} // namespace rk::projects::metrics
+}  // namespace rk::projects::metrics

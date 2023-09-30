@@ -5,6 +5,7 @@
 #include "QueryExecutor.h"
 
 #include "RowSerializer.h"
+
 #include <utility>
 
 namespace rk::projects::mydb {
@@ -12,15 +13,15 @@ namespace rk::projects::mydb {
 QueryExecutor::QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks)
     : rocks_{std::move(rocks)} {}
 
-void QueryExecutor::insert(const InternalTable &internalTable,
+void QueryExecutor::insert(const InternalTable& internalTable,
                            InsertOptions option) {
   if (option == InsertOptions::REPLACE) {
 
     auto rawTableRows = RowSerializer::serialize(internalTable);
     // Delete the row first.
     std::vector<RawTableRow::Key> keysToDelete;
-    for (auto &keyValue : rawTableRows) {
-      for (auto &[k, v] : keyValue.keyValues) {
+    for (auto& keyValue : rawTableRows) {
+      for (auto& [k, v] : keyValue.keyValues) {
         keysToDelete.emplace_back(k);
       }
     }
@@ -35,7 +36,7 @@ void QueryExecutor::insert(const InternalTable &internalTable,
 
 // Make it asynchronous later
 
-InternalTable QueryExecutor::get(const InternalTable &internalTable) {
+InternalTable QueryExecutor::get(const InternalTable& internalTable) {
   auto keys = RowSerializer::serializePrimaryKeys(internalTable);
   auto kvRows = rocks_->read(keys);
   return RowSerializer::deserialize(internalTable.schema, kvRows);
@@ -116,9 +117,8 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
   }
 }
 
-folly::coro::AsyncGenerator<InternalTable>
-QueryExecutor::tableScanGenerator(InternalTable internalTable,
-                                  IndexQueryOptions indexQueryOptions) {
+folly::coro::AsyncGenerator<InternalTable> QueryExecutor::tableScanGenerator(
+    InternalTable internalTable, IndexQueryOptions indexQueryOptions) {
 
   while (true) {
 
@@ -141,4 +141,4 @@ QueryExecutor::tableScanGenerator(InternalTable internalTable,
     co_yield response;
   }
 }
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

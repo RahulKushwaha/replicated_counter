@@ -42,4 +42,4 @@ std::shared_ptr<Sequencer> RegistryImpl::sequencer(std::string sequencerId) {
   return nullptr;
 }
 
-} // namespace rk::projects::durable_log
+}  // namespace rk::projects::durable_log

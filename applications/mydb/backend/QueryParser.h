@@ -11,15 +11,15 @@ namespace rk::projects::mydb {
 
 // QueryParser object that is created per request object.
 class QueryParser {
-public:
+ public:
   explicit QueryParser(client::ScanTableRequest scanTableRequest,
                        std::shared_ptr<SchemaStore> schemaStore);
 
   QueryPlan parse();
 
-private:
+ private:
   client::ScanTableRequest scanTableRequest_;
   std::shared_ptr<SchemaStore> schemaStore_;
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb

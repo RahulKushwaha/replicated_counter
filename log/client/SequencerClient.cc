@@ -72,4 +72,4 @@ folly::SemiFuture<bool> SequencerClient::isAlive() {
   return folly::makeSemiFuture<bool>(std::move(err));
 }
 
-} // namespace rk::projects::durable_log::client
+}  // namespace rk::projects::durable_log::client

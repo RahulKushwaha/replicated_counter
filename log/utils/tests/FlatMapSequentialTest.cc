@@ -1,16 +1,17 @@
 //
 // Created by Rahul  Kushwaha on 8/24/23.
 //
-#include "log/utils/FlatMapSequential.h"
 #include "folly/experimental/coro/Task.h"
+#include "log/utils/FlatMapSequential.h"
+
 #include <gtest/gtest.h>
 
 namespace rk::projects::utils {
 
 namespace {
 
-folly::coro::Task<std::vector<int>>
-consumer(folly::coro::AsyncGenerator<int &&> generator) {
+folly::coro::Task<std::vector<int>> consumer(
+    folly::coro::AsyncGenerator<int&&> generator) {
   std::vector<int> result;
   while (auto item = co_await generator.next()) {
     LOG(INFO) << "received: " << item.value();
@@ -20,7 +21,7 @@ consumer(folly::coro::AsyncGenerator<int &&> generator) {
   co_return result;
 }
 
-} // namespace
+}  // namespace
 
 TEST(FlatMapSequentialTest, addOneTask) {
   std::shared_ptr<folly::Executor> executor =
@@ -44,7 +45,7 @@ TEST(FlatMapSequentialTest, addMultipleTask) {
   std::shared_ptr<folly::Executor> executor =
       std::make_shared<folly::CPUThreadPoolExecutor>(5);
   FlatMapSequential<int> flatMapSequential{executor};
-  auto &&generator = flatMapSequential.getGenerator();
+  auto&& generator = flatMapSequential.getGenerator();
   // Add 10 tasks. Each with decreasing sleep time.
   for (int i = 0; i < totalSize; i++) {
     flatMapSequential.add([i]() -> folly::coro::Task<int> {
@@ -62,4 +63,4 @@ TEST(FlatMapSequentialTest, addMultipleTask) {
   ASSERT_TRUE(std::is_sorted(result.begin(), result.end()));
 }
 
-} // namespace rk::projects::utils
+}  // namespace rk::projects::utils

@@ -11,7 +11,7 @@
 namespace rk::projects::persistence {
 
 class RocksKVStoreLite : public KVStoreLite {
-public:
+ public:
   explicit RocksKVStoreLite(std::shared_ptr<rocksdb::DB> rocks)
       : rocks_{std::move(rocks)} {}
 
@@ -83,9 +83,9 @@ public:
     co_return s.ok();
   }
 
-  folly::coro::Task<void>
-  checkpoint(const std::string &checkpointDir) override {
-    rocksdb::Checkpoint *checkpoint;
+  folly::coro::Task<void> checkpoint(
+      const std::string& checkpointDir) override {
+    rocksdb::Checkpoint* checkpoint;
     auto status = rocksdb::Checkpoint::Create(rocks_.get(), &checkpoint);
     if (!status.ok()) {
       LOG(INFO) << "failed to create checkpoint object" << status.ToString();
@@ -100,8 +100,8 @@ public:
     co_return;
   }
 
-private:
+ private:
   std::shared_ptr<rocksdb::DB> rocks_;
 };
 
-} // namespace rk::projects::persistence
+}  // namespace rk::projects::persistence

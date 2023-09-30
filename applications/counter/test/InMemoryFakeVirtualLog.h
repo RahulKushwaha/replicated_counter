@@ -9,7 +9,7 @@ namespace rk::projects::counter_app {
 using namespace rk::projects::durable_log;
 
 class InMemoryFakeVirtualLog : public durable_log::VirtualLog {
-public:
+ public:
   explicit InMemoryFakeVirtualLog()
       : logEntries_{}, logId_{1}, mtx_{std::make_unique<std::shared_mutex>()} {}
 
@@ -19,8 +19,8 @@ public:
     throw std::runtime_error{"NOT_IMPLEMENTED"};
   }
 
-  folly::SemiFuture<durable_log::LogId>
-  append(std::string logEntryPayload) override {
+  folly::SemiFuture<durable_log::LogId> append(
+      std::string logEntryPayload) override {
     std::unique_lock lk{*mtx_};
     auto currentLogId = logId_;
     logEntries_[currentLogId] = logEntryPayload;
@@ -28,8 +28,8 @@ public:
     return folly::makeSemiFuture(currentLogId);
   }
 
-  folly::SemiFuture<std::variant<LogEntry, LogReadError>>
-  getLogEntry(LogId logId) override {
+  folly::SemiFuture<std::variant<LogEntry, LogReadError>> getLogEntry(
+      LogId logId) override {
     std::shared_lock lk{*mtx_};
 
     std::variant<LogEntry, LogReadError> variant;
@@ -46,8 +46,8 @@ public:
     throw std::runtime_error{"NOT_IMPLEMENTED"};
   }
 
-  folly::coro::Task<MetadataConfig>
-  reconfigure(MetadataConfig metadataConfig) override {
+  folly::coro::Task<MetadataConfig> reconfigure(
+      MetadataConfig metadataConfig) override {
     throw std::runtime_error{"NOT_IMPLEMENTED"};
   }
 
@@ -61,10 +61,10 @@ public:
     return folly::makeSemiFuture(logId_);
   }
 
-private:
+ private:
   std::map<durable_log::LogId, std::string> logEntries_;
   std::unique_ptr<std::shared_mutex> mtx_;
   durable_log::LogId logId_;
 };
 
-} // namespace rk::projects::counter_app
+}  // namespace rk::projects::counter_app

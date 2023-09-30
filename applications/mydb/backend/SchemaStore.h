@@ -4,14 +4,15 @@
 
 #pragma once
 #include "Common.h"
+
 #include <unordered_map>
 #include <utility>
 
 namespace rk::projects::mydb {
 
 class SchemaStore {
-public:
-  bool registerTable(const std::string &dbName, const std::string &tableName,
+ public:
+  bool registerTable(const std::string& dbName, const std::string& tableName,
                      internal::Table table) {
     if (getTable(dbName, tableName)) {
       return false;
@@ -21,10 +22,10 @@ public:
     return true;
   }
 
-  std::optional<internal::Table> getTable(const std::string &dbName,
-                                          const std::string &tableName) {
+  std::optional<internal::Table> getTable(const std::string& dbName,
+                                          const std::string& tableName) {
     if (auto dbItr = lookup_.find(dbName); dbItr != lookup_.end()) {
-      const auto &tables = dbItr->second.tableLookup;
+      const auto& tables = dbItr->second.tableLookup;
       if (auto tableItr = dbItr->second.tableLookup.find(tableName);
           tableItr != tables.end()) {
         return tableItr->second;
@@ -34,7 +35,7 @@ public:
     return {};
   }
 
-private:
+ private:
   struct DatabaseStore {
     internal::Database database;
     std::unordered_map<std::string, internal::Table> tableLookup;
@@ -43,4 +44,4 @@ private:
   std::unordered_map<std::string, DatabaseStore> lookup_;
 };
 
-} // namespace rk::projects::mydb
+}  // namespace rk::projects::mydb
