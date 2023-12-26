@@ -1,51 +1,46 @@
 # proto-file: applications/mydb/backend/proto/db.proto
 # proto-message: Table
 
-name: "meta_db"
 id: 1
+name: "meta_db"
 db{
+  id: 1,
   name: "meta"
-  id: 1
 }
+
+columns[
+  {
+    id: 0,
+    name: "id",
+    column_type: 0,
+  },
+  {
+    id: 1,
+    name: "name",
+    column_type: 1,
+  },
+  {
+    id: 2,
+    name: "created",
+    column_type: 0,
+  },
+  {
+    id: 3,
+    name: "modified",
+    column_type: 0,
+  }
+]
 
 primary_key_index{
   id: 0
   name: "id_idx"
-  column_ids: [1]
+  column_ids: [0]
 }
 
 secondary_index[
   {
-    id: 2
-    name: "name_idx"
-    column_ids: [2]
-  }
-]
-
-columns[
-  {
     id: 1
-    name: "id"
-    column_type: 0
-  },
-  {
-    id: 2
-    name: "name"
-    column_type: 1
-  },
-  {
-    id: 3
-    name: "secondary_index"
-    column_type: 1
-  },
-  {
-    id: 4
-    name: "created"
-    column_type: 1
-  },
-  {
-    id: 5
-    name: "modified"
-    column_type: 1
+    name: "name_idx"
+    column_ids: [1]
   }
 ]

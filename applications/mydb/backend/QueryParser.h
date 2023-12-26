@@ -9,16 +9,18 @@
 
 namespace rk::projects::mydb {
 
+using Request = std::variant<client::ScanTableRequest, client::AddRowRequest>;
+
 // QueryParser object that is created per request object.
 class QueryParser {
  public:
-  explicit QueryParser(client::ScanTableRequest scanTableRequest,
+  explicit QueryParser(Request request,
                        std::shared_ptr<SchemaStore> schemaStore);
 
-  QueryPlan parse();
+  [[nodiscard]] QueryPlan parse() const;
 
  private:
-  client::ScanTableRequest scanTableRequest_;
+  Request request_;
   std::shared_ptr<SchemaStore> schemaStore_;
 };
 

@@ -65,16 +65,16 @@ include_directories("$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-if(LINUX)
+if (LINUX)
     set(ROCKS_DB_LIB /usr/local/lib/librocksdb.a)
     include_directories(/usr/local/include)
-else()
+else ()
     find_package(RocksDB CONFIG REQUIRED)
     set(ROCKS_DB_LIB RocksDB::rocksdb)
 
     add_compile_options(-fsanitize=undefined)
     add_link_options(-fsanitize=undefined)
-endif()
+endif ()
 
 find_package(Arrow REQUIRED)
 find_package(ArrowDataset REQUIRED)

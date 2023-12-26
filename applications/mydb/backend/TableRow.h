@@ -33,7 +33,7 @@ struct RawTableRow {
   using KeyValue = std::pair<Key, Value>;
   std::vector<KeyValue> keyValues;
 
-  std::string toString() {
+  std::string toString() const {
     std::stringstream ss;
     for (const auto& [k, v] : keyValues) {
       ss << k << " " << v << "\n";

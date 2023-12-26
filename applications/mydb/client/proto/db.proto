@@ -61,6 +61,18 @@ message Row{
   repeated google.protobuf.Any column_values = 1;
 }
 
+service db{
+  rpc addDatabase(AddDatabaseRequest) returns (google.protobuf.Empty);
+
+  rpc addTable(AddTableRequest) returns (google.protobuf.Empty);
+
+  rpc addRow(AddRowRequest) returns (AddRowResponse);
+
+  rpc updateRow(UpdateRowRequest) returns (UpdateRowResponse);
+
+  rpc scanTable(ScanTableRequest) returns(ScanTableResponse);
+}
+
 message AddDatabaseRequest{
   Database database = 1;
 }
@@ -77,22 +89,28 @@ message AddRowRequest{
   repeated ColumnValue column_values = 3;
 
   repeated ColumnName return_columns = 4;
-
-  optional Condition condition = 5;
 }
 
 message AddRowResponse{
   TableRows table_rows = 1;
 }
 
-service db{
-  rpc addDatabase(Database) returns(google.protobuf.Empty);
+message UpdateRowRequest{
+  enum UPDATE_TYPE{
+    REPLACE = 0;
+    MERGE = 1;
+  }
 
-  rpc addTable(AddTableRequest) returns(google.protobuf.Empty);
+  DatabaseName database_name = 1;
+  TableName table_name = 2;
 
-  rpc addRow(AddRowRequest)returns(AddRowResponse);
+  repeated ColumnValue column_values = 3;
 
-  rpc scanTable(ScanTableRequest) returns(google.protobuf.Empty);
+  repeated ColumnName return_columns = 4;
+}
+
+message UpdateRowResponse{
+  TableRows table_rows = 1;
 }
 
 message ScanTableRequest{
@@ -102,4 +120,8 @@ message ScanTableRequest{
   repeated ColumnName return_columns = 4;
 
   optional Condition condition = 5;
+}
+
+message ScanTableResponse{
+  TableRows table_rows = 1;
 }
