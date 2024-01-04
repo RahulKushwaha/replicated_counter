@@ -13,11 +13,23 @@ namespace rk::projects::mydb {
 QueryExecutor::QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks)
     : rocks_{std::move(rocks)} {}
 
-void QueryExecutor::insert(const InternalTable& internalTable,
-                           InsertOptions option) {
-  if (option == InsertOptions::REPLACE) {
+void QueryExecutor::insert(const InternalTable& internalTable) {
+  auto getResult = get(internalTable);
+  if (getResult.table->num_rows() != 0) {
+    throw std::runtime_error{"row already exists"};
+  }
 
-    auto rawTableRows = RowSerializer::serialize(internalTable);
+  auto rawTableRows = RowSerializer::serialize(internalTable);
+
+  // Insert the row.
+  rocks_->write(rawTableRows);
+}
+
+void QueryExecutor::update(const InternalTable& internalTable,
+                           UpdateOptions option) {
+  auto rawTableRows = RowSerializer::serialize(internalTable);
+
+  if (option == UpdateOptions::REPLACE) {
     // Delete the row first.
     std::vector<RawTableRow::Key> keysToDelete;
     for (auto& keyValue : rawTableRows) {
@@ -27,11 +39,10 @@ void QueryExecutor::insert(const InternalTable& internalTable,
     }
 
     rocks_->del(keysToDelete);
-    // Insert the row.
-    rocks_->write(rawTableRows);
-    return;
   }
-  assert(option == InsertOptions::MERGE);
+
+  // Insert the row.
+  rocks_->write(rawTableRows);
 }
 
 // Make it asynchronous later
@@ -76,8 +87,8 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
     auto kvRows =
         rocks_->scan({.direction = indexQueryOptions.direction,
                       .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize,
-                      .prefix = prefix,
-                      .seekPosition = seekPosition});
+                      .seekPosition = seekPosition,
+                      .prefix = prefix});
 
     return RowSerializer::deserialize(internalTable.schema, kvRows);
   } else {
@@ -104,11 +115,11 @@ InternalTable QueryExecutor::tableScan(InternalTable internalTable,
           indexQueryOptions.secondaryKeyValues);
     }();
 
-    auto kvRows = rocks_->scan(
-        {.direction = indexQueryOptions.direction,
-         .prefix = prefix,
-         .seekPosition = seekPosition,
-         .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize});
+    auto kvRows =
+        rocks_->scan({.direction = indexQueryOptions.direction,
+                      .maxRowsReturnSize = indexQueryOptions.maxRowsReturnSize,
+                      .seekPosition = seekPosition,
+                      .prefix = prefix});
 
     auto primaryKeys = RowSerializer::deserializeSecondaryIndexKeys(
         internalTable.schema, kvRows, indexQueryOptions.indexId);

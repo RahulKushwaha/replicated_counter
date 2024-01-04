@@ -5,6 +5,7 @@
 #pragma once
 
 #include "applications/mydb/backend/TableRow.h"
+#include "fmt/format.h"
 #include "tabulate/table.hpp"
 
 #include <arrow/array.h>
@@ -21,7 +22,10 @@ class FormatTable {
 
     tabulate::Table::Row_t header;
     for (const auto& col : internalTable.schema->rawTable().columns()) {
-      header.emplace_back(col.name());
+      auto columnTypeName =
+          col.column_type() == Column_COLUMN_TYPE_INT64 ? "INT64" : "STRING";
+      header.emplace_back(fmt::format("{} (id={}) (type={})", col.name(),
+                                      col.id(), columnTypeName));
     }
     tabulateTable.add_row(header);
 

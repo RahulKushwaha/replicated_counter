@@ -4,11 +4,9 @@
 
 #pragma once
 
-#include "QueryPlan.h"
 #include "RocksReaderWriter.h"
 #include "TableRow.h"
 #include "arrow/acero/options.h"
-#include "arrow/result.h"
 #include "folly/experimental/coro/AsyncGenerator.h"
 
 namespace rk::projects::mydb {
@@ -21,7 +19,9 @@ class QueryExecutor {
   explicit QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks);
 
  public:
-  void insert(const InternalTable& internalTable, InsertOptions option);
+  void insert(const InternalTable& internalTable);
+
+  void update(const InternalTable& internalTable, UpdateOptions option);
 
   InternalTable get(const InternalTable& internalTable);
 
@@ -31,7 +31,6 @@ class QueryExecutor {
   folly::coro::AsyncGenerator<InternalTable> tableScanGenerator(
       InternalTable internalTable, IndexQueryOptions queryOptions);
 
- private:
  private:
   std::shared_ptr<RocksReaderWriter> rocks_;
 };

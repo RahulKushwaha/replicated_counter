@@ -122,12 +122,21 @@ set(
 set(
         MY_DB_SOURCE_FILES_LIST
 
+        applications/mydb/backend/Bootstrap.h
         applications/mydb/backend/Common.h
+        applications/mydb/backend/Db.cc
+        applications/mydb/backend/Db.h
         applications/mydb/backend/KeySerializer.cc
         applications/mydb/backend/KeySerializer.h
         applications/mydb/backend/QueryExecutor.cc
         applications/mydb/backend/QueryExecutor.h
         applications/mydb/backend/QueryOptions.h
+        applications/mydb/backend/QueryParser.cc
+        applications/mydb/backend/QueryParser.h
+        applications/mydb/backend/QueryPlan.h
+        applications/mydb/backend/QueryPlanner.cc
+        applications/mydb/backend/QueryPlanner.h
+        applications/mydb/backend/RequestTransformer.h
         applications/mydb/backend/RocksDbFactory.h
         applications/mydb/backend/RocksReaderWriter.cc
         applications/mydb/backend/RocksReaderWriter.h
@@ -135,11 +144,7 @@ set(
         applications/mydb/backend/SchemaStore.h
         applications/mydb/backend/TableRow.cc
         applications/mydb/backend/TableRow.h
-
-        applications/mydb/backend/QueryParser.h
-        applications/mydb/backend/QueryParser.cc
-        applications/mydb/backend/QueryPlanner.h
-        applications/mydb/backend/QueryPlanner.cc
-        applications/mydb/backend/QueryPlan.h
+        applications/mydb/backend/server/DbServer.cc
+        applications/mydb/backend/server/DbServer.h
         applications/mydb/format/FormatTable.h
 )

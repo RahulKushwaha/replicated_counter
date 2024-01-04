@@ -57,7 +57,7 @@ message StringCondition{
   }
 
   string name = 1;
-  google.protobuf.Any value = 2;
+  string value = 2;
   Operation op = 3;
 }
 

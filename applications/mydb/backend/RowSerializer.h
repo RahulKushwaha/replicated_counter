@@ -3,10 +3,10 @@
 //
 #pragma once
 
-#include "AddTableRowRequest.h"
-#include "KeySerializer.h"
-#include "TableRow.h"
+#include "applications/mydb/backend/KeySerializer.h"
+#include "applications/mydb/backend/TableRow.h"
 #include "folly/Conv.h"
+#include "google/protobuf/any.pb.h"
 
 #include <arrow/builder.h>
 
@@ -116,19 +116,24 @@ class RowSerializer {
           }
 
           primaryIdxValues.emplace_back(std::move(columnValue));
-
-          auto primaryKey = prefix::primaryKey(rawTable, primaryIdxValues);
-          keys.emplace_back(std::move(primaryKey));
         }
+
+        auto primaryKey = prefix::primaryKey(rawTable, primaryIdxValues);
+        keys.emplace_back(std::move(primaryKey));
       }
     }
 
     return keys;
   }
 
-  // Rocks db -> Arrow table
-  static InternalTable deserialize(std::shared_ptr<TableSchema> schema,
-                                   std::vector<RawTableRow> rows) {
+  struct Header {
+    std::map<TableSchemaType::ColumnIdType,
+             std::shared_ptr<arrow::ArrayBuilder>>
+        colBuilder;
+    std::vector<std::shared_ptr<arrow::Field>> fields;
+  };
+
+  static Header getHeader(std::shared_ptr<TableSchema> schema) {
     std::map<TableSchemaType::ColumnIdType,
              std::shared_ptr<arrow::ArrayBuilder>>
         colBuilder;
@@ -145,6 +150,16 @@ class RowSerializer {
       // columns names and their types
       fields.emplace_back(arrow::field(col.name(), fieldType));
     }
+
+    return Header{.colBuilder = std::move(colBuilder),
+                  .fields = std::move(fields)};
+  }
+
+  // Rocks db -> Arrow table
+  static InternalTable deserialize(std::shared_ptr<TableSchema> schema,
+                                   std::vector<RawTableRow> rows) {
+    Header header = getHeader(schema);
+    auto& [colBuilder, fields] = header;
 
     auto arrowSchema = arrow::schema(std::move(fields));
 
@@ -194,12 +209,14 @@ class RowSerializer {
   static ColumnValue toColumnValue(const google::protobuf::Any& columnValue) {
     if (columnValue.type_url() == "std::string") {
       return columnValue.value();
-    } else if (columnValue.GetTypeName() == "std::uint64") {
-      return folly::to<std::int64_t>(columnValue.value());
-    } else {
-      LOG(INFO) << "unknown type " << columnValue.type_url();
-      throw std::runtime_error{"unknown type for serialization"};
     }
+
+    if (columnValue.GetTypeName() == "std::uint64") {
+      return folly::to<std::int64_t>(columnValue.value());
+    }
+
+    LOG(INFO) << "unknown type " << columnValue.type_url();
+    throw std::runtime_error{"unknown type for serialization"};
   }
 
   static InternalTable deserializeSecondaryIndexKeys(

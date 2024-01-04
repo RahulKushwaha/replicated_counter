@@ -27,8 +27,8 @@ class QueryPlannerTests : public persistence::RocksTestFixture {
 };
 
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryIndexWithIntUnaryCondition) {
-  auto internalTable = test_utils::getInternalTable(10, 5, 0, 1, 1, 1);
-  queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
+  auto internalTable = test_utils::getInternalTable(10, 5, 1, 1, 1, 1);
+  queryExecutor_->insert(internalTable);
   testIntUnaryCondition(client::IntCondition_Operation_GT, 5, 4, internalTable);
   testIntUnaryCondition(client::IntCondition_Operation_GEQ, 5, 5,
                         internalTable);
@@ -40,7 +40,7 @@ TEST_F(QueryPlannerTests, scanTableUsingPrimaryIndexWithIntUnaryCondition) {
 
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
   auto internalTable = test_utils::getInternalTable(10, 5, 0, 1, 1, 1);
-  queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
+  queryExecutor_->insert(internalTable);
   auto formattedTable = FormatTable::format(internalTable).str();
   LOG(INFO) << formattedTable;
 
@@ -82,7 +82,8 @@ TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
 
   QueryPlanner planner{queryPlan, queryExecutor_};
 
-  auto executablePlan = planner.plan(internalTable);
+  auto executablePlan =
+      planner.plan(InternalTable{.schema = internalTable.schema});
   auto result = QueryPlanner::execute(executablePlan);
 
   ASSERT_EQ(result.table->num_rows(), 3);
@@ -109,7 +110,8 @@ void QueryPlannerTests::testIntUnaryCondition(
 
   QueryPlanner planner{queryPlan, queryExecutor_};
 
-  auto executablePlan = planner.plan(internalTable);
+  auto executablePlan =
+      planner.plan(InternalTable{.schema = internalTable.schema});
   auto result = QueryPlanner::execute(executablePlan);
 
   ASSERT_EQ(result.table->num_rows(), returnedRows);

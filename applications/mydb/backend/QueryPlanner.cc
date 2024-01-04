@@ -2,7 +2,9 @@
 // Created by Rahul  Kushwaha on 9/6/23.
 //
 
-#include "QueryPlanner.h"
+#include "applications/mydb/backend/QueryPlanner.h"
+
+#include "applications/mydb/format/FormatTable.h"
 
 #include <utility>
 
@@ -12,21 +14,20 @@ QueryPlanner::QueryPlanner(QueryPlan plan,
     : plan_(std::move(plan)), queryExecutor_(std::move(queryExecutor)) {}
 
 ExecutableQueryPlan QueryPlanner::plan(const InternalTable& internalTable) {
-
   IndexQueryOptions indexQueryOptions{
       .indexId = internalTable.schema->rawTable().primary_key_index().id(),
       .direction = ScanDirection::FORWARD,
       .maxRowsReturnSize = 100000};
 
-  auto table_source_options = ac::TableSourceNodeOptions{
-      queryExecutor_->tableScan(internalTable, indexQueryOptions).table};
+  auto table = queryExecutor_->tableScan(internalTable, indexQueryOptions);
+  auto tableSourceOptions = ac::TableSourceNodeOptions{table.table};
 
-  ac::Declaration source{"table_source", std::move(table_source_options)};
+  ac::Declaration source{"table_source", std::move(tableSourceOptions)};
 
-  auto filter_expr = parseCondition(internalTable, plan_.condition);
+  auto filterExpr = parseCondition(internalTable, plan_.condition);
 
   ac::Declaration filter{
-      "filter", {source}, ac::FilterNodeOptions(std::move(filter_expr))};
+      "filter", {source}, ac::FilterNodeOptions(std::move(filterExpr))};
 
   return ExecutableQueryPlan{
       .plan = filter,
@@ -90,7 +91,9 @@ cp::Expression QueryPlanner::parseUnaryCondition(
     }
 
     return filterExpr;
-  } else if (unaryCondition.has_string_condition()) {
+  }
+
+  if (unaryCondition.has_string_condition()) {
 
     std::string colName = unaryCondition.string_condition().name();
     auto value = unaryCondition.string_condition().value();
@@ -100,8 +103,7 @@ cp::Expression QueryPlanner::parseUnaryCondition(
     switch (unaryCondition.string_condition().op()) {
 
       case client::StringCondition_Operation_EQ:
-        filter_expr =
-            cp::equal(cp::field_ref(colName), cp::literal(value.value()));
+        filter_expr = cp::equal(cp::field_ref(colName), cp::literal(value));
         break;
       case client::StringCondition_Operation_HAS_SUBSTR:
 
@@ -125,6 +127,7 @@ cp::Expression QueryPlanner::parseUnaryCondition(
 
     return filter_expr;
   }
+
   assert(false);
 }
 
@@ -136,11 +139,15 @@ cp::Expression QueryPlanner::parseUnaryCondition(
 InternalTable QueryPlanner::execute(
     const ExecutableQueryPlan& executableQueryPlan) {
 
-  std::shared_ptr<arrow::Table> response_table;
   auto status = ac::DeclarationToTable(executableQueryPlan.plan);
-  assert(status.ok());
-  response_table = status.ValueOrDie();
-  return InternalTable{.table = response_table};
+  if (!status.ok()) {
+    LOG(ERROR) << status.status().ToString();
+    assert(status.ok());
+  }
+
+  std::shared_ptr<arrow::Table> responseTable = status.ValueOrDie();
+  return InternalTable{.schema = executableQueryPlan.inputPlan.schema,
+                       .table = responseTable};
 }
 
 }  // namespace rk::projects::mydb

@@ -5,6 +5,7 @@
 #include "applications/mydb/backend/RocksReaderWriter.h"
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
+#include "applications/mydb/format/FormatTable.h"
 #include "persistence/tests/RocksTestFixture.h"
 
 #include <gtest/gtest.h>
@@ -23,8 +24,7 @@ class QueryExecutorTests : public persistence::RocksTestFixture {
 
 TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 3, 2, 3);
-
-  queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
+  queryExecutor_->insert(internalTable);
 
   auto response = queryExecutor_->tableScan(
       InternalTable{.schema = internalTable.schema},
@@ -43,7 +43,7 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
 TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
   auto internalTable = test_utils::getInternalTable(1, 0, 5, 1, 1, 1);
 
-  queryExecutor_->insert(internalTable, InsertOptions{InsertOptions::REPLACE});
+  queryExecutor_->insert(internalTable);
 
   for (const auto& idx : internalTable.schema->rawTable().secondary_index()) {
     auto response = queryExecutor_->tableScan(
@@ -64,7 +64,7 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndexWithBatchSize) {
   auto batchSize = 2;
   auto internalTable = test_utils::getInternalTable(totalRows, 5, 5, 3, 2, 3);
 
-  queryExecutor_->insert(internalTable, InsertOptions{});
+  queryExecutor_->insert(internalTable);
 
   std::vector<ColumnValue> primaryKeyValues;
 
@@ -102,7 +102,7 @@ TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndexWithBatchSize) {
   auto batchSize = 2;
   auto internalTable = test_utils::getInternalTable(totalRows, 5, 5, 1, 1, 1);
 
-  queryExecutor_->insert(internalTable, InsertOptions{});
+  queryExecutor_->insert(internalTable);
 
   std::vector<ColumnValue> secondaryKeyValues;
   std::vector<ColumnValue> primaryKeyValues;

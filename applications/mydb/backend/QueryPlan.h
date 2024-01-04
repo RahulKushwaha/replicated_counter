@@ -13,6 +13,8 @@ namespace rk::projects::mydb {
 
 enum class QueryOperation {
   TableScan,
+  Update,
+  None,
 };
 
 struct QueryPlan {

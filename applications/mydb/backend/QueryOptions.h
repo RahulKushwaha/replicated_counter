@@ -9,7 +9,7 @@
 
 namespace rk::projects::mydb {
 
-enum class InsertOptions { REPLACE, MERGE };
+enum class UpdateOptions { REPLACE, MERGE };
 
 enum class ScanDirection {
   FORWARD,

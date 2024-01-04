@@ -2,11 +2,9 @@
 // Created by Rahul  Kushwaha on 4/7/23.
 //
 
-#include "applications/mydb/backend/AddTableRowRequest.h"
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/tests/TestUtils.h"
 
-#include <arrow/chunked_array.h>
 #include <gtest/gtest.h>
 
 namespace rk::projects::mydb {
