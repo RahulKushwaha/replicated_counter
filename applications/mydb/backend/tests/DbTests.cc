@@ -13,11 +13,11 @@
 namespace rk::projects::mydb {
 
 const std::string metaDbSchemaFileLocation =
-    "/home/rahul/repo/replicated_counter/applications/mydb/backend/proto/"
-    "meta_db_schema.textproto";
+    "/Users/rahulkushwaha/projects/replicated_counter/applications/mydb/"
+    "backend/proto/meta_db_schema.textproto";
 const std::string metaDbTableSchemaFileLocation =
-    "/home/rahul/repo/replicated_counter/applications/mydb/backend/proto/"
-    "meta_db_table_schema.textproto";
+    "/Users/rahulkushwaha/projects/replicated_counter/applications/mydb/"
+    "backend/proto/meta_db_table_schema.textproto";
 
 class DbTests : public persistence::RocksTestFixture {
  protected:
@@ -53,7 +53,7 @@ TEST_F(DbTests, addDatabaseTest) {
   auto intCondtion = client::IntCondition{};
   intCondtion.set_col_name("id");
   intCondtion.set_op(client::IntCondition_Operation_EQ);
-  intCondtion.set_value(23);
+  intCondtion.set_value(0);
 
   auto unaryCondition = client::UnaryCondition{};
   unaryCondition.mutable_int_condition()->CopyFrom(intCondtion);
@@ -63,6 +63,40 @@ TEST_F(DbTests, addDatabaseTest) {
 
   auto tableRows = db.scanDatabase(&scanTableRequest);
   ASSERT_EQ(tableRows.rows().size(), 1);
+}
+
+TEST_F(DbTests, addSameDatabaseMultipleTimesThrowsException) {
+  auto schemaStore = std::make_shared<SchemaStore>();
+  auto result = bootstrap(metaDbSchemaFileLocation,
+                          metaDbTableSchemaFileLocation, schemaStore);
+  ASSERT_TRUE(result);
+
+  Db db{schemaStore, rocks_};
+  client::AddDatabaseRequest addDatabaseRequest;
+  addDatabaseRequest.mutable_database()->mutable_name()->set_name("temp");
+
+  db.addDatabase(&addDatabaseRequest);
+
+  ASSERT_THROW(db.addDatabase(&addDatabaseRequest), std::runtime_error);
+}
+
+TEST_F(DbTests, addTable) {
+  auto schemaStore = std::make_shared<SchemaStore>();
+  auto result = bootstrap(metaDbSchemaFileLocation,
+                          metaDbTableSchemaFileLocation, schemaStore);
+  ASSERT_TRUE(result);
+
+  Db db{schemaStore, rocks_};
+  client::AddDatabaseRequest addDatabaseRequest;
+  addDatabaseRequest.mutable_database()->mutable_name()->set_name("temp");
+
+  db.addDatabase(&addDatabaseRequest);
+
+  client::AddTableRequest addTableRequest{};
+  addTableRequest.mutable_database()->mutable_name()->set_name("temp");
+  addTableRequest.mutable_table()->mutable_name()->set_name("tbl_1");
+
+  db.addTable(&addTableRequest);
 }
 
 }  // namespace rk::projects::mydb

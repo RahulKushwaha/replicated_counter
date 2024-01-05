@@ -12,6 +12,18 @@ namespace rk::projects::mydb {
 
 class SchemaStore {
  public:
+  bool registerDb(const std::string& dbName, internal::Database database) {
+    auto itr = lookup_.find(dbName);
+    if (itr != lookup_.end()) {
+      return false;
+    }
+
+    auto& [dbStore, tableLookup] = lookup_[dbName];
+
+    lookup_[dbName].database.CopyFrom(database);
+    return true;
+  }
+
   bool registerTable(const std::string& dbName, const std::string& tableName,
                      internal::Table table) {
     if (getTable(dbName, tableName)) {
@@ -20,6 +32,14 @@ class SchemaStore {
 
     lookup_[dbName].tableLookup[tableName] = std::move(table);
     return true;
+  }
+
+  std::optional<internal::Database> getDatabase(const std::string& dbName) {
+    if (auto dbItr = lookup_.find(dbName); dbItr != lookup_.end()) {
+      return dbItr->second.database;
+    }
+
+    return {};
   }
 
   std::optional<internal::Table> getTable(const std::string& dbName,

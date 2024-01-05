@@ -5,6 +5,7 @@
 #include "QueryExecutor.h"
 
 #include "RowSerializer.h"
+#include "applications/mydb/format/FormatTable.h"
 
 #include <utility>
 

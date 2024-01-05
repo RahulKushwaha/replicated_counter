@@ -31,6 +31,8 @@ class Db {
  private:
   std::shared_ptr<SchemaStore> schemaStore_;
   std::shared_ptr<QueryExecutor> queryExecutor_;
+  TableSchemaType::DbIdType dbIds_;
+  TableSchemaType::TableIdType tableIds_;
 };
 
 }  // namespace rk::projects::mydb

@@ -22,7 +22,7 @@ message Table{
   DatabaseName db = 2;
   repeated Column columns = 3;
   PrimaryKey primary_key = 4;
-  SecondaryIndex secondary_index = 5;
+  repeated SecondaryIndex secondary_index = 5;
 }
 
 message ColumnName{
@@ -35,11 +35,12 @@ message ColumnValue{
 }
 
 message PrimaryKey{
-  repeated ColumnName columns = 1;
+  repeated ColumnName columns = 2;
 }
 
 message SecondaryIndex{
-  repeated ColumnName columns = 1 ;
+  string name = 1;
+  repeated ColumnName columns = 2;
 }
 
 message Column{
@@ -87,7 +88,6 @@ message AddRowRequest{
   TableName table_name = 2;
 
   repeated ColumnValue column_values = 3;
-
   repeated ColumnName return_columns = 4;
 }
 
@@ -105,8 +105,10 @@ message UpdateRowRequest{
   TableName table_name = 2;
 
   repeated ColumnValue column_values = 3;
-
   repeated ColumnName return_columns = 4;
+
+  UPDATE_TYPE update_type = 5;
+  Condition condition = 6;
 }
 
 message UpdateRowResponse{

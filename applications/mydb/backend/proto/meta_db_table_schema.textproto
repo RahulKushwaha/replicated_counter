@@ -1,26 +1,12 @@
 # proto-file: applications/mydb/backend/proto/db.proto
 # proto-message: Table
 
+id: 2
 name: "meta_db_table"
-id: 1
 db{
   name: "meta"
   id: 1
 }
-
-primary_key_index{
-  id: 0
-  name: "id_idx"
-  column_ids: [0]
-}
-
-secondary_index[
-  {
-    id: 1
-    name: "name_idx"
-    column_ids: [1]
-  }
-]
 
 columns[
   {
@@ -42,5 +28,29 @@ columns[
     id: 3
     name: "modified"
     column_type: 0
+  },
+  {
+    id: 4
+    name: "serialized_table_str",
+    column_type: 1
+  },
+  {
+    id: 5
+    name: "max_id_num",
+    column_type: 0
+  }
+]
+
+primary_key_index{
+  id: 0
+  name: "id_idx"
+  column_ids: [0]
+}
+
+secondary_index[
+  {
+    id: 1
+    name: "name_idx"
+    column_ids: [1]
   }
 ]

@@ -4,8 +4,8 @@
 id: 1
 name: "meta_db"
 db{
-  id: 1,
   name: "meta"
+  id: 1,
 }
 
 columns[
