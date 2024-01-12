@@ -7,8 +7,6 @@
 #include "RowSerializer.h"
 #include "applications/mydb/format/FormatTable.h"
 
-#include <utility>
-
 namespace rk::projects::mydb {
 
 QueryExecutor::QueryExecutor(std::shared_ptr<RocksReaderWriter> rocks)

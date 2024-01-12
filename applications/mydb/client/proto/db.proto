@@ -79,8 +79,7 @@ message AddDatabaseRequest{
 }
 
 message AddTableRequest{
-  Database database = 1;
-  Table table = 2;
+  Table table = 1;
 }
 
 message AddRowRequest{

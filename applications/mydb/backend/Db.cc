@@ -4,9 +4,11 @@
 
 #include "applications/mydb/backend/Db.h"
 
+#include "applications/mydb/backend/Errors.h"
 #include "applications/mydb/backend/QueryPlan.h"
 #include "applications/mydb/backend/QueryPlanner.h"
 #include "applications/mydb/backend/RequestTransformer.h"
+#include "applications/mydb/format/FormatTable.h"
 
 namespace rk::projects::mydb {
 
@@ -36,35 +38,45 @@ google::protobuf::Empty Db::addDatabase(
 
   const auto result =
       schemaStore_->registerDb(request->database().name().name(), database);
-  assert(result && "unable to register schema");
+  if (!result) {
+    throw DbError{ErrorCode::DATABASE_ALREADY_EXISTS};
+  }
 
   return google::protobuf::Empty{};
 }
 
 google::protobuf::Empty Db::addTable(const client::AddTableRequest* request) {
-  const auto db = request->database();
-  auto table = schemaStore_->getTable("meta", "meta_db_table");
-  assert(table.has_value() && "table not found");
+  const auto db = request->table().db();
+  auto metaDbTable = schemaStore_->getTable("meta", "meta_db_table");
+  assert(metaDbTable.has_value() && "table not found");
 
   // make sure the database in which the table is being inserted exists
-  auto database = schemaStore_->getDatabase(request->database().name().name());
+  auto database = schemaStore_->getDatabase(db.name());
 
   if (!database.has_value()) {
-    throw std::runtime_error{fmt::format("{} named database does not exist",
-                                         request->database().name().name())};
+    throw DbError{ErrorCode::DATABASE_DOES_NOT_EXIST};
+  }
+
+  auto table =
+      schemaStore_->getTable(db.name(), request->table().name().name());
+
+  if (table.has_value()) {
+    throw DbError{ErrorCode::TABLE_ALREADY_EXISTS};
   }
 
   const auto tableId = tableIds_++;
 
-  auto tableSchema =
-      std::make_shared<TableSchema>(std::make_shared<Table>(table.value()));
+  auto tableSchema = std::make_shared<TableSchema>(
+      std::make_shared<Table>(metaDbTable.value()));
   auto internalTable = Transformer::from(*request, tableSchema, tableId);
 
   queryExecutor_->insert(internalTable);
 
-  schemaStore_->registerTable(
-      request->database().name().name(), request->table().name().name(),
+  auto result = schemaStore_->registerTable(
+      db.name(), request->table().name().name(),
       Transformer::from(request->table(), database.value().id(), tableId));
+
+  assert(result && "table already exists");
 
   return google::protobuf::Empty{};
 }
@@ -76,12 +88,16 @@ client::AddRowResponse Db::addRow(const client::AddRowRequest* request) {
 
   auto tableSchema =
       std::make_shared<TableSchema>(std::make_shared<Table>(table.value()));
-
   auto internalTable = Transformer::from(*request, tableSchema);
 
   queryExecutor_->insert(internalTable);
 
-  return client::AddRowResponse{};
+  auto insertedRow = queryExecutor_->get(internalTable);
+
+  client::AddRowResponse response{};
+  auto outputRows = Transformer::from(insertedRow);
+  *response.mutable_table_rows() = std::move(outputRows);
+  return response;
 }
 
 client::UpdateRowResponse Db::updateRow(
@@ -102,10 +118,10 @@ client::UpdateRowResponse Db::updateRow(
   QueryPlanner queryPlanner{queryPlan, queryExecutor_};
   auto executableQueryPlan =
       queryPlanner.plan(InternalTable{.schema = tableSchema});
-  auto result = queryPlanner.execute(executableQueryPlan);
+  auto result = QueryPlanner::execute(executableQueryPlan);
 
-  if (result.table->num_rows() != 1) {
-    throw std::runtime_error{"row did not match the condition"};
+  if (result.table->num_rows() == 0) {
+    throw DbError{ErrorCode::UPDATE_CONDITION_FAILED};
   }
 
   auto internalTable = Transformer::from(*request, tableSchema);
@@ -127,7 +143,8 @@ client::UpdateRowResponse Db::updateRow(
 }
 
 client::TableRows Db::scanDatabase(const client::ScanTableRequest* request) {
-  auto table = schemaStore_->getTable("meta", "meta_db");
+  auto table = schemaStore_->getTable(request->database_name().name(),
+                                      request->table_name().name());
   assert(table.has_value() && "table not found");
 
   auto tableSchema =
@@ -149,7 +166,7 @@ client::TableRows Db::scanDatabase(const client::ScanTableRequest* request) {
   QueryPlanner queryPlanner{queryPlan, queryExecutor_};
   auto executableQueryPlan =
       queryPlanner.plan(InternalTable{.schema = tableSchema});
-  auto result = queryPlanner.execute(executableQueryPlan);
+  auto result = QueryPlanner::execute(executableQueryPlan);
   return Transformer::from(result);
 }
 

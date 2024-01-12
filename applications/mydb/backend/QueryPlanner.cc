@@ -5,6 +5,7 @@
 #include "applications/mydb/backend/QueryPlanner.h"
 
 #include "applications/mydb/format/FormatTable.h"
+#include "fmt/chrono.h"
 
 #include <utility>
 
@@ -24,13 +25,17 @@ ExecutableQueryPlan QueryPlanner::plan(const InternalTable& internalTable) {
 
   ac::Declaration source{"table_source", std::move(tableSourceOptions)};
 
-  auto filterExpr = parseCondition(internalTable, plan_.condition);
+  if (plan_.condition.has_binary_condition() ||
+      plan_.condition.has_unary_condition()) {
+    auto filterExpr = parseCondition(internalTable, plan_.condition);
 
-  ac::Declaration filter{
-      "filter", {source}, ac::FilterNodeOptions(std::move(filterExpr))};
+    ac::Declaration filter{
+        "filter", {source}, ac::FilterNodeOptions(std::move(filterExpr))};
+    source = filter;
+  }
 
   return ExecutableQueryPlan{
-      .plan = filter,
+      .plan = source,
       .inputPlan = plan_,
   };
 }
@@ -54,7 +59,7 @@ cp::Expression QueryPlanner::parseCondition(
       filterExpression = cp::or_(left, right);
       break;
     default:
-      assert(false);
+      assert(false && "unknown logical joining condition");
   }
   return filterExpression;
 }
