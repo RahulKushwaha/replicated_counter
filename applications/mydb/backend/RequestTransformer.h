@@ -270,7 +270,7 @@ class Transformer {
     primaryKeyIndex.set_id(0);
     primaryKeyIndex.set_name("primary_key_idx");
     for (auto& primaryIndexKeyName : clientTable.primary_key().columns()) {
-      const auto colId = idLookup.at(primaryKeyIndex.name());
+      const auto colId = idLookup.at(primaryIndexKeyName.name());
       primaryKeyIndex.add_column_ids(colId);
     }
 

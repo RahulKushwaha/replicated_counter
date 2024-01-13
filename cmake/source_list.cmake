@@ -126,6 +126,8 @@ set(
         applications/mydb/backend/Common.h
         applications/mydb/backend/Db.cc
         applications/mydb/backend/Db.h
+        applications/mydb/backend/DbDefaults.h
+        applications/mydb/backend/Errors.h
         applications/mydb/backend/KeySerializer.cc
         applications/mydb/backend/KeySerializer.h
         applications/mydb/backend/QueryExecutor.cc
@@ -142,9 +144,9 @@ set(
         applications/mydb/backend/RocksReaderWriter.h
         applications/mydb/backend/RowSerializer.h
         applications/mydb/backend/SchemaStore.h
-        applications/mydb/backend/TableRow.cc
-        applications/mydb/backend/TableRow.h
         applications/mydb/backend/server/DbServer.cc
         applications/mydb/backend/server/DbServer.h
+        applications/mydb/backend/TableRow.cc
+        applications/mydb/backend/TableRow.h
         applications/mydb/format/FormatTable.h
 )
