@@ -4,6 +4,7 @@
 
 #include "applications/mydb/backend/Bootstrap.h"
 #include "applications/mydb/backend/Db.h"
+#include "applications/mydb/backend/DbDefaults.h"
 #include "applications/mydb/backend/Errors.h"
 #include "applications/mydb/backend/SchemaStore.h"
 #include "google/protobuf/any.pb.h"
@@ -29,7 +30,11 @@ std::vector<std::vector<client::ColumnValue>> getSampleDataRow(
       google::protobuf::Any value{};
       switch (col.column_type()) {
         case Column_COLUMN_TYPE_INT64: {
-          value.set_value(std::to_string(intColValue++));
+          if (TableDefaultColumns::LOCK_MODE_COL_ID == col.id()) {
+            value.set_value(std::to_string(enumToInteger(LockType::NO_LOCK)));
+          } else {
+            value.set_value(std::to_string(intColValue++));
+          }
         } break;
         case Column_COLUMN_TYPE_STRING: {
           value.set_value(randomValue + std::to_string(intColValue++));
@@ -137,13 +142,13 @@ TEST_F(DbTests, addDatabaseTest) {
   scanTableRequest.mutable_database_name()->set_name("meta");
   scanTableRequest.mutable_table_name()->set_name("meta_db");
 
-  auto intCondtion = client::IntCondition{};
-  intCondtion.set_col_name("id");
-  intCondtion.set_op(client::IntCondition_Operation_EQ);
-  intCondtion.set_value(0);
+  auto intCondition = client::IntCondition{};
+  intCondition.set_col_name("id");
+  intCondition.set_op(client::IntCondition_Operation_EQ);
+  intCondition.set_value(0);
 
   auto unaryCondition = client::UnaryCondition{};
-  unaryCondition.mutable_int_condition()->CopyFrom(intCondtion);
+  unaryCondition.mutable_int_condition()->CopyFrom(intCondition);
 
   scanTableRequest.mutable_condition()->mutable_unary_condition()->CopyFrom(
       unaryCondition);
@@ -382,7 +387,7 @@ TEST_F(DbTests, updateTableRowWithCondition) {
     intCondition->set_value(2);
     intCondition->set_op(client::IntCondition_Operation_EQ);
 
-    updateRow.mutable_condition()->CopyFrom(condition);
+    *updateRow.mutable_condition() = std::move(condition);
 
     auto updateResponse = db.updateRow(&updateRow);
   }

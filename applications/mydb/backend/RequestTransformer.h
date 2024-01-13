@@ -5,6 +5,7 @@
 #pragma once
 
 #include "applications/mydb/backend/Common.h"
+#include "applications/mydb/backend/DbDefaults.h"
 #include "applications/mydb/backend/RowSerializer.h"
 #include "applications/mydb/backend/TableRow.h"
 #include "applications/mydb/client/proto/db.pb.h"
@@ -265,6 +266,9 @@ class Transformer {
 
       table.mutable_columns()->Add(std::move(column));
     }
+
+    auto defaultCols = getTableDefaultColumns();
+    table.mutable_columns()->Add(defaultCols.begin(), defaultCols.end());
 
     auto& primaryKeyIndex = *table.mutable_primary_key_index();
     primaryKeyIndex.set_id(0);

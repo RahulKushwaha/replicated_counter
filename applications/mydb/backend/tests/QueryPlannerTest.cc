@@ -27,7 +27,7 @@ class QueryPlannerTests : public persistence::RocksTestFixture {
 };
 
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryIndexWithIntUnaryCondition) {
-  auto internalTable = test_utils::getInternalTable(10, 5, 1, 1, 1, 1);
+  auto internalTable = test_utils::getInternalTable(10, 5, 5, 1, 1, 1);
   queryExecutor_->insert(internalTable);
   testIntUnaryCondition(client::IntCondition_Operation_GT, 5, 4, internalTable);
   testIntUnaryCondition(client::IntCondition_Operation_GEQ, 5, 5,
@@ -39,29 +39,29 @@ TEST_F(QueryPlannerTests, scanTableUsingPrimaryIndexWithIntUnaryCondition) {
 }
 
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
-  auto internalTable = test_utils::getInternalTable(10, 5, 0, 1, 1, 1);
+  auto internalTable = test_utils::getInternalTable(10, 5, 5, 1, 1, 1);
   queryExecutor_->insert(internalTable);
   auto formattedTable = FormatTable::format(internalTable).str();
   LOG(INFO) << formattedTable;
 
-  auto intCondtion1 = client::IntCondition{};
-  intCondtion1.set_col_name(internalTable.schema->getColumnName(0));
-  intCondtion1.set_op(client::IntCondition_Operation_GT);
-  intCondtion1.set_value(2);
+  auto intCondition1 = client::IntCondition{};
+  intCondition1.set_col_name(internalTable.schema->getColumnName(0));
+  intCondition1.set_op(client::IntCondition_Operation_GT);
+  intCondition1.set_value(2);
 
   auto unaryCondition1 = client::UnaryCondition{};
-  unaryCondition1.mutable_int_condition()->CopyFrom(intCondtion1);
+  unaryCondition1.mutable_int_condition()->CopyFrom(intCondition1);
 
   auto condition1 = client::Condition{};
   condition1.mutable_unary_condition()->CopyFrom(unaryCondition1);
 
-  auto intCondtion2 = client::IntCondition{};
-  intCondtion2.set_col_name(internalTable.schema->getColumnName(1));
-  intCondtion2.set_op(client::IntCondition_Operation_LT);
-  intCondtion2.set_value(16);
+  auto intCondition2 = client::IntCondition{};
+  intCondition2.set_col_name(internalTable.schema->getColumnName(1));
+  intCondition2.set_op(client::IntCondition_Operation_LT);
+  intCondition2.set_value(16);
 
   auto unaryCondition2 = client::UnaryCondition{};
-  unaryCondition2.mutable_int_condition()->CopyFrom(intCondtion2);
+  unaryCondition2.mutable_int_condition()->CopyFrom(intCondition2);
 
   auto condition2 = client::Condition{};
   condition2.mutable_unary_condition()->CopyFrom(unaryCondition2);

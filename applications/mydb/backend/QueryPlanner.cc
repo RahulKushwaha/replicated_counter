@@ -48,20 +48,26 @@ cp::Expression QueryPlanner::parseCondition(
     return parseUnaryCondition(internalTable, condition.unary_condition());
   }
 
-  auto left = parseCondition(internalTable, condition.binary_condition().c1());
-  auto right = parseCondition(internalTable, condition.binary_condition().c2());
+  if (condition.has_binary_condition()) {
+    auto left =
+        parseCondition(internalTable, condition.binary_condition().c1());
+    auto right =
+        parseCondition(internalTable, condition.binary_condition().c2());
 
-  switch (condition.binary_condition().op()) {
-    case client::AND:
-      filterExpression = cp::and_(left, right);
-      break;
-    case client::OR:
-      filterExpression = cp::or_(left, right);
-      break;
-    default:
-      assert(false && "unknown logical joining condition");
+    switch (condition.binary_condition().op()) {
+      case client::AND:
+        filterExpression = cp::and_(left, right);
+        break;
+      case client::OR:
+        filterExpression = cp::or_(left, right);
+        break;
+      default:
+        assert(false && "unknown logical joining condition");
+    }
+    return filterExpression;
   }
-  return filterExpression;
+
+  return cp::literal(true);
 }
 
 cp::Expression QueryPlanner::parseUnaryCondition(

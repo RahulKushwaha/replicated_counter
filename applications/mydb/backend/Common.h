@@ -10,10 +10,22 @@
 namespace rk::projects::mydb {
 using namespace internal;
 
+template <typename Enumeration>
+auto enumToInteger(Enumeration const value) ->
+    typename std::underlying_type<Enumeration>::type {
+  return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+}
+
 struct TableSchemaType {
   using DbIdType = decltype(Database{}.id());
   using TableIdType = decltype(Table{}.id());
   using ColumnIdType = decltype(Column{}.id());
+};
+
+enum class LockType : std::uint32_t {
+  NO_LOCK = 0,
+  WRITE_LOCK = 1,
+  READ_LOCK = 2,
 };
 
 namespace {

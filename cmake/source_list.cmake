@@ -126,6 +126,7 @@ set(
         applications/mydb/backend/Common.h
         applications/mydb/backend/Db.cc
         applications/mydb/backend/Db.h
+        applications/mydb/backend/DbDefaults.cc
         applications/mydb/backend/DbDefaults.h
         applications/mydb/backend/Errors.h
         applications/mydb/backend/KeySerializer.cc

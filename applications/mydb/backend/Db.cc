@@ -88,6 +88,7 @@ client::AddRowResponse Db::addRow(const client::AddRowRequest* request) {
 
   auto tableSchema =
       std::make_shared<TableSchema>(std::make_shared<Table>(table.value()));
+
   auto internalTable = Transformer::from(*request, tableSchema);
 
   queryExecutor_->insert(internalTable);
@@ -109,10 +110,13 @@ client::UpdateRowResponse Db::updateRow(
   auto tableSchema =
       std::make_shared<TableSchema>(std::make_shared<Table>(table.value()));
 
+  auto conditionWithLockCheck =
+      addConditionToCheckWriteLock(request->condition());
+
   QueryPlan queryPlan{
       .operation = QueryOperation::TableScan,
       .schema = tableSchema,
-      .condition = request->condition(),
+      .condition = std::move(conditionWithLockCheck),
   };
 
   QueryPlanner queryPlanner{queryPlan, queryExecutor_};
@@ -168,6 +172,28 @@ client::TableRows Db::scanDatabase(const client::ScanTableRequest* request) {
       queryPlanner.plan(InternalTable{.schema = tableSchema});
   auto result = QueryPlanner::execute(executableQueryPlan);
   return Transformer::from(result);
+}
+
+client::Condition Db::addConditionToCheckWriteLock(
+    client::Condition condition) {
+  client::BinaryCondition binaryCondition{};
+  binaryCondition.set_op(client::LogicalOperator::AND);
+
+  client::UnaryCondition checkLock{};
+  auto intCondition = checkLock.mutable_int_condition();
+  intCondition->set_col_name(TableDefaultColumns::LOCK_MODE_NAME);
+  intCondition->set_op(client::IntCondition_Operation_EQ);
+  intCondition->set_value(enumToInteger(LockType::NO_LOCK));
+
+  client::Condition rhsCondition{};
+  *rhsCondition.mutable_unary_condition() = std::move(checkLock);
+
+  *binaryCondition.mutable_c1() = std::move(condition);
+  *binaryCondition.mutable_c2() = std::move(rhsCondition);
+
+  client::Condition returnCondition{};
+  *returnCondition.mutable_binary_condition() = std::move(binaryCondition);
+  return returnCondition;
 }
 
 }  // namespace rk::projects::mydb

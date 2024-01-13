@@ -85,6 +85,6 @@ TEST_P(PrefixTestsSuite, parseKeyString) {
   ASSERT_EQ(std::stoi(keyFragments.primaryIndex->values[0]), 5000);
 }
 
-INSTANTIATE_TEST_SUITE_P(PrefixTestSuite, PrefixTestsSuite,
+INSTANTIATE_TEST_SUITE_P(PrefixTestSuiteParameterizedTests, PrefixTestsSuite,
                          testing::Values(getMetaTables()));
 }  // namespace rk::projects::mydb
