@@ -2,6 +2,8 @@
 // Created by Rahul  Kushwaha on 1/12/24.
 //
 #pragma once
+
+#include "applications/mydb/backend/Common.h"
 #include "fmt/format.h"
 
 #include <stdexcept>
@@ -21,16 +23,10 @@ enum class ErrorCode {
   TABLE_ALREADY_EXISTS = 6,
 };
 
-template <typename Enumeration>
-auto as_integer(Enumeration const value) ->
-    typename std::underlying_type<Enumeration>::type {
-  return static_cast<typename std::underlying_type<Enumeration>::type>(value);
-}
-
 struct DbError final : public std::runtime_error {
   explicit DbError(ErrorCode errorCode)
       : runtime_error(fmt::format("error encountered. error-code: {}",
-                                  as_integer(errorCode))),
+                                  enumToInteger(errorCode))),
         errorCode_{errorCode} {}
 
   ErrorCode errorCode_;

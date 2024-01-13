@@ -29,6 +29,9 @@ class Db {
   client::TableRows scanDatabase(const client::ScanTableRequest* request);
 
  private:
+  client::Condition addConditionToCheckWriteLock(client::Condition condition);
+
+ private:
   std::shared_ptr<SchemaStore> schemaStore_;
   std::shared_ptr<QueryExecutor> queryExecutor_;
   TableSchemaType::DbIdType dbIds_;

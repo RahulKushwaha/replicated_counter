@@ -5,6 +5,7 @@
 
 #include "TableRow.h"
 #include "applications/mydb/backend/proto/db.pb.h"
+#include "fmt/format.h"
 #include "folly/Conv.h"
 
 #include <sstream>
@@ -21,7 +22,7 @@ enum class TokenType {
   SECONDARY_INDEX_KEY_PARTS,
 };
 
-std::string_view to_string(TokenType tokenType) {
+std::string_view toString(TokenType tokenType) {
   switch (tokenType) {
     using enum TokenType;
     case DB_ID:
@@ -36,8 +37,15 @@ std::string_view to_string(TokenType tokenType) {
       return "COL_ID";
     case SECONDARY_INDEX_KEY_PARTS:
       return "SECONDARY_INDEX_KEY_PARTS";
+    default:
+      assert(false && "unknown tokenType");
   }
 }
+
+inline std::string pad(std::uint32_t num) {
+  return fmt::format("{:04}", num);
+}
+
 }  // namespace
 
 // This method add extra escape character
@@ -162,12 +170,14 @@ std::string primaryKey(const internal::Table& table,
                        const std::vector<ColumnValue>& values) {
   assert(table.primary_key_index().column_ids().size() == values.size());
   std::stringstream ss;
-  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
-     << DEFAULT_ESCAPE_CHARACTER << table.primary_key_index().id();
+  // ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
+  //    << DEFAULT_ESCAPE_CHARACTER << table.primary_key_index().id();
+  ss << pad(table.db().id()) << DEFAULT_ESCAPE_CHARACTER << pad(table.id())
+     << DEFAULT_ESCAPE_CHARACTER << pad(table.primary_key_index().id());
 
   for (std::int32_t index = 0; index < values.size(); index++) {
     ss << DEFAULT_ESCAPE_CHARACTER
-       << table.primary_key_index().column_ids(index)
+       << pad(table.primary_key_index().column_ids(index))
        << DEFAULT_ESCAPE_CHARACTER
        << escapeString(mydb::toString(values[index]));
   }
@@ -178,8 +188,8 @@ std::string primaryKey(const internal::Table& table,
 std::string minimumIndexKey(const internal::Table& table,
                             TableSchemaType::TableIdType indexId) {
   std::stringstream ss;
-  ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
-     << DEFAULT_ESCAPE_CHARACTER << indexId;
+  ss << pad(table.db().id()) << DEFAULT_ESCAPE_CHARACTER << pad(table.id())
+     << DEFAULT_ESCAPE_CHARACTER << pad(indexId);
 
   return ss.str();
 }
@@ -208,7 +218,6 @@ std::string maximumSecondaryIndexKey(
       ss << secondaryIndexKey(table, indexId, secondaryKeyValues,
                               primaryKeyValues)
          << DEFAULT_ESCAPE_CHARACTER << "ZZZZZZ";
-      LOG(INFO) << ss.str();
       return ss.str();
     }
   }
@@ -218,7 +227,7 @@ std::string maximumSecondaryIndexKey(
 
 std::string columnKey(const std::string& primaryKey, std::uint32_t colId) {
   std::stringstream ss;
-  ss << primaryKey << DEFAULT_ESCAPE_CHARACTER << colId;
+  ss << primaryKey << DEFAULT_ESCAPE_CHARACTER << pad(colId);
   return ss.str();
 }
 
@@ -228,20 +237,23 @@ std::string secondaryIndexKey(const internal::Table& table,
                               const std::vector<ColumnValue>& primaryValues) {
   for (const auto& secondaryIndex : table.secondary_index()) {
     if (secondaryIndex.id() == indexId) {
-      assert(secondaryIndex.column_ids().size() == values.size());
+      assert(secondaryIndex.column_ids().size() == values.size() &&
+             "mismatch between secondaryIndex column count and values provided "
+             "count");
+
       std::stringstream ss;
-      ss << table.db().id() << DEFAULT_ESCAPE_CHARACTER << table.id()
-         << DEFAULT_ESCAPE_CHARACTER << indexId;
+      ss << pad(table.db().id()) << DEFAULT_ESCAPE_CHARACTER << pad(table.id())
+         << DEFAULT_ESCAPE_CHARACTER << pad(indexId);
 
       for (std::int32_t index = 0; index < values.size(); index++) {
-        ss << DEFAULT_ESCAPE_CHARACTER << secondaryIndex.column_ids(index)
+        ss << DEFAULT_ESCAPE_CHARACTER << pad(secondaryIndex.column_ids(index))
            << DEFAULT_ESCAPE_CHARACTER
            << escapeString(mydb::toString(values[index]));
       }
 
       for (std::int32_t index = 0; index < primaryValues.size(); index++) {
         ss << DEFAULT_ESCAPE_CHARACTER
-           << table.primary_key_index().column_ids(index)
+           << pad(table.primary_key_index().column_ids(index))
            << DEFAULT_ESCAPE_CHARACTER
            << escapeString(mydb::toString(primaryValues[index]));
       }
@@ -259,7 +271,7 @@ std::ostream& operator<<(std::ostream& os, const KeyFragments& fragments) {
      << (fragments.primaryIndex.has_value() ? "NON_EMPTY_PRIMARY_INDEX"
                                             : "EMPTY_PRIMARY_INDEX")
      << " colId: "
-     << (fragments.colId.has_value() ? "NON_EMPTY_COL_ID" : "MPTY_COL_ID")
+     << (fragments.colId.has_value() ? "NON_EMPTY_COL_ID" : "EMPTY_COL_ID")
      << " secondaryIndex: "
      << (fragments.secondaryIndex.has_value() ? "NON_EMPTY_SEC_INDEX"
                                               : "EMPTY_SEC_INDEX");

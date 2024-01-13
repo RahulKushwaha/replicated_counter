@@ -8,19 +8,10 @@
 namespace rk::projects::mydb {
 
 struct TableDefaultColumns {
-  static constexpr std::string LOCK_MODE = "__internal__lock_mode";
+  static constexpr char* LOCK_MODE_NAME = "__internal__lock_mode";
+  static constexpr std::uint32_t LOCK_MODE_COL_ID = 1001;
 };
 
-std::vector<internal::Column> getTableDefaultColumns() {
-  std::vector<internal::Column> defaultColumns{};
-
-  internal::Column lockModeCol{};
-  lockModeCol.set_name(TableDefaultColumns::LOCK_MODE);
-  lockModeCol.set_column_type(internal::Column_COLUMN_TYPE_INT64);
-
-  defaultColumns.emplace_back(std::move(lockModeCol));
-
-  return defaultColumns;
-}
+std::vector<internal::Column> getTableDefaultColumns();
 
 }  // namespace rk::projects::mydb

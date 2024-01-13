@@ -41,7 +41,7 @@ TEST_F(QueryExecutorTests, scanTableUsingPrimaryIndex) {
 }
 
 TEST_F(QueryExecutorTests, scanTableUsingSecondaryIndex) {
-  auto internalTable = test_utils::getInternalTable(1, 0, 5, 1, 1, 1);
+  auto internalTable = test_utils::getInternalTable(1, 5, 5, 1, 1, 1);
 
   queryExecutor_->insert(internalTable);
 
