@@ -17,7 +17,7 @@ QueryPlan QueryParser::parse() const {
   std::string tableName;
   std::vector<std::string> outputColumnNames;
   auto queryOperation{QueryOperation::None};
-  client::Condition condition;
+  Condition condition;
 
   if (std::holds_alternative<client::ScanTableRequest>(request_)) {
     auto scanTableRequest = std::get<client::ScanTableRequest>(request_);

@@ -24,11 +24,10 @@ class QueryPlanner {
 
  private:
   static cp::Expression parseUnaryCondition(
-      const InternalTable& internalTable,
-      const client::UnaryCondition& unaryCondition);
+      const InternalTable& internalTable, const UnaryCondition& unaryCondition);
 
   cp::Expression parseCondition(const InternalTable& internalTable,
-                                const client::Condition& condition);
+                                const Condition& condition);
 
  private:
   QueryPlan plan_;

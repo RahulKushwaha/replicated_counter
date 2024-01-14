@@ -5,7 +5,7 @@
 #pragma once
 #include "TableRow.h"
 #include "applications/mydb/backend/Common.h"
-#include "applications/mydb/client/proto/condition.pb.h"
+#include "applications/mydb/proto/condition.pb.h"
 
 #include <arrow/acero/exec_plan.h>
 
@@ -21,7 +21,7 @@ struct QueryPlan {
   QueryOperation operation;
   std::shared_ptr<TableSchema> schema;
   std::vector<TableSchemaType::ColumnIdType> outputColumns;
-  client::Condition condition;
+  Condition condition;
 };
 
 struct ExecutableQueryPlan {

@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/any.proto";
-import "applications/mydb/client/proto/condition.proto";
+import "applications/mydb/proto/condition.proto";
 
 package rk.projects.mydb.client;
 

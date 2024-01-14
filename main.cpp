@@ -1,14 +1,15 @@
-#include <iostream>
-
 #include "applications/counter/CounterApp.h"
 #include "applications/counter/CounterAppEnsembleNode.h"
 #include "applications/counter/client/CounterAppClient.h"
 #include "applications/counter/server/CounterAppServer.h"
 #include "log/impl/VirtualLogFactory.h"
+
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/experimental/coro/Task.h>
 
-const char *SERVER_NAME = R"(
+#include <iostream>
+
+const char* SERVER_NAME = R"(
   ____            _ _           _           _   _
  |  _ \ ___ _ __ | (_) ___ __ _| |_ ___  __| | | |    ___   __ _
  | |_) / _ \ '_ \| | |/ __/ _` | __/ _ \/ _` | | |   / _ \ / _` |
@@ -58,7 +59,7 @@ int main() {
         makeCounterAppEnsemble("CounterApp", &threadPoolExecutor);
 
     LOG(INFO) << "\n\nSequencers and Replica stared\n\n";
-    auto &ensembleNode = counterAppEnsemble.nodes_[0];
+    auto& ensembleNode = counterAppEnsemble.nodes_[0];
 
     bool healthy = false;
     while (!healthy) {
@@ -68,7 +69,7 @@ int main() {
 
       std::int32_t index = 0;
 
-      for (auto &ensemble : counterAppEnsemble.nodes_) {
+      for (auto& ensemble : counterAppEnsemble.nodes_) {
         auto ensembleAlive = ensemble.failureDetector->healthy();
         LOG(INFO) << "Ensemble Node: " << index << " "
                   << (ensembleAlive ? "T" : "F");
@@ -80,14 +81,14 @@ int main() {
       healthy = currentState;
     }
 
-    auto &app1 = counterAppEnsemble.nodes_[0].app;
+    auto& app1 = counterAppEnsemble.nodes_[0].app;
 
     std::int64_t val = 0;
     for (int i = 1; i <= 50; i++) {
       LOG(INFO) << (val = app1->incrementAndGet(key, 1).semi().get());
     }
 
-    auto &app2 = counterAppEnsemble.nodes_[0].app;
+    auto& app2 = counterAppEnsemble.nodes_[0].app;
     for (int i = 1; i <= 50; i++) {
       LOG(INFO) << (val = app2->decrementAndGet(key, 1).semi().get());
     }

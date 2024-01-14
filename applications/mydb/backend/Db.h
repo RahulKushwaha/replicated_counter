@@ -29,7 +29,7 @@ class Db {
   client::TableRows scanDatabase(const client::ScanTableRequest* request);
 
  private:
-  client::Condition addConditionToCheckWriteLock(client::Condition condition);
+  Condition addConditionToCheckWriteLock(Condition condition);
 
  private:
   std::shared_ptr<SchemaStore> schemaStore_;
