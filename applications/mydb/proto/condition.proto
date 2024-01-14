@@ -2,7 +2,7 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/any.proto";
 
-package rk.projects.mydb.client;
+package rk.projects.mydb;
 
 message Condition{
   oneof condition{

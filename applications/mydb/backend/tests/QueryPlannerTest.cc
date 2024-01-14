@@ -18,8 +18,8 @@ class QueryPlannerTests : public persistence::RocksTestFixture {
       : queryExecutor_{std::make_shared<QueryExecutor>(
             std::make_unique<RocksReaderWriter>(db_))} {}
 
-  void testIntUnaryCondition(client::IntCondition_Operation operation,
-                             int64_t value, int64_t returnedRows,
+  void testIntUnaryCondition(IntCondition_Operation operation, int64_t value,
+                             int64_t returnedRows,
                              const InternalTable& internalTable);
 
  protected:
@@ -29,13 +29,11 @@ class QueryPlannerTests : public persistence::RocksTestFixture {
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryIndexWithIntUnaryCondition) {
   auto internalTable = test_utils::getInternalTable(10, 5, 5, 1, 1, 1);
   queryExecutor_->insert(internalTable);
-  testIntUnaryCondition(client::IntCondition_Operation_GT, 5, 4, internalTable);
-  testIntUnaryCondition(client::IntCondition_Operation_GEQ, 5, 5,
-                        internalTable);
-  testIntUnaryCondition(client::IntCondition_Operation_LT, 6, 6, internalTable);
-  testIntUnaryCondition(client::IntCondition_Operation_LEQ, 6, 7,
-                        internalTable);
-  testIntUnaryCondition(client::IntCondition_Operation_EQ, 5, 1, internalTable);
+  testIntUnaryCondition(IntCondition_Operation_GT, 5, 4, internalTable);
+  testIntUnaryCondition(IntCondition_Operation_GEQ, 5, 5, internalTable);
+  testIntUnaryCondition(IntCondition_Operation_LT, 6, 6, internalTable);
+  testIntUnaryCondition(IntCondition_Operation_LEQ, 6, 7, internalTable);
+  testIntUnaryCondition(IntCondition_Operation_EQ, 5, 1, internalTable);
 }
 
 TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
@@ -44,34 +42,34 @@ TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
   auto formattedTable = FormatTable::format(internalTable).str();
   LOG(INFO) << formattedTable;
 
-  auto intCondition1 = client::IntCondition{};
+  auto intCondition1 = IntCondition{};
   intCondition1.set_col_name(internalTable.schema->getColumnName(0));
-  intCondition1.set_op(client::IntCondition_Operation_GT);
+  intCondition1.set_op(IntCondition_Operation_GT);
   intCondition1.set_value(2);
 
-  auto unaryCondition1 = client::UnaryCondition{};
+  auto unaryCondition1 = UnaryCondition{};
   unaryCondition1.mutable_int_condition()->CopyFrom(intCondition1);
 
-  auto condition1 = client::Condition{};
+  auto condition1 = Condition{};
   condition1.mutable_unary_condition()->CopyFrom(unaryCondition1);
 
-  auto intCondition2 = client::IntCondition{};
+  auto intCondition2 = IntCondition{};
   intCondition2.set_col_name(internalTable.schema->getColumnName(1));
-  intCondition2.set_op(client::IntCondition_Operation_LT);
+  intCondition2.set_op(IntCondition_Operation_LT);
   intCondition2.set_value(16);
 
-  auto unaryCondition2 = client::UnaryCondition{};
+  auto unaryCondition2 = UnaryCondition{};
   unaryCondition2.mutable_int_condition()->CopyFrom(intCondition2);
 
-  auto condition2 = client::Condition{};
+  auto condition2 = Condition{};
   condition2.mutable_unary_condition()->CopyFrom(unaryCondition2);
 
-  auto binaryCondition = client::BinaryCondition{};
+  auto binaryCondition = BinaryCondition{};
   binaryCondition.mutable_c1()->CopyFrom(condition1);
   binaryCondition.mutable_c2()->CopyFrom(condition2);
-  binaryCondition.set_op(client::LogicalOperator::AND);
+  binaryCondition.set_op(LogicalOperator::AND);
 
-  client::Condition mainCondition;
+  Condition mainCondition;
   mainCondition.mutable_binary_condition()->CopyFrom(binaryCondition);
 
   QueryPlan queryPlan{
@@ -90,18 +88,18 @@ TEST_F(QueryPlannerTests, scanTableUsingPrimaryKeyWithBinaryCondition) {
 }
 
 void QueryPlannerTests::testIntUnaryCondition(
-    client::IntCondition_Operation operation, int64_t value,
-    int64_t returnedRows, const InternalTable& internalTable) {
+    IntCondition_Operation operation, int64_t value, int64_t returnedRows,
+    const InternalTable& internalTable) {
 
   QueryPlan queryPlan;
   queryPlan.schema = internalTable.schema;
 
-  auto intCondtion = client::IntCondition{};
+  auto intCondtion = IntCondition{};
   intCondtion.set_col_name(internalTable.schema->getColumnName(0));
   intCondtion.set_op(operation);
   intCondtion.set_value(value);
 
-  auto unaryCondition = client::UnaryCondition{};
+  auto unaryCondition = UnaryCondition{};
   unaryCondition.mutable_int_condition()->CopyFrom(intCondtion);
 
   queryPlan.condition.mutable_unary_condition()->CopyFrom(unaryCondition);

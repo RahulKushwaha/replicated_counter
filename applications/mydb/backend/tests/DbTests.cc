@@ -142,12 +142,12 @@ TEST_F(DbTests, addDatabaseTest) {
   scanTableRequest.mutable_database_name()->set_name("meta");
   scanTableRequest.mutable_table_name()->set_name("meta_db");
 
-  auto intCondition = client::IntCondition{};
+  auto intCondition = IntCondition{};
   intCondition.set_col_name("id");
-  intCondition.set_op(client::IntCondition_Operation_EQ);
+  intCondition.set_op(IntCondition_Operation_EQ);
   intCondition.set_value(0);
 
-  auto unaryCondition = client::UnaryCondition{};
+  auto unaryCondition = UnaryCondition{};
   unaryCondition.mutable_int_condition()->CopyFrom(intCondition);
 
   scanTableRequest.mutable_condition()->mutable_unary_condition()->CopyFrom(
@@ -380,12 +380,12 @@ TEST_F(DbTests, updateTableRowWithCondition) {
 
     updateRow.mutable_column_values()->Add(rowData.begin(), rowData.end());
 
-    client::Condition condition{};
+    Condition condition{};
     auto intCondition =
         condition.mutable_unary_condition()->mutable_int_condition();
     intCondition->set_col_name("2_int_col");
     intCondition->set_value(2);
-    intCondition->set_op(client::IntCondition_Operation_EQ);
+    intCondition->set_op(IntCondition_Operation_EQ);
 
     *updateRow.mutable_condition() = std::move(condition);
 
@@ -400,12 +400,12 @@ TEST_F(DbTests, updateTableRowWithCondition) {
 
     updateRow.mutable_column_values()->Add(rowData.begin(), rowData.end());
 
-    client::Condition condition{};
+    Condition condition{};
     auto intCondition =
         condition.mutable_unary_condition()->mutable_int_condition();
     intCondition->set_col_name("2_int_col");
     intCondition->set_value(3);
-    intCondition->set_op(client::IntCondition_Operation_EQ);
+    intCondition->set_op(IntCondition_Operation_EQ);
 
     updateRow.mutable_condition()->CopyFrom(condition);
 

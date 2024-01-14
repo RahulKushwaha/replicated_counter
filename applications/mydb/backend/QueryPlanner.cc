@@ -41,8 +41,8 @@ ExecutableQueryPlan QueryPlanner::plan(const InternalTable& internalTable) {
 }
 
 // TODO : Make it iterative.
-cp::Expression QueryPlanner::parseCondition(
-    const InternalTable& internalTable, const client::Condition& condition) {
+cp::Expression QueryPlanner::parseCondition(const InternalTable& internalTable,
+                                            const Condition& condition) {
   cp::Expression filterExpression;
   if (condition.has_unary_condition()) {
     return parseUnaryCondition(internalTable, condition.unary_condition());
@@ -55,10 +55,10 @@ cp::Expression QueryPlanner::parseCondition(
         parseCondition(internalTable, condition.binary_condition().c2());
 
     switch (condition.binary_condition().op()) {
-      case client::AND:
+      case AND:
         filterExpression = cp::and_(left, right);
         break;
-      case client::OR:
+      case OR:
         filterExpression = cp::or_(left, right);
         break;
       default:
@@ -71,8 +71,7 @@ cp::Expression QueryPlanner::parseCondition(
 }
 
 cp::Expression QueryPlanner::parseUnaryCondition(
-    const InternalTable& internalTable,
-    const client::UnaryCondition& unaryCondition) {
+    const InternalTable& internalTable, const UnaryCondition& unaryCondition) {
 
   if (unaryCondition.has_int_condition()) {
     std::string colName = unaryCondition.int_condition().col_name();
@@ -80,21 +79,21 @@ cp::Expression QueryPlanner::parseUnaryCondition(
     cp::Expression filterExpr;
 
     switch (unaryCondition.int_condition().op()) {
-      case client::IntCondition_Operation_EQ:
+      case IntCondition_Operation_EQ:
         filterExpr = cp::equal(cp::field_ref(colName), cp::literal(value));
         break;
-      case client::IntCondition_Operation_LEQ:
+      case IntCondition_Operation_LEQ:
 
         filterExpr = cp::less_equal(cp::field_ref(colName), cp::literal(value));
         break;
-      case client::IntCondition_Operation_LT:
+      case IntCondition_Operation_LT:
         filterExpr = cp::less(cp::field_ref(colName), cp::literal(value));
         break;
-      case client::IntCondition_Operation_GEQ:
+      case IntCondition_Operation_GEQ:
         filterExpr =
             cp::greater_equal(cp::field_ref(colName), cp::literal(value));
         break;
-      case client::IntCondition_Operation_GT:
+      case IntCondition_Operation_GT:
         filterExpr = cp::greater(cp::field_ref(colName), cp::literal(value));
         break;
       default:
@@ -113,23 +112,23 @@ cp::Expression QueryPlanner::parseUnaryCondition(
     // TODO : figure it out the string part.
     switch (unaryCondition.string_condition().op()) {
 
-      case client::StringCondition_Operation_EQ:
+      case StringCondition_Operation_EQ:
         filter_expr = cp::equal(cp::field_ref(colName), cp::literal(value));
         break;
-      case client::StringCondition_Operation_HAS_SUBSTR:
+      case StringCondition_Operation_HAS_SUBSTR:
 
         break;
-      case client::StringCondition_Operation_STARTS_WITH:
+      case StringCondition_Operation_STARTS_WITH:
         break;
-      case client::StringCondition_Operation_ENDS_WITH:
+      case StringCondition_Operation_ENDS_WITH:
         break;
-      case client::StringCondition_Operation_CASE_INSENSITIVE_EQ:
+      case StringCondition_Operation_CASE_INSENSITIVE_EQ:
         break;
-      case client::StringCondition_Operation_CASE_INSENSITIVE_HAS_SUBSTR:
+      case StringCondition_Operation_CASE_INSENSITIVE_HAS_SUBSTR:
         break;
-      case client::StringCondition_Operation_CASE_INSENSITIVE_STARTS_WITH:
+      case StringCondition_Operation_CASE_INSENSITIVE_STARTS_WITH:
         break;
-      case client::StringCondition_Operation_CASE_INSENSITIVE_ENDS_WITH:
+      case StringCondition_Operation_CASE_INSENSITIVE_ENDS_WITH:
         break;
 
       default:

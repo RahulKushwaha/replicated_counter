@@ -174,24 +174,23 @@ client::TableRows Db::scanDatabase(const client::ScanTableRequest* request) {
   return Transformer::from(result);
 }
 
-client::Condition Db::addConditionToCheckWriteLock(
-    client::Condition condition) {
-  client::BinaryCondition binaryCondition{};
-  binaryCondition.set_op(client::LogicalOperator::AND);
+Condition Db::addConditionToCheckWriteLock(Condition condition) {
+  BinaryCondition binaryCondition{};
+  binaryCondition.set_op(LogicalOperator::AND);
 
-  client::UnaryCondition checkLock{};
+  UnaryCondition checkLock{};
   auto intCondition = checkLock.mutable_int_condition();
   intCondition->set_col_name(TableDefaultColumns::LOCK_MODE_NAME);
-  intCondition->set_op(client::IntCondition_Operation_EQ);
+  intCondition->set_op(IntCondition_Operation_EQ);
   intCondition->set_value(enumToInteger(LockType::NO_LOCK));
 
-  client::Condition rhsCondition{};
+  Condition rhsCondition{};
   *rhsCondition.mutable_unary_condition() = std::move(checkLock);
 
   *binaryCondition.mutable_c1() = std::move(condition);
   *binaryCondition.mutable_c2() = std::move(rhsCondition);
 
-  client::Condition returnCondition{};
+  Condition returnCondition{};
   *returnCondition.mutable_binary_condition() = std::move(binaryCondition);
   return returnCondition;
 }
