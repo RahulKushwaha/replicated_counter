@@ -146,7 +146,56 @@ client::UpdateRowResponse Db::updateRow(
   return client::UpdateRowResponse{};
 }
 
-client::TableRows Db::scanDatabase(const client::ScanTableRequest* request) {
+client::GetRowResponse Db::getRow(const client::GetRowRequest* request) {
+  auto table = schemaStore_->getTable(request->database_name().name(),
+                                      request->table_name().name());
+  assert(table.has_value() && "table not found");
+
+  auto tableSchema =
+      std::make_shared<TableSchema>(std::make_shared<Table>(table.value()));
+
+  auto internalTable = Transformer::from(*request, tableSchema);
+  auto response = queryExecutor_->get(internalTable);
+  auto tableValues = Transformer::from(response);
+
+  client::GetRowResponse rowResponse{};
+  *rowResponse.mutable_table_rows() = std::move(tableValues);
+
+  return rowResponse;
+}
+
+client::MultiTableOperationResponse Db::multiTableOperation(
+    const client::MultiTableOperationRequest* request) {
+  client::MultiTableOperationResponse response{};
+
+  for (auto& singleTableRequest : request->single_table_operation_request()) {
+    client::SingleTableOperationResponse singleTableOperationResponse{};
+
+    if (singleTableRequest.has_add_row_request()) {
+      auto addRowResponse = addRow(&singleTableRequest.add_row_request());
+      *singleTableOperationResponse.mutable_add_row_response() =
+          std::move(addRowResponse);
+    } else if (singleTableRequest.has_update_row_request()) {
+      auto updateRowResponse =
+          updateRow(&singleTableRequest.update_row_request());
+
+      *singleTableOperationResponse.mutable_update_row_response() =
+          std::move(updateRowResponse);
+    } else if (singleTableRequest.has_get_row_request()) {
+      auto getRowResponse = getRow(&singleTableRequest.get_row_request());
+
+      *singleTableOperationResponse.mutable_get_row_response() =
+          std::move(getRowResponse);
+    }
+
+    response.mutable_single_table_operation_response()->Add(
+        std::move(singleTableOperationResponse));
+  }
+
+  return response;
+}
+
+client::TableRows Db::scanTable(const client::ScanTableRequest* request) {
   auto table = schemaStore_->getTable(request->database_name().name(),
                                       request->table_name().name());
   assert(table.has_value() && "table not found");

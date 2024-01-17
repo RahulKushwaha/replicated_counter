@@ -153,7 +153,7 @@ TEST_F(DbTests, addDatabaseTest) {
   scanTableRequest.mutable_condition()->mutable_unary_condition()->CopyFrom(
       unaryCondition);
 
-  auto tableRows = db.scanDatabase(&scanTableRequest);
+  auto tableRows = db.scanTable(&scanTableRequest);
   ASSERT_EQ(tableRows.rows().size(), 1);
 }
 

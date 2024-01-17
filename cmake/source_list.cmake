@@ -150,4 +150,13 @@ set(
         applications/mydb/backend/TableRow.cc
         applications/mydb/backend/TableRow.h
         applications/mydb/format/FormatTable.h
+        applications/mydb/backend/PartitionMap.h
+
+        applications/mydb/backend/transaction/TwoPhaseCommit.cc
+        applications/mydb/backend/transaction/TwoPhaseCommit.h
+        applications/mydb/backend/transaction/TxnCoordinator.cc
+        applications/mydb/backend/transaction/TxnCoordinator.h
+        applications/mydb/backend/transaction/TxnManager.cc
+        applications/mydb/backend/transaction/TxnManager.h
+        applications/mydb/backend/transaction/Models.h
 )

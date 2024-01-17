@@ -14,32 +14,35 @@ namespace rk::projects::mydb::internal {
 
 class Transformer {
  public:
-  static InternalTable from(std::vector<client::ColumnValue> columnValues,
-                            std::shared_ptr<TableSchema> schema) {
+  static InternalTable from(
+      std::vector<std::vector<client::ColumnValue>> columnValues,
+      std::shared_ptr<TableSchema> schema) {
     auto [colBuilder, fields] = RowSerializer::getHeader(schema);
 
-    for (auto& columnValue : columnValues) {
-      auto colId = schema->getColumnId(columnValue.name().name());
-      auto builder = colBuilder.at(colId);
+    for (auto& row : columnValues) {
+      for (auto& columnValue : row) {
+        auto colId = schema->getColumnId(columnValue.name().name());
+        auto builder = colBuilder.at(colId);
 
-      switch (*schema->getColumnType(colId)) {
-        case Column_COLUMN_TYPE_INT64: {
-          auto intBuilder =
-              std::static_pointer_cast<arrow::Int64Builder>(builder);
+        switch (*schema->getColumnType(colId)) {
+          case Column_COLUMN_TYPE_INT64: {
+            auto intBuilder =
+                std::static_pointer_cast<arrow::Int64Builder>(builder);
 
-          auto typedValue =
-              folly::to<std::int64_t>(columnValue.value().value());
+            auto typedValue =
+                folly::to<std::int64_t>(columnValue.value().value());
 
-          assert(intBuilder->Append(typedValue).ok());
-        } break;
-        case Column_COLUMN_TYPE_STRING: {
-          auto stringBuilder =
-              std::static_pointer_cast<arrow::StringBuilder>(builder);
+            assert(intBuilder->Append(typedValue).ok());
+          } break;
+          case Column_COLUMN_TYPE_STRING: {
+            auto stringBuilder =
+                std::static_pointer_cast<arrow::StringBuilder>(builder);
 
-          assert(stringBuilder->Append(columnValue.value().value()).ok());
-        } break;
-        default:
-          assert(false);
+            assert(stringBuilder->Append(columnValue.value().value()).ok());
+          } break;
+          default:
+            assert(false);
+        }
       }
     }
 
@@ -143,7 +146,7 @@ class Transformer {
       columnValues.emplace_back(std::move(modifiedValue));
     }
 
-    return from(std::move(columnValues), std::move(schema));
+    return from({std::move(columnValues)}, std::move(schema));
   }
 
   static InternalTable from(const client::AddTableRequest& addTableRequest,
@@ -216,7 +219,7 @@ class Transformer {
       columnValues.emplace_back(std::move(serializedMaxIdNumValue));
     }
 
-    return from(std::move(columnValues), std::move(schema));
+    return from({std::move(columnValues)}, std::move(schema));
   }
 
   static InternalTable from(const client::AddRowRequest& addRowRequest,
@@ -224,7 +227,7 @@ class Transformer {
     std::vector<client::ColumnValue> columnValues{
         addRowRequest.column_values().begin(),
         addRowRequest.column_values().end()};
-    return from(columnValues, std::move(schema));
+    return from({columnValues}, std::move(schema));
   }
 
   static InternalTable from(const client::UpdateRowRequest& updateRowRequest,
@@ -232,7 +235,21 @@ class Transformer {
     std::vector<client::ColumnValue> columnValues{
         updateRowRequest.column_values().begin(),
         updateRowRequest.column_values().end()};
-    return from(columnValues, std::move(schema));
+    return from({columnValues}, std::move(schema));
+  }
+
+  static InternalTable from(const client::GetRowRequest& getRowRequest,
+                            std::shared_ptr<TableSchema> schema) {
+    std::vector<std::vector<client::ColumnValue>> rows;
+    for (auto& row : getRowRequest.primary_key_values()) {
+      std::vector<client::ColumnValue> columnValues{
+          row.column_values().begin(),
+          row.column_values().end(),
+      };
+      rows.emplace_back(std::move(columnValues));
+    }
+
+    return from(rows, std::move(schema));
   }
 
   static internal::Table from(const client::Table& clientTable,
