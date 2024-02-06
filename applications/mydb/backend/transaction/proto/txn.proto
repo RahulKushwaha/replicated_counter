@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package rk.projects.mydb.transaction;
+
+enum TransactionStatus {
+  STARTED = 0;
+  PREPARE = 1;
+  COMMIT = 2;
+  ABORT = 3;
+}
+
+enum PartitionStatus{
+  UNKNOWN = 0;
+  PREPARED = 1;
+  COMMITTED = 2;
+  ABORTED = 3;
+}
+
+message Partition{
+  string id = 1;
+  PartitionStatus status = 2;
+}
+
+message Transaction{
+  string id = 1;
+  repeated string participating_nodes = 2;
+  int32 total_votes = 3;
+  map<string, Partition> partition_status = 4;
+  bytes payload = 5;
+  TransactionStatus status = 6;
+}

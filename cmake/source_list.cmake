@@ -124,8 +124,8 @@ set(
 
         applications/mydb/backend/Bootstrap.h
         applications/mydb/backend/Common.h
-        applications/mydb/backend/Db.cc
-        applications/mydb/backend/Db.h
+        applications/mydb/backend/DbImpl.cc
+        applications/mydb/backend/DbImpl.h
         applications/mydb/backend/DbDefaults.cc
         applications/mydb/backend/DbDefaults.h
         applications/mydb/backend/Errors.h
@@ -157,6 +157,9 @@ set(
         applications/mydb/experimental/Dfs.h
         applications/mydb/experimental/Dfs.cc
         applications/mydb/experimental/Models.h
+
+        applications/mydb/include/Db.h
+        applications/mydb/backend/client/RemoteDb.h
 
         applications/mydb/backend/transaction/TwoPhaseCommit.cc
         applications/mydb/backend/transaction/TwoPhaseCommit.h

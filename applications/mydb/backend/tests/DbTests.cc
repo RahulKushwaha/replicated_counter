@@ -3,8 +3,8 @@
 //
 
 #include "applications/mydb/backend/Bootstrap.h"
-#include "applications/mydb/backend/Db.h"
 #include "applications/mydb/backend/DbDefaults.h"
+#include "applications/mydb/backend/DbImpl.h"
 #include "applications/mydb/backend/Errors.h"
 #include "applications/mydb/backend/SchemaStore.h"
 #include "google/protobuf/any.pb.h"
@@ -130,7 +130,7 @@ TEST_F(DbTests, addDatabaseTest) {
                           metaDbTableSchemaFileLocation, schemaStore);
   ASSERT_TRUE(result);
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
   auto addDatabaseRequest = getAddDatabaseRequest("temp");
   db.addDatabase(&addDatabaseRequest);
 
@@ -163,7 +163,7 @@ TEST_F(DbTests, addSameDatabaseMultipleTimesThrowsException) {
                           metaDbTableSchemaFileLocation, schemaStore);
   ASSERT_TRUE(result);
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
   auto addDatabaseRequest = getAddDatabaseRequest("temp");
   db.addDatabase(&addDatabaseRequest);
 
@@ -185,7 +185,7 @@ TEST_F(DbTests, addTable) {
                           metaDbTableSchemaFileLocation, schemaStore);
   ASSERT_TRUE(result);
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
 
   auto addDatabaseRequest = getAddDatabaseRequest("temp");
   db.addDatabase(&addDatabaseRequest);
@@ -200,7 +200,7 @@ TEST_F(DbTests, addSameTableMultipleTimesThrowsException) {
                           metaDbTableSchemaFileLocation, schemaStore);
   ASSERT_TRUE(result);
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
 
   auto addDatabaseRequest = getAddDatabaseRequest("temp");
   db.addDatabase(&addDatabaseRequest);
@@ -228,7 +228,7 @@ TEST_F(DbTests, addTableRow) {
   auto dbName{"temp"};
   auto tableName{"tbl_1"};
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
 
   auto addDatabaseRequest = getAddDatabaseRequest(dbName);
   db.addDatabase(&addDatabaseRequest);
@@ -262,7 +262,7 @@ TEST_F(DbTests, updateTableRow) {
   auto dbName{"temp"};
   auto tableName{"tbl_1"};
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
 
   auto addDatabaseRequest = getAddDatabaseRequest(dbName);
   db.addDatabase(&addDatabaseRequest);
@@ -305,7 +305,7 @@ TEST_F(DbTests, updateTableRowIfNotExists) {
   auto dbName{"temp"};
   auto tableName{"tbl_1"};
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
 
   auto addDatabaseRequest = getAddDatabaseRequest(dbName);
   db.addDatabase(&addDatabaseRequest);
@@ -347,7 +347,7 @@ TEST_F(DbTests, updateTableRowWithCondition) {
   auto dbName{"temp"};
   auto tableName{"tbl_1"};
 
-  Db db{schemaStore, rocks_};
+  DbImpl db{schemaStore, rocks_};
 
   auto addDatabaseRequest = getAddDatabaseRequest(dbName);
   db.addDatabase(&addDatabaseRequest);
