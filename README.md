@@ -4,14 +4,14 @@
 
 Directory Structure: 
 
-/applications
+* /applications
+  
+  Applications made on top of the replicated log. 
 
-Applications made on top of the replicated log. 
-
-* [/applications/counter](https://github.com/RahulKushwaha/replicated_counter/tree/main/applications/counter)
-  * It is a simple in-memory application which stores counter values for a given key. We can increment/decrement a bunch of keys atomically. 
-* [/applications/mydb](https://github.com/RahulKushwaha/replicated_counter/tree/main/applications/mydb)
-  * Database 
+  * [/applications/counter](https://github.com/RahulKushwaha/replicated_counter/tree/main/applications/counter)
+    * It is a simple in-memory application which stores counter values for a given key. We can increment/decrement a bunch of keys atomically. 
+  * [/applications/mydb](https://github.com/RahulKushwaha/replicated_counter/tree/main/applications/mydb)
+    * Database 
 * [/common](https://github.com/RahulKushwaha/replicated_counter/tree/main/common/)
 * [/configs](https://github.com/RahulKushwaha/replicated_counter/tree/main/configs)
 * [/docker](https://github.com/RahulKushwaha/replicated_counter/tree/main/docker)
