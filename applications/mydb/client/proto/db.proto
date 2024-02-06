@@ -63,15 +63,28 @@ message Row{
 }
 
 service db{
+  // DB & Table creation operations
   rpc addDatabase(AddDatabaseRequest) returns (google.protobuf.Empty);
 
   rpc addTable(AddTableRequest) returns (google.protobuf.Empty);
 
+  // Single Table Mutation Operations
   rpc addRow(AddRowRequest) returns (AddRowResponse);
 
   rpc updateRow(UpdateRowRequest) returns (UpdateRowResponse);
 
-  rpc scanTable(ScanTableRequest) returns(ScanTableResponse);
+  rpc getRows(GetRowRequest) returns (GetRowResponse);
+
+  // Multi-Table operations
+  rpc multiTableOperation(MultiTableOperationRequest) returns (MultiTableOperationResponse);
+
+  // Scan operations
+  rpc scanTable(ScanTableRequest) returns (ScanTableResponse);
+
+  // Transaction
+  rpc prepareTransaction(PrepareTransactionRequest) returns (PrepareTransactionResponse);
+
+  rpc commitTransaction(CommitTransactionRequest) returns (CommitTransactionResponse);
 }
 
 message AddDatabaseRequest{
@@ -114,6 +127,46 @@ message UpdateRowResponse{
   TableRows table_rows = 1;
 }
 
+message PrimaryKeyValues{
+  repeated ColumnValue column_values = 1;
+}
+
+message GetRowRequest{
+  DatabaseName database_name = 1;
+  TableName table_name = 2;
+
+  repeated PrimaryKeyValues primary_key_values = 3;
+  repeated ColumnName return_columns = 4;
+}
+
+message GetRowResponse{
+  TableRows table_rows = 1;
+}
+
+message SingleTableOperationRequest{
+  oneof table_operation_request{
+    AddRowRequest  add_row_request = 1;
+    UpdateRowRequest update_row_request = 2;
+    GetRowRequest get_row_request = 3;
+  }
+}
+
+message SingleTableOperationResponse{
+  oneof table_operation_response{
+    AddRowResponse add_row_response = 1;
+    UpdateRowResponse update_row_response = 2;
+    GetRowResponse get_row_response = 3;
+  }
+}
+
+message MultiTableOperationRequest{
+  repeated SingleTableOperationRequest single_table_operation_request = 1;
+}
+
+message MultiTableOperationResponse{
+  repeated SingleTableOperationResponse single_table_operation_response = 2;
+}
+
 message ScanTableRequest{
   DatabaseName database_name = 1;
   TableName table_name = 2;
@@ -125,4 +178,32 @@ message ScanTableRequest{
 
 message ScanTableResponse{
   TableRows table_rows = 1;
+}
+
+message PrepareTransactionRequest{
+  string txn_id = 1;
+  MultiTableOperationRequest request = 2;
+}
+
+message PrepareTransactionResponse{
+  enum PREPARE_TRANSACTION_STATUS{
+    OK = 0;
+    ABORT = 1;
+  }
+
+  PREPARE_TRANSACTION_STATUS status = 1;
+  MultiTableOperationResponse response = 2;
+}
+
+message CommitTransactionRequest{
+  string txn_id = 1;
+}
+
+message CommitTransactionResponse{
+  enum COMMIT_TRANSACTION_STATUS{
+    SUCCESS = 0;
+    FAILED = 1;
+  }
+
+  COMMIT_TRANSACTION_STATUS status = 1;
 }

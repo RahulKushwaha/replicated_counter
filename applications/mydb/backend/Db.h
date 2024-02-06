@@ -6,7 +6,7 @@
 
 #include "applications/mydb/backend/QueryExecutor.h"
 #include "applications/mydb/backend/SchemaStore.h"
-#include "applications/mydb/client/proto/db.grpc.pb.h"
+#include "applications/mydb/client/proto/db.pb.h"
 #include "google/protobuf/empty.pb.h"
 
 namespace rk::projects::mydb {
@@ -26,7 +26,12 @@ class Db {
 
   client::UpdateRowResponse updateRow(const client::UpdateRowRequest* request);
 
-  client::TableRows scanDatabase(const client::ScanTableRequest* request);
+  client::GetRowResponse getRow(const client::GetRowRequest* request);
+
+  client::MultiTableOperationResponse multiTableOperation(
+      const client::MultiTableOperationRequest* request);
+
+  client::TableRows scanTable(const client::ScanTableRequest* request);
 
  private:
   Condition addConditionToCheckWriteLock(Condition condition);
