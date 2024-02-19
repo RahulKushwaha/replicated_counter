@@ -11,4 +11,26 @@ TwoPhaseCommit::TwoPhaseCommit(Transaction transaction,
     : txnId_{transaction.id},
       transaction_{std::move(transaction)},
       txnManager_{std::move(txnManager)} {}
+
+folly::coro::Task<void> TwoPhaseCommit::prepare() {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
+folly::coro::Task<void> TwoPhaseCommit::commit() {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
+folly::coro::Task<void> TwoPhaseCommit::abort() {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
+folly::coro::Task<TwoPhaseCommit::AbortOrCommitResult>
+TwoPhaseCommit::abortOrCommit() {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
+folly::coro::Task<Transaction> TwoPhaseCommit::getTxn() {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
 }  // namespace rk::projects::mydb::transaction

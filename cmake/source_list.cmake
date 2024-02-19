@@ -152,6 +152,12 @@ set(
         applications/mydb/format/FormatTable.h
         applications/mydb/backend/PartitionMap.h
 
+        applications/mydb/experimental/WaitForGraph.h
+        applications/mydb/experimental/WaitForGraph.cc
+        applications/mydb/experimental/Dfs.h
+        applications/mydb/experimental/Dfs.cc
+        applications/mydb/experimental/Models.h
+
         applications/mydb/backend/transaction/TwoPhaseCommit.cc
         applications/mydb/backend/transaction/TwoPhaseCommit.h
         applications/mydb/backend/transaction/TxnCoordinator.cc
