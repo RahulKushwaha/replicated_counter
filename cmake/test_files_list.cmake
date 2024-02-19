@@ -48,6 +48,8 @@ set(
         applications/mydb/backend/tests/TestUtils.h
         applications/mydb/backend/tests/TestUtils.cc
 
+        applications/mydb/experimental/tests/WaitForGraphTests.cc
+
         applications/mydb/backend/tests/KeySerializerTests.cc
         applications/mydb/backend/tests/RowSerializerTests.cc
         applications/mydb/backend/tests/RocksReaderWriterTests.cc
