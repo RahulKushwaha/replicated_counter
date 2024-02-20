@@ -2,7 +2,7 @@
 // Created by rahul on 12/25/23.
 //
 
-#include "applications/mydb/backend/Db.h"
+#include "applications/mydb/backend/DbImpl.h"
 
 #include "applications/mydb/backend/Errors.h"
 #include "applications/mydb/backend/QueryPlan.h"
@@ -12,14 +12,14 @@
 
 namespace rk::projects::mydb {
 
-Db::Db(std::shared_ptr<SchemaStore> schemaStore,
-       std::shared_ptr<RocksReaderWriter> rocks)
+DbImpl::DbImpl(std::shared_ptr<SchemaStore> schemaStore,
+               std::shared_ptr<RocksReaderWriter> rocks)
     : schemaStore_{std::move(schemaStore)},
       queryExecutor_{std::make_shared<QueryExecutor>(std::move(rocks))},
       dbIds_{0},
       tableIds_{0} {}
 
-google::protobuf::Empty Db::addDatabase(
+coro<google::protobuf::Empty> DbImpl::addDatabase(
     const client::AddDatabaseRequest* request) {
   auto table = schemaStore_->getTable("meta", "meta_db");
   assert(table.has_value() && "table not found");
@@ -42,10 +42,11 @@ google::protobuf::Empty Db::addDatabase(
     throw DbError{ErrorCode::DATABASE_ALREADY_EXISTS};
   }
 
-  return google::protobuf::Empty{};
+  co_return google::protobuf::Empty{};
 }
 
-google::protobuf::Empty Db::addTable(const client::AddTableRequest* request) {
+coro<google::protobuf::Empty> DbImpl::addTable(
+    const client::AddTableRequest* request) {
   const auto db = request->table().db();
   auto metaDbTable = schemaStore_->getTable("meta", "meta_db_table");
   assert(metaDbTable.has_value() && "table not found");
@@ -78,10 +79,11 @@ google::protobuf::Empty Db::addTable(const client::AddTableRequest* request) {
 
   assert(result && "table already exists");
 
-  return google::protobuf::Empty{};
+  co_return google::protobuf::Empty{};
 }
 
-client::AddRowResponse Db::addRow(const client::AddRowRequest* request) {
+coro<client::AddRowResponse> DbImpl::addRow(
+    const client::AddRowRequest* request) {
   auto table = schemaStore_->getTable(request->database_name().name(),
                                       request->table_name().name());
   assert(table.has_value() && "table not found");
@@ -98,10 +100,10 @@ client::AddRowResponse Db::addRow(const client::AddRowRequest* request) {
   client::AddRowResponse response{};
   auto outputRows = Transformer::from(insertedRow);
   *response.mutable_table_rows() = std::move(outputRows);
-  return response;
+  co_return response;
 }
 
-client::UpdateRowResponse Db::updateRow(
+coro<client::UpdateRowResponse> DbImpl::updateRow(
     const client::UpdateRowRequest* request) {
   auto table = schemaStore_->getTable(request->database_name().name(),
                                       request->table_name().name());
@@ -143,10 +145,11 @@ client::UpdateRowResponse Db::updateRow(
 
   queryExecutor_->update(internalTable, updateOptions);
 
-  return client::UpdateRowResponse{};
+  co_return client::UpdateRowResponse{};
 }
 
-client::GetRowResponse Db::getRow(const client::GetRowRequest* request) {
+coro<client::GetRowResponse> DbImpl::getRow(
+    const client::GetRowRequest* request) {
   auto table = schemaStore_->getTable(request->database_name().name(),
                                       request->table_name().name());
   assert(table.has_value() && "table not found");
@@ -161,10 +164,10 @@ client::GetRowResponse Db::getRow(const client::GetRowRequest* request) {
   client::GetRowResponse rowResponse{};
   *rowResponse.mutable_table_rows() = std::move(tableValues);
 
-  return rowResponse;
+  co_return rowResponse;
 }
 
-client::MultiTableOperationResponse Db::multiTableOperation(
+coro<client::MultiTableOperationResponse> DbImpl::multiTableOperation(
     const client::MultiTableOperationRequest* request) {
   client::MultiTableOperationResponse response{};
 
@@ -172,17 +175,19 @@ client::MultiTableOperationResponse Db::multiTableOperation(
     client::SingleTableOperationResponse singleTableOperationResponse{};
 
     if (singleTableRequest.has_add_row_request()) {
-      auto addRowResponse = addRow(&singleTableRequest.add_row_request());
+      auto addRowResponse =
+          co_await addRow(&singleTableRequest.add_row_request());
       *singleTableOperationResponse.mutable_add_row_response() =
           std::move(addRowResponse);
     } else if (singleTableRequest.has_update_row_request()) {
       auto updateRowResponse =
-          updateRow(&singleTableRequest.update_row_request());
+          co_await updateRow(&singleTableRequest.update_row_request());
 
       *singleTableOperationResponse.mutable_update_row_response() =
           std::move(updateRowResponse);
     } else if (singleTableRequest.has_get_row_request()) {
-      auto getRowResponse = getRow(&singleTableRequest.get_row_request());
+      auto getRowResponse =
+          co_await getRow(&singleTableRequest.get_row_request());
 
       *singleTableOperationResponse.mutable_get_row_response() =
           std::move(getRowResponse);
@@ -192,10 +197,11 @@ client::MultiTableOperationResponse Db::multiTableOperation(
         std::move(singleTableOperationResponse));
   }
 
-  return response;
+  co_return response;
 }
 
-client::TableRows Db::scanTable(const client::ScanTableRequest* request) {
+coro<client::ScanTableResponse> DbImpl::scanTable(
+    const client::ScanTableRequest* request) {
   auto table = schemaStore_->getTable(request->database_name().name(),
                                       request->table_name().name());
   assert(table.has_value() && "table not found");
@@ -220,10 +226,15 @@ client::TableRows Db::scanTable(const client::ScanTableRequest* request) {
   auto executableQueryPlan =
       queryPlanner.plan(InternalTable{.schema = tableSchema});
   auto result = QueryPlanner::execute(executableQueryPlan);
-  return Transformer::from(result);
+  auto tableRows = Transformer::from(result);
+
+  client::ScanTableResponse response{};
+  *(response.mutable_table_rows()) = tableRows;
+
+  co_return response;
 }
 
-Condition Db::addConditionToCheckWriteLock(Condition condition) {
+Condition DbImpl::addConditionToCheckWriteLock(Condition condition) {
   BinaryCondition binaryCondition{};
   binaryCondition.set_op(LogicalOperator::AND);
 
@@ -242,6 +253,21 @@ Condition Db::addConditionToCheckWriteLock(Condition condition) {
   Condition returnCondition{};
   *returnCondition.mutable_binary_condition() = std::move(binaryCondition);
   return returnCondition;
+}
+
+coro<client::PrepareTransactionResponse> DbImpl::prepareTransaction(
+    const client::PrepareTransactionRequest* request) {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
+coro<client::CommitTransactionResponse> DbImpl::commitTransaction(
+    const client::CommitTransactionRequest* request) {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
+}
+
+coro<client::AbortTransactionResponse> DbImpl::abortTransaction(
+    const client::AbortTransactionRequest* request) {
+  throw std::runtime_error{"METHOD_NOT_IMPLEMENTED"};
 }
 
 }  // namespace rk::projects::mydb

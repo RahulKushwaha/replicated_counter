@@ -1,0 +1,38 @@
+# proto-file: applications/mydb/backend/proto/db.proto
+# proto-message: Table
+
+id: 10
+name: "txn_log"
+db{
+  name: "meta"
+  id: 1,
+}
+
+columns[
+  {
+    id: 0,
+    name: "id",
+    column_type: 1,
+  },
+  {
+    id: 1,
+    name: "data",
+    column_type: 1,
+  },
+  {
+    id: 2,
+    name: "debug_string",
+    column_type: 1,
+  },
+  {
+    id: 4,
+    name: "version",
+    column_type: 0,
+  }
+]
+
+primary_key_index{
+  id: 0
+  name: "id_idx"
+  column_ids: [0]
+}

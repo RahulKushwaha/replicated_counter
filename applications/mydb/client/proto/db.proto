@@ -85,6 +85,8 @@ service db{
   rpc prepareTransaction(PrepareTransactionRequest) returns (PrepareTransactionResponse);
 
   rpc commitTransaction(CommitTransactionRequest) returns (CommitTransactionResponse);
+
+  rpc abortTransaction(AbortTransactionRequest) returns (AbortTransactionResponse);
 }
 
 message AddDatabaseRequest{
@@ -207,3 +209,9 @@ message CommitTransactionResponse{
 
   COMMIT_TRANSACTION_STATUS status = 1;
 }
+
+message AbortTransactionRequest{
+  string txn_id = 1;
+}
+
+message AbortTransactionResponse{}
