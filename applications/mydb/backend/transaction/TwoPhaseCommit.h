@@ -2,6 +2,7 @@
 // Created by Rahul  Kushwaha on 1/21/24.
 //
 #pragma once
+#include "applications/mydb/backend/PartitionMap.h"
 #include "applications/mydb/backend/transaction/Models.h"
 #include "applications/mydb/backend/transaction/TxnManager.h"
 #include "folly/experimental/coro/Task.h"
@@ -16,7 +17,8 @@ class TwoPhaseCommit {
   };
 
   TwoPhaseCommit(Transaction transaction,
-                 std::shared_ptr<TxnManager> txnManager);
+                 std::shared_ptr<TxnManager> txnManager,
+                 std::shared_ptr<PartitionMap> partitionMap);
 
   folly::coro::Task<void> prepare();
   folly::coro::Task<void> commit();
@@ -30,6 +32,7 @@ class TwoPhaseCommit {
   std::string txnId_;
   Transaction transaction_;
   std::shared_ptr<TxnManager> txnManager_;
+  std::shared_ptr<PartitionMap> partitionMap_;
 };
 
 }  // namespace rk::projects::mydb::transaction

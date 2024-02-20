@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "applications/mydb/client/proto/db.proto";
 
 package rk.projects.mydb.transaction;
 
@@ -18,14 +19,14 @@ enum PartitionStatus{
 
 message Partition{
   string id = 1;
-  PartitionStatus status = 2;
+  client.MultiTableOperationRequest request = 2;
+  PartitionStatus status = 3;
 }
 
 message Transaction{
   string id = 1;
-  repeated string participating_nodes = 2;
-  int32 total_votes = 3;
-  map<string, Partition> partition_status = 4;
-  bytes payload = 5;
-  TransactionStatus status = 6;
+  int32 total_votes = 2;
+  map<string, Partition> partition_status = 3;
+  bytes payload = 4;
+  TransactionStatus status = 5;
 }
