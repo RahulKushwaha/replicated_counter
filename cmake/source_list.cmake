@@ -167,5 +167,4 @@ set(
         applications/mydb/backend/transaction/TxnCoordinator.h
         applications/mydb/backend/transaction/TxnManager.cc
         applications/mydb/backend/transaction/TxnManager.h
-        applications/mydb/backend/transaction/Models.h
 )

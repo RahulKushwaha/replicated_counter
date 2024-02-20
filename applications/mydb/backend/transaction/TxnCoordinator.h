@@ -5,6 +5,7 @@
 #pragma once
 #include "applications/mydb/backend/PartitionMap.h"
 #include "applications/mydb/backend/transaction/TxnManager.h"
+#include "applications/mydb/backend/transaction/proto/txn.pb.h"
 #include "applications/mydb/include/Db.h"
 #include "folly/experimental/coro/Task.h"
 

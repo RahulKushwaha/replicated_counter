@@ -4,10 +4,10 @@
 
 #include "applications/mydb/backend/transaction/TxnCoordinator.h"
 
-#include "applications/mydb/backend/transaction/Models.h"
 #include "applications/mydb/backend/transaction/TwoPhaseCommit.h"
 
 namespace rk::projects::mydb::transaction {
+using PartitionId = std::string;
 
 coro<client::MultiTableOperationResponse> TxnCoordinator::multiTableOperation(
     const client::MultiTableOperationRequest* request) {
@@ -25,16 +25,19 @@ coro<client::MultiTableOperationResponse> TxnCoordinator::multiTableOperation(
         std::move(tableRequest));
   }
 
-  std::map<PartitionId, PartitionStatus> partitionStatus;
-  std::vector<Partition> participatingNodes{};
-  for (const auto& [partitionId, value] : requestsPerPartition) {
-    participatingNodes.emplace_back(Partition{.partitionId = partitionId});
-    partitionStatus[partitionId] = PartitionStatus::UNKNOWN;
+  std::map<PartitionId, Partition> partitions;
+  for (auto& [partitionId, value] : requestsPerPartition) {
+    Partition partition{};
+    partition.set_id(partitionId);
+    partition.set_status(PartitionStatus::UNKNOWN);
+    *(partition.mutable_request()) = std::move(value);
+
+    partitions.emplace(std::move(partitionId), std::move(partition));
   }
 
   // All the requests belong to the single partition.
   // No need to perform distributed commit.
-  if (participatingNodes.size() == 1) {}
+  if (partitions.size() == 1) {}
 
   auto epoch = std::chrono::steady_clock::now().time_since_epoch().count();
   std::string payloadBytes;
@@ -42,19 +45,18 @@ coro<client::MultiTableOperationResponse> TxnCoordinator::multiTableOperation(
 
   assert(serializationResult && "serialization of the payload failed");
 
-  Transaction transaction{
-      .id = std::to_string(epoch),
-      .participatingNodes = participatingNodes,
-      .totalVotes = 0,
-      .partitionStatus = partitionStatus,
-      .payload = std::move(payloadBytes),
-      .status = TransactionStatus::UNKNOWN,
-  };
+  Transaction transaction{};
+  transaction.set_id(std::to_string(epoch));
+  transaction.set_total_votes(0);
+  transaction.mutable_partition_status()->insert(partitions.begin(),
+                                                 partitions.end());
+  transaction.set_payload(std::move(payloadBytes));
+  transaction.set_status(TransactionStatus::STARTED);
 
   auto txnCreateResult = co_await txnManager_->create(transaction);
   assert(txnCreateResult && "txn creation failed");
 
-  TwoPhaseCommit twoPhaseCommit{transaction, txnManager_};
+  TwoPhaseCommit twoPhaseCommit{transaction, txnManager_, partitionMap_};
 
   co_await twoPhaseCommit.prepare();
   auto abortOrCommit = co_await twoPhaseCommit.abortOrCommit();
